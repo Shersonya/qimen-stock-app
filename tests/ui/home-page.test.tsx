@@ -177,11 +177,18 @@ describe('HomePage', () => {
     render(<HomePage />);
     await user.click(screen.getByRole('button', { name: '开始排盘分析' }));
 
-    expect(await screen.findByText('股票排盘摘要')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: '贵州茅台 上市时刻九宫盘' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('界面风格')).not.toBeInTheDocument();
+    expect(screen.queryByText('预设场景')).not.toBeInTheDocument();
+    expect(screen.queryByText('股票排盘摘要')).not.toBeInTheDocument();
     expect(screen.getByText('贵州茅台 (600519)')).toBeInTheDocument();
+    expect(screen.getByTestId('qimen-result-section')).toBeInTheDocument();
     expect(screen.getAllByTestId('qimen-palace')).toHaveLength(9);
     expect(screen.getByRole('tab', { name: '奇门盘' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('tab', { name: '梅花易数' })).toBeInTheDocument();
+    expect(screen.getByRole('tablist', { name: '市场切换' })).toBeInTheDocument();
   });
 
   it('renders the error state when the API returns an error', async () => {
@@ -206,7 +213,7 @@ describe('HomePage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       '请输入 6 位 A 股股票代码。',
     );
-    expect(screen.queryByText('股票排盘摘要')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '阵盘待重启' })).toBeInTheDocument();
   });
 
   it('stores successful queries in recent history and can replay them', async () => {
@@ -251,6 +258,48 @@ describe('HomePage', () => {
       resultSection.compareDocumentPosition(marketScreenPanel) &
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
+  });
+
+  it('renders the query panel before the reference board and keeps the qimen result after both', () => {
+    render(<HomePage />);
+
+    const queryPanel = screen.getByTestId('query-panel');
+    const referenceBoardPanel = screen.getByTestId('reference-board-panel');
+    const resultSection = screen.getByTestId('qimen-result-section');
+
+    expect(
+      queryPanel.compareDocumentPosition(referenceBoardPanel) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      referenceBoardPanel.compareDocumentPosition(resultSection) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('renders stock summary and qimen metrics inside the board container after a successful query', async () => {
+    const user = userEvent.setup();
+
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => successPayload,
+    } as Response);
+
+    render(<HomePage />);
+
+    await user.click(screen.getByRole('button', { name: '开始排盘分析' }));
+
+    const resultSection = await screen.findByTestId('qimen-result-section');
+
+    expect(resultSection).toHaveTextContent('贵州茅台 (600519)');
+    expect(screen.getByText('阴阳遁')).toBeInTheDocument();
+    expect(screen.getByText('局数')).toBeInTheDocument();
+    expect(screen.getByText('值符星')).toBeInTheDocument();
+    expect(screen.getByText('值使门')).toBeInTheDocument();
+    expect(screen.getByText('上市时间 2001-08-27 09:30')).toBeInTheDocument();
+    expect(resultSection).toHaveTextContent('局势观察');
+    expect(resultSection).toHaveTextContent('核心结论');
+    expect(resultSection).toHaveTextContent('提示信息');
   });
 
   it('enables market screening after selecting filters and renders the desktop results table', async () => {
@@ -316,7 +365,9 @@ describe('HomePage', () => {
 
     await user.click(screen.getByRole('button', { name: '直接起局' }));
 
-    expect(await screen.findByText('股票排盘摘要')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: '平安银行 上市时刻九宫盘' }),
+    ).toBeInTheDocument();
     expect(screen.getByText('平安银行 (000001)')).toBeInTheDocument();
     expect(screen.getByDisplayValue('000001')).toBeInTheDocument();
     expect(screen.getByText('共筛得 1 只标的')).toBeInTheDocument();
@@ -339,11 +390,13 @@ describe('HomePage', () => {
     render(<HomePage />);
 
     await user.click(screen.getByRole('button', { name: '开始排盘分析' }));
-    await screen.findByText('股票排盘摘要');
+    await screen.findByRole('heading', { name: '贵州茅台 上市时刻九宫盘' });
 
     await user.click(screen.getByRole('tab', { name: '梅花易数' }));
 
     expect(screen.getByRole('tab', { name: '梅花易数' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByTestId('qimen-grid')).toBeInTheDocument();
+    expect(screen.getByText('贵州茅台 (600519)')).toBeInTheDocument();
     expect(screen.getByText('开盘价起卦结果')).toBeInTheDocument();
     expect(screen.getByText('1468.00')).toBeInTheDocument();
     expect(screen.getByText('雷地豫')).toBeInTheDocument();
@@ -362,7 +415,7 @@ describe('HomePage', () => {
     render(<HomePage />);
 
     await user.click(screen.getByRole('button', { name: '开始排盘分析' }));
-    await screen.findByText('股票排盘摘要');
+    await screen.findByRole('heading', { name: '平安银行 上市时刻九宫盘' });
 
     expect(screen.getByText('平安银行 (000001)')).toBeInTheDocument();
 

@@ -3,8 +3,8 @@ import type { Metadata } from 'next';
 import '@/app/globals.css';
 
 export const metadata: Metadata = {
-  title: '股票排盘分析工具',
-  description: '输入股票代码，同步生成上市时刻奇门盘与当日开盘价梅花卦。',
+  title: '奇门股票分析系统',
+  description: '输入股票代码，查看上市时刻九宫盘、标的摘要、梅花卦与市场镇盘参考。',
 };
 
 export default function RootLayout({
