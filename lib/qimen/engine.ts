@@ -111,6 +111,47 @@ type PalaceState = {
   god: string;
 };
 
+type ChinaDateParts = {
+  year: number;
+  month: number;
+  day: number;
+  hour: number;
+  minute: number;
+  second: number;
+};
+
+function getChinaDateParts(datetime: Date): ChinaDateParts {
+  const formatter = new Intl.DateTimeFormat('zh-CN', {
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  });
+  const parts = formatter.formatToParts(datetime);
+  const getPart = (type: Intl.DateTimeFormatPartTypes) => {
+    const value = parts.find((part) => part.type === type)?.value;
+
+    if (!value) {
+      throw new AppError('API_ERROR', 500, `无法解析中国时区时间片段：${type}`);
+    }
+
+    return Number(value);
+  };
+
+  return {
+    year: getPart('year'),
+    month: getPart('month'),
+    day: getPart('day'),
+    hour: getPart('hour'),
+    minute: getPart('minute'),
+    second: getPart('second'),
+  };
+}
+
 function getStemAndBranch(ganzhi: string): { stem: string; branch: string } {
   const [stem = '', branch = ''] = Array.from(ganzhi);
   return { stem, branch };
@@ -147,13 +188,14 @@ function resolveChartMeta(datetime: Date): {
   yinYang: YinYang;
   ju: number;
 } {
+  const chinaDate = getChinaDateParts(datetime);
   const solar = Solar.fromYmdHms(
-    datetime.getFullYear(),
-    datetime.getMonth() + 1,
-    datetime.getDate(),
-    datetime.getHours(),
-    datetime.getMinutes(),
-    datetime.getSeconds(),
+    chinaDate.year,
+    chinaDate.month,
+    chinaDate.day,
+    chinaDate.hour,
+    chinaDate.minute,
+    chinaDate.second,
   );
   const lunar = solar.getLunar();
   const prevJieQi = lunar.getPrevJieQi();
@@ -173,7 +215,7 @@ function resolveChartMeta(datetime: Date): {
     throw new AppError('API_ERROR', 500, '无法解析排盘所需日柱。');
   }
 
-  if (datetime.getHours() >= 23) {
+  if (chinaDate.hour >= 23) {
     stemIndex = (stemIndex + 1) % STEMS.length;
     branchIndex = (branchIndex + 1) % BRANCHES.length;
   }
