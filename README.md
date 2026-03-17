@@ -1,5 +1,7 @@
 # 股票奇门排盘分析工具
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Shersonya/qimen-stock-app)
+
 这是一个基于 Next.js、React、TypeScript 和 TailwindCSS 构建的 Web 工具。输入 A 股股票代码后，系统会查询股票上市日期，使用默认上市时辰 `09:30` 进行时家奇门排盘，并以九宫格形式展示结果。
 
 ## 功能说明
@@ -70,21 +72,15 @@ npm run dev
 当你把项目推到 GitHub 之后，可以把下面这个链接里的仓库地址替换掉，得到一个可以直接发给朋友或自己保存的 Vercel 一键导入链接：
 
 ```text
-https://vercel.com/new/clone?repository-url=https://github.com/<你的GitHub用户名>/<你的仓库名>
-```
-
-例如：
-
-```text
-https://vercel.com/new/clone?repository-url=https://github.com/example/qimen-stock-app
+https://vercel.com/new/clone?repository-url=https://github.com/Shersonya/qimen-stock-app
 ```
 
 ### Deploy Button 模板
 
-如果你想把“一键部署”按钮放到仓库首页，可以使用下面这段 Markdown，在替换仓库地址后放进 README：
+仓库首页已经可以直接使用下面这个按钮：
 
 ```md
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/<你的GitHub用户名>/<你的仓库名>)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Shersonya/qimen-stock-app)
 ```
 
 ### 自定义域名
