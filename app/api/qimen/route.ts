@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import type { QimenApiRequest, QimenApiSuccessResponse } from '@/api/qimen';
+import type {
+  QimenApiRequest,
+  QimenApiSuccessResponse,
+} from '@/lib/contracts/qimen';
 import { generateQimenChart } from '@/lib/qimen/engine';
 import { getStockListingInfo } from '@/lib/services/stock-data';
 import { toErrorResponse } from '@/lib/errors';

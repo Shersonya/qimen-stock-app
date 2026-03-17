@@ -1,4 +1,4 @@
-import type { QimenPalace } from '@/api/qimen';
+import type { QimenPalace } from '@/lib/contracts/qimen';
 
 type QimenGridProps = {
   palaces: QimenPalace[];

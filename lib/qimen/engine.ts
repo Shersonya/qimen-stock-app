@@ -1,6 +1,6 @@
 import { Solar } from 'lunar-typescript';
 
-import type { QimenPalace, QimenResult } from '@/api/qimen';
+import type { QimenPalace, QimenResult } from '@/lib/contracts/qimen';
 import { AppError } from '@/lib/errors';
 
 const EMPTY_SLOT = '--';

@@ -1,4 +1,4 @@
-import type { ApiError } from '@/api/qimen';
+import type { ApiError } from '@/lib/contracts/qimen';
 
 type ErrorNoticeProps = {
   error: ApiError;

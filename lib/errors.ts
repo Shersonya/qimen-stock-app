@@ -3,7 +3,7 @@ import {
   getErrorMessage,
   type ApiErrorResponse,
   type ErrorCode,
-} from '@/api/qimen';
+} from '@/lib/contracts/qimen';
 
 export class AppError extends Error {
   code: ErrorCode;

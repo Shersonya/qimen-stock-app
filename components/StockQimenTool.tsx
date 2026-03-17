@@ -9,7 +9,7 @@ import {
   type ApiError,
   type QimenApiResponse,
   type QimenApiSuccessResponse,
-} from '@/api/qimen';
+} from '@/lib/contracts/qimen';
 import { ErrorNotice } from '@/components/ErrorNotice';
 import { QimenGrid } from '@/components/QimenGrid';
 import { QimenSummary } from '@/components/QimenSummary';

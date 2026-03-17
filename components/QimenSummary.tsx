@@ -1,4 +1,4 @@
-import type { QimenApiSuccessResponse } from '@/api/qimen';
+import type { QimenApiSuccessResponse } from '@/lib/contracts/qimen';
 
 type QimenSummaryProps = {
   result: QimenApiSuccessResponse;

@@ -4,7 +4,7 @@ import {
   DEFAULT_LISTING_TIME,
   DEFAULT_TIME_SOURCE,
   ERROR_CODES,
-} from '@/api/qimen';
+} from '@/lib/contracts/qimen';
 import { getStockListingInfo } from '@/lib/services/stock-data';
 
 function jsonResponse(body: unknown, status = 200) {

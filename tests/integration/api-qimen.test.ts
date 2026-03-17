@@ -6,7 +6,7 @@ import {
   DEFAULT_LISTING_TIME,
   DEFAULT_TIME_SOURCE,
   ERROR_CODES,
-} from '@/api/qimen';
+} from '@/lib/contracts/qimen';
 import { POST } from '@/app/api/qimen/route';
 import { AppError } from '@/lib/errors';
 import { generateQimenChart } from '@/lib/qimen/engine';

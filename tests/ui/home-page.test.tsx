@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import HomePage from '@/app/page';
-import type { QimenApiSuccessResponse } from '@/api/qimen';
+import type { QimenApiSuccessResponse } from '@/lib/contracts/qimen';
 
 const successPayload: QimenApiSuccessResponse = {
   stock: {

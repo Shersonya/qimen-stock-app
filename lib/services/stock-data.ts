@@ -4,7 +4,7 @@ import {
   ERROR_CODES,
   type Market,
   type StockListingData,
-} from '@/api/qimen';
+} from '@/lib/contracts/qimen';
 import { AppError } from '@/lib/errors';
 
 const EASTMONEY_ENDPOINT =
