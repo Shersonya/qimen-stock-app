@@ -1,94 +1,109 @@
-<svg width="1200" height="860" viewBox="0 0 1200 860" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="1200" height="1040" viewBox="0 0 1200 1040" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="bg-cyb" x1="72" y1="52" x2="1116" y2="808" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#171811" />
-      <stop offset="0.56" stop-color="#445337" />
-      <stop offset="1" stop-color="#ba8f45" />
+    <linearGradient id="bg-cyb" x1="36" y1="36" x2="1164" y2="1004" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#345d39" />
+      <stop offset="1" stop-color="#dfb665" />
     </linearGradient>
+    <linearGradient id="badge-cyb" x1="846" y1="54" x2="1138" y2="132" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff7ea" stop-opacity="0.16" />
+      <stop offset="1" stop-color="#fff7ea" stop-opacity="0.05" />
+    </linearGradient>
+    <linearGradient id="panel-cyb" x1="164" y1="176" x2="436" y2="434" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fbf4e6" stop-opacity="0.98" />
+      <stop offset="1" stop-color="#fffdf7" stop-opacity="0.94" />
+    </linearGradient>
+    <linearGradient id="panel-center-cyb" x1="164" y1="176" x2="458" y2="462" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff8e8" stop-opacity="0.99" />
+      <stop offset="1" stop-color="#fffdf1" stop-opacity="0.96" />
+    </linearGradient>
+    <filter id="panel-shadow-cyb" x="-20%" y="-20%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#120a08" flood-opacity="0.16" />
+    </filter>
+    <filter id="panel-center-shadow-cyb" x="-20%" y="-20%" width="160%" height="190%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#120a08" flood-opacity="0.2" />
+    </filter>
   </defs>
-  <rect width="1200" height="860" rx="38" fill="#15100d" />
-  <rect x="22" y="22" width="1156" height="816" rx="32" fill="url(#bg-cyb)" />
-  <g opacity="0.18" stroke="#ebdfbf">
-    <circle cx="1010" cy="150" r="168" />
-    <circle cx="172" cy="734" r="208" />
-    <path d="M86 156H1110" />
-    <path d="M86 784H1110" />
-  </g>
-  <text x="92" y="92" fill="#fff7ea" font-size="42" font-family="Songti SC, STSong, serif" letter-spacing="6">创业板奇门参考盘</text>
-  <text x="92" y="128" fill="#ebdfbf" font-size="22" font-family="PingFang SC, Microsoft YaHei, sans-serif">创业板指 · 2010-05-31 09:30</text>
-  <rect x="858" y="62" width="258" height="66" rx="33" fill="#fff7ea" fill-opacity="0.18" stroke="#ebdfbf" />
-  <text x="987" y="92" fill="#fff7ea" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" text-anchor="middle">阳遁 5局</text>
-  <text x="987" y="115" fill="#fff7ea" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif" text-anchor="middle">值符 天柱 / 值使 惊门</text>
+  <rect width="1200" height="1040" rx="36" fill="url(#bg-cyb)" />
+  <circle cx="1098" cy="62" r="188" stroke="#ebdfbf" stroke-opacity="0.16" stroke-width="1.2" />
+  <circle cx="1122" cy="76" r="124" stroke="#ebdfbf" stroke-opacity="0.08" stroke-width="1" />
+  <circle cx="-18" cy="926" r="248" stroke="#ebdfbf" stroke-opacity="0.14" stroke-width="1.2" />
+  <line x1="62" y1="150" x2="1138" y2="150" stroke="#ebdfbf" stroke-opacity="0.2" stroke-width="1.5" />
+  <line x1="62" y1="994" x2="1138" y2="994" stroke="#ebdfbf" stroke-opacity="0.12" stroke-width="1.2" />
+  <text x="68" y="86" fill="#fff6ea" fill-opacity="0.98" font-size="34" font-family="Songti SC, STSong, serif" letter-spacing="2">创业板大盘奇门参考盘</text>
+  <text x="68" y="124" fill="#ebdfbf" fill-opacity="0.92" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif">创业板指 · 2010-05-31 09:30</text>
+  <rect x="846" y="54" width="292" height="78" rx="39" fill="url(#badge-cyb)" stroke="#ebdfbf" stroke-opacity="0.72" stroke-width="1.5" />
+  <text x="992" y="82" fill="#fff8ef" font-size="19" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-weight="600" text-anchor="middle">阳遁 5局</text>
+  <text x="992" y="108" fill="#fff6ea" fill-opacity="0.96" font-size="17" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-weight="600" text-anchor="middle">值符 天柱 / 值使 惊门</text>
   
       <g>
-        <rect x="126" y="220" width="300" height="180" rx="24" fill="#fbf4e6" fill-opacity="0.92" stroke="transparent" stroke-width="0" />
-        <text x="150" y="256" fill="#234a29" font-size="20" font-family="Songti SC, STSong, serif">巽4宫</text>
-        <text x="150" y="312" fill="#234a29" font-size="34" font-family="Songti SC, STSong, serif" >天任</text>
-        <text x="150" y="350" fill="#9a7a2d" font-size="24" font-family="PingFang SC, Microsoft YaHei, sans-serif" >杜门</text>
-        <text x="150" y="378" fill="#234a29" fill-opacity="0.76" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" >六合</text>
+        <rect x="164" y="176" width="272" height="258" rx="30" fill="url(#panel-cyb)" stroke="#ebdfbf" stroke-opacity="0.14" stroke-width="1" filter="url(#panel-shadow-cyb)" />
+        <text x="188" y="214" fill="#234a29" fill-opacity="0.76" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif">巽4宫</text>
+        <text x="300" y="298" fill="#234a29" font-size="58" font-family="Songti SC, STSong, serif" text-anchor="middle">天任</text>
+        <text x="300" y="362" fill="#9a7a2d" font-size="28" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-weight="600" text-anchor="middle">杜门</text>
+        <text x="300" y="400" fill="#234a29" fill-opacity="0.68" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" text-anchor="middle">六合</text>
       </g>
 
       <g>
-        <rect x="450" y="220" width="300" height="180" rx="24" fill="#fbf4e6" fill-opacity="0.92" stroke="transparent" stroke-width="0" />
-        <text x="474" y="256" fill="#234a29" font-size="20" font-family="Songti SC, STSong, serif">离9宫</text>
-        <text x="474" y="312" fill="#234a29" font-size="34" font-family="Songti SC, STSong, serif" >天冲</text>
-        <text x="474" y="350" fill="#9a7a2d" font-size="24" font-family="PingFang SC, Microsoft YaHei, sans-serif" >景门</text>
-        <text x="474" y="378" fill="#234a29" fill-opacity="0.76" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" >白虎</text>
+        <rect x="464" y="176" width="272" height="258" rx="30" fill="url(#panel-cyb)" stroke="#ebdfbf" stroke-opacity="0.14" stroke-width="1" filter="url(#panel-shadow-cyb)" />
+        <text x="488" y="214" fill="#234a29" fill-opacity="0.76" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif">离9宫</text>
+        <text x="600" y="298" fill="#234a29" font-size="58" font-family="Songti SC, STSong, serif" text-anchor="middle">天冲</text>
+        <text x="600" y="362" fill="#9a7a2d" font-size="28" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-weight="600" text-anchor="middle">景门</text>
+        <text x="600" y="400" fill="#234a29" fill-opacity="0.68" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" text-anchor="middle">白虎</text>
       </g>
 
       <g>
-        <rect x="774" y="220" width="300" height="180" rx="24" fill="#fbf4e6" fill-opacity="0.92" stroke="transparent" stroke-width="0" />
-        <text x="798" y="256" fill="#234a29" font-size="20" font-family="Songti SC, STSong, serif">坤2宫</text>
-        <text x="798" y="312" fill="#234a29" font-size="34" font-family="Songti SC, STSong, serif" >天辅</text>
-        <text x="798" y="350" fill="#9a7a2d" font-size="24" font-family="PingFang SC, Microsoft YaHei, sans-serif" >死门</text>
-        <text x="798" y="378" fill="#234a29" fill-opacity="0.76" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" >玄武</text>
+        <rect x="764" y="176" width="272" height="258" rx="30" fill="url(#panel-cyb)" stroke="#ebdfbf" stroke-opacity="0.14" stroke-width="1" filter="url(#panel-shadow-cyb)" />
+        <text x="788" y="214" fill="#234a29" fill-opacity="0.76" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif">坤2宫</text>
+        <text x="900" y="298" fill="#234a29" font-size="58" font-family="Songti SC, STSong, serif" text-anchor="middle">天辅</text>
+        <text x="900" y="362" fill="#9a7a2d" font-size="28" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-weight="600" text-anchor="middle">死门</text>
+        <text x="900" y="400" fill="#234a29" fill-opacity="0.68" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" text-anchor="middle">玄武</text>
       </g>
 
       <g>
-        <rect x="126" y="424" width="300" height="180" rx="24" fill="#fbf4e6" fill-opacity="0.92" stroke="transparent" stroke-width="0" />
-        <text x="150" y="460" fill="#234a29" font-size="20" font-family="Songti SC, STSong, serif">震3宫</text>
-        <text x="150" y="516" fill="#234a29" font-size="34" font-family="Songti SC, STSong, serif" >天蓬</text>
-        <text x="150" y="554" fill="#9a7a2d" font-size="24" font-family="PingFang SC, Microsoft YaHei, sans-serif" >伤门</text>
-        <text x="150" y="582" fill="#234a29" fill-opacity="0.76" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" >太阴</text>
+        <rect x="164" y="464" width="272" height="258" rx="30" fill="url(#panel-cyb)" stroke="#ebdfbf" stroke-opacity="0.14" stroke-width="1" filter="url(#panel-shadow-cyb)" />
+        <text x="188" y="502" fill="#234a29" fill-opacity="0.76" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif">震3宫</text>
+        <text x="300" y="586" fill="#234a29" font-size="58" font-family="Songti SC, STSong, serif" text-anchor="middle">天蓬</text>
+        <text x="300" y="650" fill="#9a7a2d" font-size="28" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-weight="600" text-anchor="middle">伤门</text>
+        <text x="300" y="688" fill="#234a29" fill-opacity="0.68" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" text-anchor="middle">太阴</text>
       </g>
 
       <g>
-        <rect x="450" y="424" width="300" height="180" rx="24" fill="#fff8e8" fill-opacity="0.92" stroke="#9a7a2d" stroke-width="3" />
-        <text x="474" y="460" fill="#234a29" font-size="20" font-family="Songti SC, STSong, serif">中5宫</text>
-        <text x="600" y="516" fill="#234a29" font-size="42" font-family="Songti SC, STSong, serif" text-anchor="middle">天禽</text>
-        <text x="600" y="554" fill="#9a7a2d" font-size="24" font-family="PingFang SC, Microsoft YaHei, sans-serif" text-anchor="middle">--</text>
-        <text x="600" y="582" fill="#234a29" fill-opacity="0.76" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" text-anchor="middle">--</text>
+        <rect x="453" y="450" width="294" height="286" rx="30" fill="url(#panel-center-cyb)" stroke="#9a7a2d" stroke-opacity="0.72" stroke-width="2" filter="url(#panel-center-shadow-cyb)" />
+        <text x="477" y="488" fill="#234a29" fill-opacity="0.76" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif">中5宫</text>
+        <text x="600" y="588" fill="#234a29" font-size="72" font-family="Songti SC, STSong, serif" text-anchor="middle">天禽</text>
+        <text x="600" y="654" fill="#9a7a2d" font-size="26" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-weight="600" text-anchor="middle">--</text>
+        <text x="600" y="690" fill="#234a29" fill-opacity="0.68" font-size="19" font-family="PingFang SC, Microsoft YaHei, sans-serif" text-anchor="middle">--</text>
       </g>
 
       <g>
-        <rect x="774" y="424" width="300" height="180" rx="24" fill="#fbf4e6" fill-opacity="0.92" stroke="transparent" stroke-width="0" />
-        <text x="798" y="460" fill="#234a29" font-size="20" font-family="Songti SC, STSong, serif">兑7宫</text>
-        <text x="798" y="516" fill="#234a29" font-size="34" font-family="Songti SC, STSong, serif" >天英</text>
-        <text x="798" y="554" fill="#9a7a2d" font-size="24" font-family="PingFang SC, Microsoft YaHei, sans-serif" >惊门</text>
-        <text x="798" y="582" fill="#234a29" fill-opacity="0.76" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" >九地</text>
+        <rect x="764" y="464" width="272" height="258" rx="30" fill="url(#panel-cyb)" stroke="#ebdfbf" stroke-opacity="0.14" stroke-width="1" filter="url(#panel-shadow-cyb)" />
+        <text x="788" y="502" fill="#234a29" fill-opacity="0.76" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif">兑7宫</text>
+        <text x="900" y="586" fill="#234a29" font-size="58" font-family="Songti SC, STSong, serif" text-anchor="middle">天英</text>
+        <text x="900" y="650" fill="#9a7a2d" font-size="28" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-weight="600" text-anchor="middle">惊门</text>
+        <text x="900" y="688" fill="#234a29" fill-opacity="0.68" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" text-anchor="middle">九地</text>
       </g>
 
       <g>
-        <rect x="126" y="628" width="300" height="180" rx="24" fill="#fbf4e6" fill-opacity="0.92" stroke="transparent" stroke-width="0" />
-        <text x="150" y="664" fill="#234a29" font-size="20" font-family="Songti SC, STSong, serif">艮8宫</text>
-        <text x="150" y="720" fill="#234a29" font-size="34" font-family="Songti SC, STSong, serif" >天心</text>
-        <text x="150" y="758" fill="#9a7a2d" font-size="24" font-family="PingFang SC, Microsoft YaHei, sans-serif" >生门</text>
-        <text x="150" y="786" fill="#234a29" fill-opacity="0.76" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" >腾蛇</text>
+        <rect x="164" y="752" width="272" height="258" rx="30" fill="url(#panel-cyb)" stroke="#ebdfbf" stroke-opacity="0.14" stroke-width="1" filter="url(#panel-shadow-cyb)" />
+        <text x="188" y="790" fill="#234a29" fill-opacity="0.76" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif">艮8宫</text>
+        <text x="300" y="874" fill="#234a29" font-size="58" font-family="Songti SC, STSong, serif" text-anchor="middle">天心</text>
+        <text x="300" y="938" fill="#9a7a2d" font-size="28" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-weight="600" text-anchor="middle">生门</text>
+        <text x="300" y="976" fill="#234a29" fill-opacity="0.68" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" text-anchor="middle">腾蛇</text>
       </g>
 
       <g>
-        <rect x="450" y="628" width="300" height="180" rx="24" fill="#fbf4e6" fill-opacity="0.92" stroke="transparent" stroke-width="0" />
-        <text x="474" y="664" fill="#234a29" font-size="20" font-family="Songti SC, STSong, serif">坎1宫</text>
-        <text x="474" y="720" fill="#234a29" font-size="34" font-family="Songti SC, STSong, serif" >天柱</text>
-        <text x="474" y="758" fill="#9a7a2d" font-size="24" font-family="PingFang SC, Microsoft YaHei, sans-serif" >休门</text>
-        <text x="474" y="786" fill="#234a29" fill-opacity="0.76" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" >值符</text>
+        <rect x="464" y="752" width="272" height="258" rx="30" fill="url(#panel-cyb)" stroke="#ebdfbf" stroke-opacity="0.14" stroke-width="1" filter="url(#panel-shadow-cyb)" />
+        <text x="488" y="790" fill="#234a29" fill-opacity="0.76" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif">坎1宫</text>
+        <text x="600" y="874" fill="#234a29" font-size="58" font-family="Songti SC, STSong, serif" text-anchor="middle">天柱</text>
+        <text x="600" y="938" fill="#9a7a2d" font-size="28" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-weight="600" text-anchor="middle">休门</text>
+        <text x="600" y="976" fill="#234a29" fill-opacity="0.68" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" text-anchor="middle">值符</text>
       </g>
 
       <g>
-        <rect x="774" y="628" width="300" height="180" rx="24" fill="#fbf4e6" fill-opacity="0.92" stroke="transparent" stroke-width="0" />
-        <text x="798" y="664" fill="#234a29" font-size="20" font-family="Songti SC, STSong, serif">乾6宫</text>
-        <text x="798" y="720" fill="#234a29" font-size="34" font-family="Songti SC, STSong, serif" >天芮</text>
-        <text x="798" y="758" fill="#9a7a2d" font-size="24" font-family="PingFang SC, Microsoft YaHei, sans-serif" >开门</text>
-        <text x="798" y="786" fill="#234a29" fill-opacity="0.76" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" >九天</text>
+        <rect x="764" y="752" width="272" height="258" rx="30" fill="url(#panel-cyb)" stroke="#ebdfbf" stroke-opacity="0.14" stroke-width="1" filter="url(#panel-shadow-cyb)" />
+        <text x="788" y="790" fill="#234a29" fill-opacity="0.76" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif">乾6宫</text>
+        <text x="900" y="874" fill="#234a29" font-size="58" font-family="Songti SC, STSong, serif" text-anchor="middle">天芮</text>
+        <text x="900" y="938" fill="#9a7a2d" font-size="28" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-weight="600" text-anchor="middle">开门</text>
+        <text x="900" y="976" fill="#234a29" fill-opacity="0.68" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" text-anchor="middle">九天</text>
       </g>
 </svg>

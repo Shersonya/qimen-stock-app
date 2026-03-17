@@ -30,6 +30,46 @@ const successPayload: QimenApiSuccessResponse = {
       { index: 8, position: 6, name: '乾', star: '天任星', door: '景门', god: '九地' },
     ],
   },
+  plum: {
+    status: 'ready',
+    priceBasis: 'open',
+    priceValue: '1468.00',
+    upperNumber: 1468,
+    lowerNumber: 0,
+    movingLine: 4,
+    upperTrigram: '震',
+    lowerTrigram: '坤',
+    original: {
+      code: '震坤',
+      name: '雷地豫',
+      words: '利建侯行师。',
+      whiteWords: '《豫》卦利于封建诸侯和行军作战。',
+      picture: '雷出地奋，豫。',
+      whitePicture: '雷从地中奋起，是豫卦的卦象。',
+      stockSuggestion: '震荡后转强。',
+      yaoci: '初六：鸣豫，凶。',
+    },
+    mutual: {
+      code: '坎艮',
+      name: '水山蹇',
+      words: '利西南，不利东北。',
+      whiteWords: '《蹇》卦利于西南，不利于东北。',
+      picture: '山上有水，蹇。',
+      whitePicture: '山上有水，是蹇卦的卦象。',
+      stockSuggestion: '遇阻观望。',
+      yaoci: '六二：王臣蹇蹇。',
+    },
+    changed: {
+      code: '兑坤',
+      name: '泽地萃',
+      words: '亨，王假有庙。',
+      whiteWords: '《萃》卦亨通，君王来到宗庙。',
+      picture: '泽上于地，萃。',
+      whitePicture: '湖泽汇聚于地上，是萃卦的卦象。',
+      stockSuggestion: '量能聚集。',
+      yaoci: '九四：大吉，无咎。',
+    },
+  },
 };
 
 const altSuccessPayload: QimenApiSuccessResponse = {
@@ -42,6 +82,17 @@ const altSuccessPayload: QimenApiSuccessResponse = {
     timeSource: 'default',
   },
   qimen: successPayload.qimen,
+  plum: successPayload.plum,
+};
+
+const plumUnavailablePayload: QimenApiSuccessResponse = {
+  stock: altSuccessPayload.stock,
+  qimen: altSuccessPayload.qimen,
+  plum: {
+    status: 'unavailable',
+    code: 'PLUM_PRICE_UNAVAILABLE',
+    message: '当日开盘价缺失，暂时无法起梅花卦。',
+  },
 };
 
 const marketScreenSuccessPayload = {
@@ -124,11 +175,13 @@ describe('HomePage', () => {
     } as Response);
 
     render(<HomePage />);
-    await user.click(screen.getByRole('button', { name: '开始奇门排盘' }));
+    await user.click(screen.getByRole('button', { name: '开始排盘分析' }));
 
-    expect(await screen.findByText('上市时家奇门摘要')).toBeInTheDocument();
+    expect(await screen.findByText('股票排盘摘要')).toBeInTheDocument();
     expect(screen.getByText('贵州茅台 (600519)')).toBeInTheDocument();
     expect(screen.getAllByTestId('qimen-palace')).toHaveLength(9);
+    expect(screen.getByRole('tab', { name: '奇门盘' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: '梅花易数' })).toBeInTheDocument();
   });
 
   it('renders the error state when the API returns an error', async () => {
@@ -148,12 +201,12 @@ describe('HomePage', () => {
 
     await user.clear(screen.getByLabelText('股票代码'));
     await user.type(screen.getByLabelText('股票代码'), '12');
-    await user.click(screen.getByRole('button', { name: '开始奇门排盘' }));
+    await user.click(screen.getByRole('button', { name: '开始排盘分析' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       '请输入 6 位 A 股股票代码。',
     );
-    expect(screen.queryByText('上市时家奇门摘要')).not.toBeInTheDocument();
+    expect(screen.queryByText('股票排盘摘要')).not.toBeInTheDocument();
   });
 
   it('stores successful queries in recent history and can replay them', async () => {
@@ -172,7 +225,7 @@ describe('HomePage', () => {
 
     await user.clear(screen.getByLabelText('股票代码'));
     await user.type(screen.getByLabelText('股票代码'), '000001');
-    await user.click(screen.getByRole('button', { name: '开始奇门排盘' }));
+    await user.click(screen.getByRole('button', { name: '开始排盘分析' }));
 
     const recentButton = await screen.findByRole('button', { name: '000001' });
 
@@ -263,7 +316,7 @@ describe('HomePage', () => {
 
     await user.click(screen.getByRole('button', { name: '直接起局' }));
 
-    expect(await screen.findByText('上市时家奇门摘要')).toBeInTheDocument();
+    expect(await screen.findByText('股票排盘摘要')).toBeInTheDocument();
     expect(screen.getByText('平安银行 (000001)')).toBeInTheDocument();
     expect(screen.getByDisplayValue('000001')).toBeInTheDocument();
     expect(screen.getByText('共筛得 1 只标的')).toBeInTheDocument();
@@ -273,6 +326,50 @@ describe('HomePage', () => {
     expect(
       JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body ?? '{}')).stockCode,
     ).toBe('000001');
+  });
+
+  it('switches to the plum tab and renders the plum analysis details', async () => {
+    const user = userEvent.setup();
+
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => successPayload,
+    } as Response);
+
+    render(<HomePage />);
+
+    await user.click(screen.getByRole('button', { name: '开始排盘分析' }));
+    await screen.findByText('股票排盘摘要');
+
+    await user.click(screen.getByRole('tab', { name: '梅花易数' }));
+
+    expect(screen.getByRole('tab', { name: '梅花易数' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByText('开盘价起卦结果')).toBeInTheDocument();
+    expect(screen.getByText('1468.00')).toBeInTheDocument();
+    expect(screen.getByText('雷地豫')).toBeInTheDocument();
+    expect(screen.getByText('水山蹇')).toBeInTheDocument();
+    expect(screen.getByText('泽地萃')).toBeInTheDocument();
+  });
+
+  it('shows a plum unavailable state without hiding the qimen result', async () => {
+    const user = userEvent.setup();
+
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => plumUnavailablePayload,
+    } as Response);
+
+    render(<HomePage />);
+
+    await user.click(screen.getByRole('button', { name: '开始排盘分析' }));
+    await screen.findByText('股票排盘摘要');
+
+    expect(screen.getByText('平安银行 (000001)')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: '梅花易数' }));
+
+    expect(await screen.findByText('梅花暂不可用')).toBeInTheDocument();
+    expect(screen.getByText('当日开盘价缺失，暂时无法起梅花卦。')).toBeInTheDocument();
   });
 
   it('renders screened results as cards on mobile viewports', async () => {

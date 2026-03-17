@@ -32,10 +32,10 @@ export function StockCodeForm({
             启盘法坛
           </p>
           <h1 className="mt-3 font-serif text-[2.25rem] leading-none text-ink sm:text-[3.35rem]">
-            股票奇门排盘
+            股票排盘分析
           </h1>
           <p className="mt-3 text-sm leading-6 text-ink/72 sm:text-[15px]">
-            输入 A 股代码，以真实上市日期起局，并与沪市、深市、创业板固定参考盘对照。
+            输入 A 股代码，同步查看上市时刻奇门盘与当日开盘价梅花卦，并与三市参考盘对照。
           </p>
         </div>
         <div className="inline-flex items-center gap-2 self-start rounded-full border border-vermilion/20 bg-vermilion/10 px-4 py-2 text-xs tracking-[0.18em] text-vermilion sm:self-auto sm:text-sm">
@@ -64,7 +64,7 @@ export function StockCodeForm({
             disabled={isSubmitting}
             type="submit"
           >
-            {isSubmitting ? '排盘中...' : '开始奇门排盘'}
+            {isSubmitting ? '排盘中...' : '开始排盘分析'}
           </button>
         </div>
         <div className="flex flex-wrap items-center gap-2">

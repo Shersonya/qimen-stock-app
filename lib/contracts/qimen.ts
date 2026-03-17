@@ -8,6 +8,8 @@ export const ERROR_CODES = {
   ST_STOCK_UNSUPPORTED: 'ST_STOCK_UNSUPPORTED',
   DATA_SOURCE_ERROR: 'DATA_SOURCE_ERROR',
   LISTING_DATE_MISSING: 'LISTING_DATE_MISSING',
+  PLUM_PRICE_UNAVAILABLE: 'PLUM_PRICE_UNAVAILABLE',
+  PLUM_DATA_SOURCE_ERROR: 'PLUM_DATA_SOURCE_ERROR',
   MARKET_FILTER_REQUIRED: 'MARKET_FILTER_REQUIRED',
   API_ERROR: 'API_ERROR',
 } as const;
@@ -41,6 +43,45 @@ export type QimenResult = {
   valueDoor: string;
   palaces: QimenPalace[];
 };
+
+export type PlumPriceBasis = 'open';
+
+export type PlumUnavailableCode =
+  | typeof ERROR_CODES.PLUM_PRICE_UNAVAILABLE
+  | typeof ERROR_CODES.PLUM_DATA_SOURCE_ERROR;
+
+export type PlumStage = {
+  code: string;
+  name: string;
+  words: string;
+  whiteWords: string;
+  picture: string;
+  whitePicture: string;
+  stockSuggestion: string;
+  yaoci: string;
+};
+
+export type PlumReadyResult = {
+  status: 'ready';
+  priceBasis: PlumPriceBasis;
+  priceValue: string;
+  upperNumber: number;
+  lowerNumber: number;
+  movingLine: 1 | 2 | 3 | 4 | 5 | 6;
+  upperTrigram: string;
+  lowerTrigram: string;
+  original: PlumStage;
+  mutual: PlumStage;
+  changed: PlumStage;
+};
+
+export type PlumUnavailableResult = {
+  status: 'unavailable';
+  code: PlumUnavailableCode;
+  message: string;
+};
+
+export type PlumResult = PlumReadyResult | PlumUnavailableResult;
 
 export type QimenApiRequest = {
   stockCode: string;
@@ -133,12 +174,15 @@ export type ApiErrorResponse = {
   error: ApiError;
 };
 
-export type QimenApiSuccessResponse = {
+export type StockAnalysisSuccessResponse = {
   stock: StockListingData;
   qimen: QimenResult;
+  plum: PlumResult;
 };
 
-export type QimenApiResponse = QimenApiSuccessResponse | ApiErrorResponse;
+export type QimenApiSuccessResponse = StockAnalysisSuccessResponse;
+
+export type QimenApiResponse = StockAnalysisSuccessResponse | ApiErrorResponse;
 
 export function isApiErrorResponse(
   payload: QimenApiResponse | unknown,
@@ -166,6 +210,10 @@ export function getErrorMessage(code: ErrorCode): string {
       return '股票数据源暂时不可用，请稍后重试。';
     case ERROR_CODES.LISTING_DATE_MISSING:
       return '数据源缺少上市日期，暂时无法排盘。';
+    case ERROR_CODES.PLUM_PRICE_UNAVAILABLE:
+      return '当日开盘价缺失，暂时无法起梅花卦。';
+    case ERROR_CODES.PLUM_DATA_SOURCE_ERROR:
+      return '梅花行情数据源暂时不可用，请稍后重试。';
     case ERROR_CODES.MARKET_FILTER_REQUIRED:
       return '请至少设置一个时干、日干或月干筛选条件。';
     case ERROR_CODES.API_ERROR:

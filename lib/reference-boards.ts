@@ -1,6 +1,7 @@
 export const referenceBoards = [
   {
     key: 'sh',
+    tabLabel: '沪市',
     title: '沪市参考盘',
     description: '上证指数镇盘，用于比照沪市主盘气势。',
     image: '/ref-sh.svg',
@@ -8,6 +9,7 @@ export const referenceBoards = [
   },
   {
     key: 'sz',
+    tabLabel: '深市',
     title: '深市参考盘',
     description: '深证指数镇盘，用于比照深市主盘节奏。',
     image: '/ref-sz.svg',
@@ -15,6 +17,7 @@ export const referenceBoards = [
   },
   {
     key: 'cyb',
+    tabLabel: '创业板',
     title: '创业板参考盘',
     description: '创业板指镇盘，用于比照成长盘面势能。',
     image: '/ref-cyb.svg',

@@ -4,6 +4,7 @@ node_modules
 .playwright-cli
 .swc
 coverage
+output
 *.log
 tsconfig.tsbuildinfo
 .env*.local
