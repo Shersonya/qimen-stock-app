@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: 'STSong', 'Songti SC', 'Noto Serif SC', serif;
+  --font-body: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', sans-serif;
+  --ink: #2d241c;
+  --vermilion: #8a2f24;
+  --gold: #a56a1f;
+  --sand: #efe2cb;
+  --mist: #f7f0e2;
+}
+
+html {
+  background:
+    radial-gradient(circle at top left, rgba(165, 106, 31, 0.18), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(138, 47, 36, 0.18), transparent 36%),
+    linear-gradient(180deg, #faf4e8 0%, #f2e6cd 100%);
+}
+
+body {
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: var(--font-body);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.22)),
+    linear-gradient(90deg, rgba(138, 47, 36, 0.03) 0%, rgba(165, 106, 31, 0.03) 100%);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}

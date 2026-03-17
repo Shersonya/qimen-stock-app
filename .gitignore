@@ -1,0 +1,8 @@
+node_modules
+.next
+.vercel
+.playwright-cli
+.swc
+coverage
+*.log
+tsconfig.tsbuildinfo
