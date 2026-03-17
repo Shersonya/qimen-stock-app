@@ -5,8 +5,10 @@ export const ERROR_CODES = {
   INVALID_STOCK_CODE: 'INVALID_STOCK_CODE',
   STOCK_NOT_FOUND: 'STOCK_NOT_FOUND',
   UNSUPPORTED_MARKET: 'UNSUPPORTED_MARKET',
+  ST_STOCK_UNSUPPORTED: 'ST_STOCK_UNSUPPORTED',
   DATA_SOURCE_ERROR: 'DATA_SOURCE_ERROR',
   LISTING_DATE_MISSING: 'LISTING_DATE_MISSING',
+  MARKET_FILTER_REQUIRED: 'MARKET_FILTER_REQUIRED',
   API_ERROR: 'API_ERROR',
 } as const;
 
@@ -44,6 +46,84 @@ export type QimenApiRequest = {
   stockCode: string;
 };
 
+export const QIMEN_DOOR_OPTIONS = [
+  '休门',
+  '生门',
+  '伤门',
+  '杜门',
+  '景门',
+  '死门',
+  '惊门',
+  '开门',
+] as const;
+
+export const QIMEN_STAR_OPTIONS = [
+  '天蓬星',
+  '天芮星',
+  '天冲星',
+  '天辅星',
+  '天心星',
+  '天柱星',
+  '天任星',
+  '天英星',
+] as const;
+
+export const QIMEN_GOD_OPTIONS = [
+  '值符',
+  '腾蛇',
+  '太阴',
+  '六合',
+  '白虎',
+  '玄武',
+  '九地',
+  '九天',
+] as const;
+
+export type MarketScreenWindowFilter = {
+  door?: string;
+  star?: string;
+  god?: string;
+};
+
+export type MarketScreenFilters = {
+  hour: MarketScreenWindowFilter;
+  day: MarketScreenWindowFilter;
+  month: MarketScreenWindowFilter;
+};
+
+export type MarketScreenRequest = {
+  filters?: Partial<MarketScreenFilters>;
+  page?: number;
+  pageSize?: number;
+};
+
+export type MarketScreenWindow = {
+  stem: string;
+  palaceName: string;
+  position: number;
+  door: string;
+  star: string;
+  god: string;
+};
+
+export type MarketScreenResultItem = {
+  stock: Pick<StockListingData, 'code' | 'name' | 'market' | 'listingDate'>;
+  hourWindow: MarketScreenWindow;
+  dayWindow: MarketScreenWindow;
+  monthWindow: MarketScreenWindow;
+};
+
+export type MarketScreenSuccessResponse = {
+  total: number;
+  page: number;
+  pageSize: number;
+  items: MarketScreenResultItem[];
+};
+
+export type MarketScreenApiResponse =
+  | MarketScreenSuccessResponse
+  | ApiErrorResponse;
+
 export type ApiError = {
   code: ErrorCode;
   message: string;
@@ -80,10 +160,14 @@ export function getErrorMessage(code: ErrorCode): string {
       return '未找到对应股票，请确认代码是否正确。';
     case ERROR_CODES.UNSUPPORTED_MARKET:
       return '当前版本仅支持沪市主板、深市主板和创业板。';
+    case ERROR_CODES.ST_STOCK_UNSUPPORTED:
+      return '当前版本已剔除 ST 个股，暂不支持查询或筛选。';
     case ERROR_CODES.DATA_SOURCE_ERROR:
       return '股票数据源暂时不可用，请稍后重试。';
     case ERROR_CODES.LISTING_DATE_MISSING:
       return '数据源缺少上市日期，暂时无法排盘。';
+    case ERROR_CODES.MARKET_FILTER_REQUIRED:
+      return '请至少设置一个时干、日干或月干筛选条件。';
     case ERROR_CODES.API_ERROR:
     default:
       return '请求处理失败，请稍后重试。';

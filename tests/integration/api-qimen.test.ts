@@ -95,6 +95,18 @@ describe('POST /api/qimen', () => {
     expect(body.error.code).toBe(ERROR_CODES.UNSUPPORTED_MARKET);
   });
 
+  it('returns 400 when the stock is classified as ST', async () => {
+    mockedGetStockListingInfo.mockRejectedValueOnce(
+      new AppError(ERROR_CODES.ST_STOCK_UNSUPPORTED, 400),
+    );
+
+    const response = await POST(createRequest({ stockCode: '600112' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error.code).toBe(ERROR_CODES.ST_STOCK_UNSUPPORTED);
+  });
+
   it('returns 502 when the upstream data source fails', async () => {
     mockedGetStockListingInfo.mockRejectedValueOnce(
       new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502),

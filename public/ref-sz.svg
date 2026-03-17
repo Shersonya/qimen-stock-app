@@ -1,11 +1,12 @@
 <svg width="1200" height="860" viewBox="0 0 1200 860" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="bg-sz" x1="72" y1="52" x2="1116" y2="808" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#204c6e" />
-      <stop offset="1" stop-color="#d2b06f" />
+      <stop stop-color="#17191f" />
+      <stop offset="0.56" stop-color="#304250" />
+      <stop offset="1" stop-color="#b58b44" />
     </linearGradient>
   </defs>
-  <rect width="1200" height="860" rx="38" fill="#f7e9cf" />
+  <rect width="1200" height="860" rx="38" fill="#14100f" />
   <rect x="22" y="22" width="1156" height="816" rx="32" fill="url(#bg-sz)" />
   <g opacity="0.18" stroke="#e9dcc0">
     <circle cx="1010" cy="150" r="168" />
@@ -90,5 +91,4 @@
         <text x="798" y="758" fill="#8c6b2e" font-size="24" font-family="PingFang SC, Microsoft YaHei, sans-serif" >杜门</text>
         <text x="798" y="786" fill="#18405f" fill-opacity="0.76" font-size="20" font-family="PingFang SC, Microsoft YaHei, sans-serif" >值符</text>
       </g>
-  <text x="92" y="818" fill="#fff7ea" font-size="22" font-family="PingFang SC, Microsoft YaHei, sans-serif">固定参考起盘时间：1994-07-20 09:30</text>
 </svg>

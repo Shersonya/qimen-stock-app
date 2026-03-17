@@ -3,23 +3,9 @@ import { StockQimenTool } from '@/components/StockQimenTool';
 
 export default function HomePage() {
   return (
-    <main className="mx-auto min-h-screen max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <section className="overflow-hidden rounded-[2.5rem] border border-vermilion/10 bg-white/60 p-8 shadow-glow backdrop-blur-sm sm:p-10">
-        <div className="max-w-3xl">
-          <p className="text-sm uppercase tracking-[0.32em] text-gold">
-            Qimen Stock Board
-          </p>
-          <h1 className="mt-3 font-serif text-4xl leading-tight text-ink sm:text-6xl">
-            股票奇门排盘分析工具
-          </h1>
-          <p className="mt-5 text-base leading-7 text-ink/75 sm:text-lg">
-            输入股票代码，系统将查询真实上市日期，以默认上市时辰 09:30
-            生成时家奇门九宫盘，并同步展示沪市、深市、创业板三张固定参考盘。
-          </p>
-        </div>
-      </section>
-
-      <section className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+    <main className="relative mx-auto min-h-screen max-w-[1520px] px-4 py-5 sm:px-6 sm:py-8 xl:px-10">
+      <div className="pointer-events-none absolute inset-x-4 top-4 h-[420px] rounded-[2.75rem] border border-gold/15 bg-[radial-gradient(circle_at_top,rgba(199,153,75,0.12),transparent_62%),linear-gradient(180deg,rgba(44,26,19,0.82),rgba(16,10,9,0.16))] shadow-[inset_0_1px_0_rgba(248,238,219,0.08)] sm:inset-x-6 xl:inset-x-10" />
+      <section className="relative grid items-start gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.92fr)]">
         <StockQimenTool />
         <ReferenceCharts />
       </section>

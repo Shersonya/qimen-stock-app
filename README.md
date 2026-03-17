@@ -81,6 +81,28 @@ https://vercel.com/new/clone?repository-url=https://github.com/Shersonya/qimen-s
 
 ```md
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Shersonya/qimen-stock-app)
+
+## 固定部署流程
+
+当前工作区已经完成过一次 `vercel login` 和 `vercel link`，并绑定到
+`shersonya's projects / qimen-stock-app`。
+
+后续发布直接使用下面两个命令即可：
+
+```bash
+npm run deploy:preview
+npm run deploy:prod
+```
+
+- `deploy:preview` 会发布新的预览版本
+- `deploy:prod` 会直接更新正式站点 `qimen-stock-app.vercel.app`
+
+如果后续换了机器或重新克隆仓库，只需要重新执行一次：
+
+```bash
+npx vercel login
+npx vercel link --yes --scope shersonyas-projects --project qimen-stock-app
+```
 ```
 
 ### 自定义域名

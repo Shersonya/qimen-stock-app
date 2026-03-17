@@ -5,27 +5,33 @@
 :root {
   --font-display: 'STSong', 'Songti SC', 'Noto Serif SC', serif;
   --font-body: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', sans-serif;
-  --ink: #2d241c;
+  --ink: #2b2018;
+  --ink-soft: #5d5347;
   --vermilion: #8a2f24;
   --gold: #a56a1f;
   --sand: #efe2cb;
+  --tea: #d9c19b;
+  --paper: #fbf6ec;
+  --paper-deep: #f0e1c5;
   --mist: #f7f0e2;
 }
 
 html {
   background:
-    radial-gradient(circle at top left, rgba(165, 106, 31, 0.18), transparent 34%),
-    radial-gradient(circle at bottom right, rgba(138, 47, 36, 0.18), transparent 36%),
-    linear-gradient(180deg, #faf4e8 0%, #f2e6cd 100%);
+    radial-gradient(circle at 18% 12%, rgba(165, 106, 31, 0.12), transparent 24%),
+    radial-gradient(circle at 82% 14%, rgba(138, 47, 36, 0.18), transparent 18%),
+    linear-gradient(180deg, #130f0d 0%, #221612 34%, #3b2418 100%);
 }
 
 body {
+  position: relative;
   min-height: 100vh;
   color: var(--ink);
   font-family: var(--font-body);
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.22)),
-    linear-gradient(90deg, rgba(138, 47, 36, 0.03) 0%, rgba(165, 106, 31, 0.03) 100%);
+  background:
+    radial-gradient(circle at 50% 10%, rgba(212, 172, 108, 0.09) 0, transparent 26%),
+    radial-gradient(circle at 50% 28%, rgba(255, 246, 226, 0.045) 0, transparent 32%),
+    linear-gradient(180deg, rgba(15, 11, 10, 0.96), rgba(43, 24, 18, 0.92));
 }
 
 h1,
@@ -46,4 +52,45 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(185, 144, 72, 0.026) 0,
+      rgba(185, 144, 72, 0.026) 1px,
+      transparent 1px,
+      transparent 17px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(138, 47, 36, 0.02) 0,
+      rgba(138, 47, 36, 0.02) 1px,
+      transparent 1px,
+      transparent 22px
+    ),
+    radial-gradient(circle at 50% 10%, rgba(165, 106, 31, 0.12), transparent 38%);
+  mix-blend-mode: screen;
+  opacity: 0.32;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% -5%, rgba(165, 106, 31, 0.12), transparent 24%),
+    radial-gradient(circle at 50% 100%, rgba(138, 47, 36, 0.14), transparent 26%);
+  opacity: 0.78;
+}
+
+::selection {
+  color: #fff7ea;
+  background: rgba(138, 47, 36, 0.8);
 }

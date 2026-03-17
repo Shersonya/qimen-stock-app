@@ -83,6 +83,26 @@ describe('getStockListingInfo', () => {
     });
   });
 
+  it('rejects ST stocks globally', async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        jbzl: {
+          agdm: '600112',
+          agjc: '*ST天成',
+          zqlb: '上交所主板A股',
+        },
+        fxxg: {
+          ssrq: '1997-11-27',
+        },
+      }),
+    );
+
+    await expect(getStockListingInfo('600112')).rejects.toMatchObject({
+      code: ERROR_CODES.ST_STOCK_UNSUPPORTED,
+      statusCode: 400,
+    });
+  });
+
   it('maps transport failures to DATA_SOURCE_ERROR', async () => {
     fetchMock.mockRejectedValueOnce(new Error('network down'));
 

@@ -17,42 +17,56 @@ function getMarketLabel(market: QimenApiSuccessResponse['stock']['market']) {
   }
 }
 
-const summaryFields = (result: QimenApiSuccessResponse) => [
-  ['股票', `${result.stock.name} (${result.stock.code})`],
-  ['市场', getMarketLabel(result.stock.market)],
-  ['上市时间', `${result.stock.listingDate} ${result.stock.listingTime}`],
-  ['时间来源', result.stock.timeSource],
-  ['阴阳遁', result.qimen.yinYang],
-  ['局数', `${result.qimen.ju}局`],
-  ['值符星', result.qimen.valueStar],
-  ['值使门', result.qimen.valueDoor],
-] as const;
+function getTimeSourceLabel(timeSource: QimenApiSuccessResponse['stock']['timeSource']) {
+  switch (timeSource) {
+    case 'actual':
+      return '上市时刻来自真实数据';
+    case 'default':
+    default:
+      return '上市时刻缺失，按默认 09:30 起盘';
+  }
+}
 
 export function QimenSummary({ result }: QimenSummaryProps) {
+  const summaryFields = [
+    ['阴阳遁', result.qimen.yinYang],
+    ['局数', `${result.qimen.ju}局`],
+    ['值符星', result.qimen.valueStar],
+    ['值使门', result.qimen.valueDoor],
+  ] as const;
+
   return (
-    <section className="rounded-[2rem] border border-vermilion/10 bg-white/75 p-6 shadow-glow">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <p className="text-sm uppercase tracking-[0.28em] text-gold">排盘结果</p>
-          <h2 className="mt-2 font-serif text-3xl text-ink">上市时家奇门摘要</h2>
+    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+      <article className="rounded-[1.45rem] border border-gold/22 bg-[linear-gradient(180deg,rgba(30,19,15,0.96),rgba(66,40,25,0.94))] p-4 text-[#f8eedb] shadow-[inset_0_1px_0_rgba(255,238,213,0.12)] xl:col-span-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="font-serif text-2xl text-[#fff6e7]">
+            {result.stock.name} ({result.stock.code})
+          </h3>
+          <span className="rounded-full border border-gold/24 bg-vermilion/18 px-3 py-1 text-xs tracking-[0.18em] text-[#f6d9ae]">
+            起局标的
+          </span>
         </div>
-        <div className="rounded-full border border-gold/30 px-4 py-2 text-sm font-medium text-vermilion">
-          {result.qimen.valueStar} / {result.qimen.valueDoor}
-        </div>
-      </div>
-      <dl className="mt-6 grid gap-4 md:grid-cols-2">
-        {summaryFields(result).map(([label, value]) => (
-          <div
-            key={label}
-            className="rounded-2xl border border-sand bg-sand/35 px-4 py-3"
-          >
-            <dt className="text-xs uppercase tracking-[0.22em] text-gold">
-              {label}
-            </dt>
-            <dd className="mt-2 text-lg font-semibold text-ink">{value}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
+        <p className="mt-2 text-sm text-[#f3dfbd]/76">
+          {getMarketLabel(result.stock.market)}
+        </p>
+        <p className="mt-4 text-sm font-medium text-[#fff2d9]">
+          上市时间 {result.stock.listingDate} {result.stock.listingTime}
+        </p>
+        <p className="mt-1 text-xs leading-5 text-[#e4c693]/72">
+          {getTimeSourceLabel(result.stock.timeSource)}
+        </p>
+      </article>
+      {summaryFields.map(([label, value]) => (
+        <article
+          key={label}
+          className="rounded-[1.35rem] border border-gold/16 bg-[linear-gradient(180deg,rgba(247,236,214,0.98),rgba(227,203,159,0.9))] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]"
+        >
+          <p className="text-[11px] uppercase tracking-[0.32em] text-gold/90">
+            {label}
+          </p>
+          <p className="mt-3 font-serif text-xl text-ink sm:text-2xl">{value}</p>
+        </article>
+      ))}
+    </div>
   );
 }

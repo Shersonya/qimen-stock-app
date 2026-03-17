@@ -23,6 +23,10 @@ type EastMoneyResponse = {
   };
 };
 
+export function isStStockName(stockName: string): boolean {
+  return /^(ST|\*ST|SST|S\*ST)/i.test(stockName.trim());
+}
+
 function validateStockCode(stockCode: string): string {
   const normalized = stockCode.trim();
 
@@ -115,6 +119,10 @@ export async function getStockListingInfo(
 
   if (!code || !name) {
     throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
+  }
+
+  if (isStStockName(name)) {
+    throw new AppError(ERROR_CODES.ST_STOCK_UNSUPPORTED, 400);
   }
 
   return {

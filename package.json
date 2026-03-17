@@ -9,7 +9,9 @@
     "generate:references": "tsx scripts/generate-reference-boards.ts",
     "lint": "eslint . --max-warnings=0",
     "test": "jest --runInBand",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "deploy:preview": "npx vercel deploy -y",
+    "deploy:prod": "npx vercel deploy --prod -y"
   },
   "dependencies": {
     "@yhjs/dunjia": "1.0.1",
