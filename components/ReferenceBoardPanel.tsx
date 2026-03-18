@@ -5,7 +5,11 @@ import { useState } from 'react';
 import { PalaceCard } from '@/components/PalaceCard';
 import type { Market } from '@/lib/contracts/qimen';
 import { referenceBoards } from '@/lib/reference-boards';
-import { MARKET_OPTIONS, getReferenceBoardKeyFromMarket } from '@/lib/ui';
+import {
+  MARKET_OPTIONS,
+  getDefaultPalaceIndex,
+  getReferenceBoardKeyFromMarket,
+} from '@/lib/ui';
 
 type ReferenceBoardPanelProps = {
   selectedMarket: Market;
@@ -20,11 +24,19 @@ export function ReferenceBoardPanel({
   const reference =
     referenceBoards.find(
       (item) => item.key === getReferenceBoardKeyFromMarket(selectedMarket),
-    ) ?? referenceBoards[0];
+    ) ?? referenceBoards[0] ?? null;
+  const [selectedPalaceIndex, setSelectedPalaceIndex] = useState<number | null>(
+    getDefaultPalaceIndex(reference?.qimen.palaces ?? []),
+  );
 
   if (!reference) {
     return null;
   }
+
+  const selectedPalace =
+    reference.qimen.palaces.find((palace) => palace.index === selectedPalaceIndex) ??
+    reference.qimen.palaces[getDefaultPalaceIndex(reference.qimen.palaces)] ??
+    null;
 
   return (
     <aside
@@ -81,20 +93,87 @@ export function ReferenceBoardPanel({
         <div className="md:hidden">
           <span className="mystic-chip">{reference.datetimeLabel}</span>
         </div>
-        <div
-          className="-mx-4 overflow-x-auto pb-2 pl-4 pr-4 sm:mx-0 sm:overflow-visible sm:px-0 sm:pb-0"
-          data-testid="reference-board-scroll"
-        >
+        <div className="mt-4 space-y-4 sm:hidden" data-testid="reference-mobile-layout">
           <div
-            className="board-shell relative mt-4 min-w-[50rem] overflow-hidden rounded-[1.8rem] border border-[var(--border-soft)] p-2.5 sm:min-w-0 sm:p-3"
-            data-testid="reference-board-grid"
+            className="board-shell relative overflow-hidden rounded-[1.75rem] border border-[var(--border-soft)] p-2"
+            data-testid="reference-mobile-overview"
           >
-            <div className="pointer-events-none absolute inset-3 rounded-[1.45rem] border border-[var(--border-strong)] opacity-70" />
-            <div className="relative grid grid-cols-3 gap-2 [grid-template-rows:repeat(3,minmax(18rem,auto))] sm:gap-2.5 sm:[grid-template-rows:repeat(3,minmax(22rem,auto))]">
+            <div className="pointer-events-none absolute inset-3 rounded-[1.35rem] border border-[var(--border-strong)] opacity-70" />
+            <div className="relative grid grid-cols-3 gap-2 [grid-template-rows:repeat(3,minmax(8.8rem,auto))]">
               {reference.qimen.palaces.map((palace) => (
                 <PalaceCard
                   annotation={undefined}
-                  className="min-h-[18rem] sm:min-h-[22rem]"
+                  className="min-h-[8.8rem]"
+                  detailMode="compact"
+                  interactive
+                  isFilterSelected={false}
+                  isSelected={selectedPalace?.index === palace.index}
+                  key={`${reference.key}-${palace.index}-${palace.position}-mobile`}
+                  onPatternClick={() => {}}
+                  onSelect={setSelectedPalaceIndex}
+                  onSelectionDragStart={() => {}}
+                  onSelectionEnter={() => {}}
+                  onSelectionToggle={() => {}}
+                  palace={palace}
+                  selectionMode={false}
+                  status="ready"
+                  testId="reference-mobile-palace"
+                />
+              ))}
+            </div>
+          </div>
+
+          <div
+            className="rounded-[1.45rem] border border-[var(--border-soft)] bg-[var(--surface-muted)] px-4 py-4"
+            data-testid="reference-mobile-detail"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="mystic-section-label">当前参考宫位</p>
+                <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
+                  {selectedPalace ? `${selectedPalace.name}宫 · 洛书 ${selectedPalace.position}` : '待选宫位'}
+                </h3>
+              </div>
+              <span className="mystic-chip">完整字段</span>
+            </div>
+            <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
+              点击上方九宫概览，可切换下方参考宫位的完整字段信息。
+            </p>
+            {selectedPalace ? (
+              <div className="mt-4">
+                <PalaceCard
+                  annotation={undefined}
+                  className="min-h-0"
+                  detailMode="expanded"
+                  interactive={false}
+                  isFilterSelected={false}
+                  isSelected={false}
+                  onPatternClick={() => {}}
+                  onSelect={() => {}}
+                  onSelectionDragStart={() => {}}
+                  onSelectionEnter={() => {}}
+                  onSelectionToggle={() => {}}
+                  palace={selectedPalace}
+                  selectionMode={false}
+                  status="idle"
+                  testId="reference-mobile-detail-card"
+                />
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="hidden sm:block" data-testid="reference-desktop-layout">
+          <div
+            className="board-shell relative mt-4 overflow-hidden rounded-[1.8rem] border border-[var(--border-soft)] p-3"
+            data-testid="reference-board-grid"
+          >
+            <div className="pointer-events-none absolute inset-3 rounded-[1.45rem] border border-[var(--border-strong)] opacity-70" />
+            <div className="relative grid grid-cols-3 gap-2.5 [grid-template-rows:repeat(3,minmax(22rem,auto))]">
+              {reference.qimen.palaces.map((palace) => (
+                <PalaceCard
+                  annotation={undefined}
+                  className="min-h-[22rem]"
                   detailMode="expanded"
                   interactive={false}
                   isFilterSelected={false}

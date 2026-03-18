@@ -8,17 +8,28 @@ describe('ReferenceBoardPanel', () => {
     render(<HomePage />);
 
     const referenceBoardPanel = screen.getByTestId('reference-board-panel');
-    const referenceBoardScroll = within(referenceBoardPanel).getByTestId('reference-board-scroll');
+    const referenceMobileLayout = within(referenceBoardPanel).getByTestId(
+      'reference-mobile-layout',
+    );
+    const referenceMobileDetailCard = within(referenceBoardPanel).getByTestId(
+      'reference-mobile-detail-card',
+    );
+    const referenceMobilePalaces = within(referenceBoardPanel).getAllByTestId(
+      'reference-mobile-palace',
+    );
     const referencePalaces = within(referenceBoardPanel).getAllByTestId('reference-palace');
 
-    expect(referenceBoardScroll.className).toContain('overflow-x-auto');
+    expect(referenceMobileLayout.className).toContain('sm:hidden');
+    expect(referenceMobilePalaces).toHaveLength(9);
+    expect(referenceMobilePalaces[0]).toHaveAttribute('data-detail-mode', 'compact');
+    expect(referenceMobileDetailCard).toHaveAttribute('data-detail-mode', 'expanded');
     expect(within(referenceBoardPanel).getByTestId('reference-board-grid')).toBeInTheDocument();
-    expect(within(referenceBoardPanel).getByTestId('reference-board-grid').className).toContain(
-      'min-w-[50rem]',
-    );
+    expect(
+      within(referenceBoardPanel).getByTestId('reference-desktop-layout').className,
+    ).toContain('hidden sm:block');
     expect(referencePalaces).toHaveLength(9);
     expect(referencePalaces[0]).toHaveAttribute('data-detail-mode', 'expanded');
-    expect(referencePalaces[0]?.className).toContain('min-h-[18rem]');
+    expect(referencePalaces[0]?.className).toContain('min-h-[22rem]');
     expect(
       within(referenceBoardPanel).getAllByText(
         (_, element) => element?.textContent === '天盘己',
@@ -61,6 +72,7 @@ describe('ReferenceBoardPanel', () => {
     const referenceBoardPanel = screen.getByTestId('reference-board-panel');
     const marketTabs = within(referenceBoardPanel).getByRole('tablist', { name: '市场切换' });
 
+    expect(within(referenceBoardPanel).getAllByTestId('reference-mobile-palace')).toHaveLength(9);
     expect(within(referenceBoardPanel).getAllByTestId('reference-palace')).toHaveLength(9);
     expect(
       within(referenceBoardPanel).getAllByText(

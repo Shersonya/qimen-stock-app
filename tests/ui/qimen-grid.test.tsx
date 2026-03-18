@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { QimenGrid } from '@/components/QimenGrid';
@@ -20,19 +20,26 @@ describe('QimenGrid', () => {
   it('renders nine palaces and focuses the center palace by default', () => {
     render(<QimenGrid palaces={palaces} />);
 
-    const qimenGridScroll = screen.getByTestId('qimen-grid-scroll');
+    const qimenMobileLayout = screen.getByTestId('qimen-mobile-layout');
+    const qimenMobileOverview = screen.getByTestId('qimen-mobile-overview');
+    const qimenMobileDetailCard = screen.getByTestId('qimen-mobile-detail-card');
     const qimenGrid = screen.getByTestId('qimen-grid');
+    const mobilePalaces = screen.getAllByTestId('qimen-mobile-palace');
     const palaceCards = screen.getAllByTestId('qimen-palace');
 
-    expect(qimenGridScroll.className).toContain('overflow-x-auto');
+    expect(qimenMobileLayout.className).toContain('sm:hidden');
+    expect(qimenMobileOverview).toBeInTheDocument();
+    expect(qimenMobileDetailCard).toHaveAttribute('data-detail-mode', 'expanded');
     expect(qimenGrid).toBeInTheDocument();
-    expect(qimenGrid.className).toContain('min-w-[50rem]');
+    expect(screen.getByTestId('qimen-desktop-layout').className).toContain('hidden sm:block');
+    expect(mobilePalaces).toHaveLength(9);
+    expect(mobilePalaces[0]).toHaveAttribute('data-detail-mode', 'compact');
     expect(palaceCards).toHaveLength(9);
     expect(palaceCards[0]).toHaveAttribute('data-detail-mode', 'expanded');
-    expect(screen.getByText('天心星')).toBeInTheDocument();
+    expect(screen.getAllByText('天心星').length).toBeGreaterThan(0);
     expect(screen.getAllByText('开门').length).toBeGreaterThan(0);
     expect(screen.getAllByText('值符').length).toBeGreaterThan(0);
-    expect(screen.getByText('中宫局眼')).toBeInTheDocument();
+    expect(screen.getAllByText('中宫局眼').length).toBeGreaterThan(0);
   });
 
   it('updates the selected palace summary after clicking a palace card', async () => {
@@ -40,10 +47,15 @@ describe('QimenGrid', () => {
 
     render(<QimenGrid palaces={palaces} />);
 
-    await user.click(screen.getByRole('button', { name: '乾宫 天任星' }));
+    await user.click(screen.getAllByTestId('qimen-mobile-palace')[8]!);
 
-    expect(screen.getByText('乾宫 · 洛书 6')).toBeInTheDocument();
-    expect(screen.getByText('乾宫以 天任星 为主星，门象为 景门，神煞为 九地。')).toBeInTheDocument();
+    const mobileDetail = screen.getByTestId('qimen-mobile-detail');
+
+    expect(within(mobileDetail).getByText('乾宫 · 洛书 6')).toBeInTheDocument();
+    expect(
+      within(mobileDetail).getByText('乾宫以 天任星 为主星，门象为 景门，神煞为 九地。'),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('qimen-mobile-detail-card')).toHaveTextContent('天任星');
   });
 
   it('renders optional palace metadata when available', () => {
@@ -96,12 +108,19 @@ describe('QimenGrid', () => {
 
     render(<QimenGrid palaces={palacesWithDetail} />);
 
-    await user.click(screen.getByRole('button', { name: '乾宫 天任星' }));
+    await user.click(screen.getAllByTestId('qimen-mobile-palace')[8]!);
 
-    expect(screen.getByText('天盘 丙')).toBeInTheDocument();
-    expect(screen.getByText('地盘 辛')).toBeInTheDocument();
-    expect(screen.getByText('外盘 癸')).toBeInTheDocument();
-    expect(screen.getByText('地支 戌 / 亥')).toBeInTheDocument();
-    expect(screen.getByText('空亡 时空')).toBeInTheDocument();
+    const mobileDetailCard = screen.getByTestId('qimen-mobile-detail-card');
+
+    expect(mobileDetailCard).toHaveTextContent('天盘');
+    expect(mobileDetailCard).toHaveTextContent('丙');
+    expect(mobileDetailCard).toHaveTextContent('地盘');
+    expect(mobileDetailCard).toHaveTextContent('辛');
+    expect(mobileDetailCard).toHaveTextContent('外盘');
+    expect(mobileDetailCard).toHaveTextContent('癸');
+    expect(mobileDetailCard).toHaveTextContent('地支');
+    expect(mobileDetailCard).toHaveTextContent('戌 / 亥');
+    expect(mobileDetailCard).toHaveTextContent('空亡');
+    expect(mobileDetailCard).toHaveTextContent('时空');
   });
 });
