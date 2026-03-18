@@ -164,6 +164,17 @@ function renderBooleanLabel(value: boolean, positiveLabel: string, negativeLabel
   return value ? positiveLabel : negativeLabel;
 }
 
+function formatDetailValue(
+  primary: string | null | undefined,
+  secondary: string | null | undefined,
+) {
+  if (!primary) {
+    return '';
+  }
+
+  return secondary ? `${primary}/${secondary}` : primary;
+}
+
 export function QimenBoard({
   palaces,
   status,
@@ -222,6 +233,26 @@ export function QimenBoard({
           ].join(' / '),
         ],
       ]
+    : [];
+  const selectedPalaceMetaItems = selectedPalace
+    ? [
+        selectedPalace.skyGan
+          ? `天盘 ${formatDetailValue(selectedPalace.skyGan, selectedPalace.skyExtraGan)}`
+          : null,
+        selectedPalace.groundGan
+          ? `地盘 ${formatDetailValue(selectedPalace.groundGan, selectedPalace.groundExtraGan)}`
+          : null,
+        selectedPalace.outGan
+          ? `外盘 ${formatDetailValue(selectedPalace.outGan, selectedPalace.outExtraGan)}`
+          : null,
+        selectedPalace.wuxing ? `五行 ${selectedPalace.wuxing}` : null,
+        selectedPalace.branches?.length
+          ? `地支 ${selectedPalace.branches.join(' / ')}`
+          : null,
+        selectedPalace.emptyMarkers?.length
+          ? `空亡 ${selectedPalace.emptyMarkers.join('/')}`
+          : null,
+      ].filter((item): item is string => Boolean(item))
     : [];
 
   function upsertSelection(palacePosition: number) {
@@ -478,21 +509,21 @@ export function QimenBoard({
         ) : null}
 
         <div
-          className="board-shell relative mt-5 aspect-[0.88] overflow-hidden rounded-[1.9rem] border border-[var(--border-soft)] p-2.5 sm:aspect-[0.94] sm:p-4 md:aspect-square"
+          className="board-shell relative mt-5 aspect-[0.76] overflow-hidden rounded-[1.9rem] border border-[var(--border-soft)] p-2 sm:aspect-auto sm:p-4"
           data-testid="qimen-grid"
           onPointerLeave={() => setDraggingSelection(false)}
           onPointerUp={() => setDraggingSelection(false)}
         >
-          <div className="pointer-events-none absolute inset-3 rounded-[1.55rem] border border-[var(--border-strong)] opacity-80" />
-          <div className="pointer-events-none absolute left-1/2 top-4 h-[calc(100%-2rem)] w-px -translate-x-1/2 bg-[linear-gradient(180deg,transparent,var(--line-strong),transparent)]" />
-          <div className="pointer-events-none absolute top-1/2 left-4 h-px w-[calc(100%-2rem)] -translate-y-1/2 bg-[linear-gradient(90deg,transparent,var(--line-strong),transparent)]" />
-          <div className="pointer-events-none absolute left-1/3 top-4 h-[calc(100%-2rem)] w-px -translate-x-1/2 bg-[linear-gradient(180deg,transparent,var(--line-soft),transparent)]" />
-          <div className="pointer-events-none absolute left-2/3 top-4 h-[calc(100%-2rem)] -translate-x-1/2 w-px bg-[linear-gradient(180deg,transparent,var(--line-soft),transparent)]" />
-          <div className="pointer-events-none absolute top-1/3 left-4 h-px w-[calc(100%-2rem)] -translate-y-1/2 bg-[linear-gradient(90deg,transparent,var(--line-soft),transparent)]" />
-          <div className="pointer-events-none absolute top-2/3 left-4 h-px w-[calc(100%-2rem)] -translate-y-1/2 bg-[linear-gradient(90deg,transparent,var(--line-soft),transparent)]" />
-          <div className="pointer-events-none absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[var(--border-strong)] bg-[radial-gradient(circle,rgba(255,217,143,0.14),transparent_65%)] blur-sm sm:h-36 sm:w-36" />
+          <div className="pointer-events-none absolute inset-3 z-0 rounded-[1.55rem] border border-[var(--border-strong)] opacity-80" />
+          <div className="pointer-events-none absolute left-1/2 top-4 z-0 h-[calc(100%-2rem)] w-px -translate-x-1/2 bg-[linear-gradient(180deg,transparent,var(--line-strong),transparent)]" />
+          <div className="pointer-events-none absolute top-1/2 left-4 z-0 h-px w-[calc(100%-2rem)] -translate-y-1/2 bg-[linear-gradient(90deg,transparent,var(--line-strong),transparent)]" />
+          <div className="pointer-events-none absolute left-1/3 top-4 z-0 h-[calc(100%-2rem)] w-px -translate-x-1/2 bg-[linear-gradient(180deg,transparent,var(--line-soft),transparent)]" />
+          <div className="pointer-events-none absolute left-2/3 top-4 z-0 h-[calc(100%-2rem)] -translate-x-1/2 w-px bg-[linear-gradient(180deg,transparent,var(--line-soft),transparent)]" />
+          <div className="pointer-events-none absolute top-1/3 left-4 z-0 h-px w-[calc(100%-2rem)] -translate-y-1/2 bg-[linear-gradient(90deg,transparent,var(--line-soft),transparent)]" />
+          <div className="pointer-events-none absolute top-2/3 left-4 z-0 h-px w-[calc(100%-2rem)] -translate-y-1/2 bg-[linear-gradient(90deg,transparent,var(--line-soft),transparent)]" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[var(--border-strong)] bg-[radial-gradient(circle,rgba(255,217,143,0.14),transparent_65%)] blur-sm sm:h-36 sm:w-36" />
 
-          <div className="relative grid h-full grid-cols-3 grid-rows-3 gap-2 sm:gap-3">
+          <div className="relative z-10 grid h-full grid-cols-3 grid-rows-3 gap-2 sm:h-auto sm:gap-3 sm:[grid-template-rows:repeat(3,minmax(22rem,auto))]">
             {palaces.map((palace) => (
               <PalaceCard
                 annotation={patternAnnotationMap.get(palace.position)}
@@ -537,6 +568,15 @@ export function QimenBoard({
                 ? '当前处于框选模式，点击或拖过宫位即可把该宫加入筛盘条件。'
                 : getSelectedPalaceSummary(selectedPalace)}
           </p>
+          {selectedPalaceMetaItems.length > 0 && !selectionMode ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {selectedPalaceMetaItems.map((item) => (
+                <span className="mystic-chip" key={item}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         {result ? (

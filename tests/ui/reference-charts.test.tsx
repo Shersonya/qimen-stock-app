@@ -4,21 +4,91 @@ import userEvent from '@testing-library/user-event';
 import HomePage from '@/app/page';
 
 describe('ReferenceBoardPanel', () => {
-  it('switches the active reference board when the market tabs change', async () => {
+  it('renders the reference board as a direct nine-palace grid without the legacy summary area', () => {
+    render(<HomePage />);
+
+    const referenceBoardPanel = screen.getByTestId('reference-board-panel');
+
+    expect(within(referenceBoardPanel).getByTestId('reference-board-grid')).toBeInTheDocument();
+    expect(within(referenceBoardPanel).getAllByTestId('reference-palace')).toHaveLength(9);
+    expect(
+      within(referenceBoardPanel).getAllByTestId('reference-palace')[0]?.className,
+    ).toContain('sm:min-h-[22rem]');
+    expect(
+      within(referenceBoardPanel).getAllByText(
+        (_, element) => element?.textContent === '天盘己',
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(
+      within(referenceBoardPanel).getAllByText(
+        (_, element) => element?.textContent === '地盘壬',
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(
+      within(referenceBoardPanel).getAllByText(
+        (_, element) => element?.textContent === '外盘庚',
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(
+      within(referenceBoardPanel).getAllByText(
+        (_, element) => element?.textContent === '地支辰 / 巳',
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(
+      within(referenceBoardPanel).queryByText('阴遁 7局'),
+    ).not.toBeInTheDocument();
+    expect(
+      within(referenceBoardPanel).queryByText('值符落宫'),
+    ).not.toBeInTheDocument();
+    expect(
+      within(referenceBoardPanel).queryByText('旬首六仪'),
+    ).not.toBeInTheDocument();
+    expect(
+      within(referenceBoardPanel).queryByAltText('沪市参考盘'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('switches the active reference board and keeps rendering nine structured palaces', async () => {
     const user = userEvent.setup();
 
     render(<HomePage />);
 
-    expect(screen.getByAltText('沪市参考盘')).toBeInTheDocument();
+    const referenceBoardPanel = screen.getByTestId('reference-board-panel');
+    const marketTabs = within(referenceBoardPanel).getByRole('tablist', { name: '市场切换' });
 
-    const marketTabs = screen.getByRole('tablist', { name: '市场切换' });
+    expect(within(referenceBoardPanel).getAllByTestId('reference-palace')).toHaveLength(9);
+    expect(
+      within(referenceBoardPanel).getAllByText(
+        (_, element) => element?.textContent === '天盘己',
+      ).length,
+    ).toBeGreaterThan(0);
 
     await user.click(within(marketTabs).getByRole('tab', { name: /深市/ }));
 
-    expect(screen.getByAltText('深市参考盘')).toBeInTheDocument();
+    expect(within(referenceBoardPanel).getAllByTestId('reference-palace')).toHaveLength(9);
+    expect(
+      within(referenceBoardPanel).getAllByText(
+        (_, element) => element?.textContent === '天盘乙/癸',
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(
+      within(referenceBoardPanel).getAllByText(
+        (_, element) => element?.textContent === '空亡日空 / 时空',
+      ).length,
+    ).toBeGreaterThan(0);
 
     await user.click(within(marketTabs).getByRole('tab', { name: /创业板/ }));
 
-    expect(screen.getByAltText('创业板参考盘')).toBeInTheDocument();
+    expect(within(referenceBoardPanel).getAllByTestId('reference-palace')).toHaveLength(9);
+    expect(
+      within(referenceBoardPanel).getAllByText(
+        (_, element) => element?.textContent === '外盘丁/戊',
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(
+      within(referenceBoardPanel).getAllByText(
+        (_, element) => element?.textContent === '空亡日空 / 时空',
+      ).length,
+    ).toBeGreaterThan(0);
   });
 });

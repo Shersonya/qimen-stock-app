@@ -581,6 +581,18 @@ describe('HomePage', () => {
     ).toBeTruthy();
   });
 
+  it('renders the left reference board as a structured nine-palace board instead of the legacy summary area', () => {
+    render(<HomePage />);
+
+    const referenceBoardPanel = screen.getByTestId('reference-board-panel');
+
+    expect(within(referenceBoardPanel).getByTestId('reference-board-grid')).toBeInTheDocument();
+    expect(within(referenceBoardPanel).getAllByTestId('reference-palace')).toHaveLength(9);
+    expect(within(referenceBoardPanel).queryByText('值符落宫')).not.toBeInTheDocument();
+    expect(within(referenceBoardPanel).queryByText('旬首六仪')).not.toBeInTheDocument();
+    expect(within(referenceBoardPanel).queryByText('阴遁 7局')).not.toBeInTheDocument();
+  });
+
   it('renders stock summary and qimen metrics inside the board container after a successful query', async () => {
     const user = userEvent.setup();
 

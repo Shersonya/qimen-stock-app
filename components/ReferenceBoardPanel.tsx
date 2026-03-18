@@ -1,8 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import { useState } from 'react';
 
+import { PalaceCard } from '@/components/PalaceCard';
 import type { Market } from '@/lib/contracts/qimen';
 import { referenceBoards } from '@/lib/reference-boards';
 import { MARKET_OPTIONS, getReferenceBoardKeyFromMarket } from '@/lib/ui';
@@ -78,25 +78,36 @@ export function ReferenceBoardPanel({
             );
           })}
         </div>
-        <p className="text-sm leading-7 text-[var(--text-secondary)]">
-          {reference.description}
-        </p>
-        <div className="mt-4 overflow-hidden rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-muted)] p-2">
-          <figure className="overflow-hidden rounded-[1.2rem]">
-            <Image
-              alt={reference.title}
-              className="h-auto w-full rounded-[1.2rem]"
-              height={1040}
-              loading="eager"
-              sizes="(min-width: 1280px) 36vw, 100vw"
-              src={reference.image}
-              width={1200}
-            />
-          </figure>
+        <div className="md:hidden">
+          <span className="mystic-chip">{reference.datetimeLabel}</span>
         </div>
-        <p className="mt-3 text-xs leading-6 tracking-[0.12em] text-[var(--text-muted)]">
-          镇盘时间: {reference.datetimeLabel}
-        </p>
+        <div
+          className="board-shell relative mt-4 overflow-hidden rounded-[1.8rem] border border-[var(--border-soft)] p-2.5 sm:p-3"
+          data-testid="reference-board-grid"
+        >
+          <div className="pointer-events-none absolute inset-3 rounded-[1.45rem] border border-[var(--border-strong)] opacity-70" />
+          <div className="relative grid grid-cols-3 gap-2 sm:gap-2.5">
+            {reference.qimen.palaces.map((palace) => (
+              <PalaceCard
+                annotation={undefined}
+                className="min-h-[14rem] sm:min-h-[22rem]"
+                interactive={false}
+                isFilterSelected={false}
+                isSelected={false}
+                key={`${reference.key}-${palace.index}-${palace.position}`}
+                onPatternClick={() => {}}
+                onSelect={() => {}}
+                onSelectionDragStart={() => {}}
+                onSelectionEnter={() => {}}
+                onSelectionToggle={() => {}}
+                palace={palace}
+                selectionMode={false}
+                status="idle"
+                testId="reference-palace"
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </aside>
   );

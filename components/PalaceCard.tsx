@@ -13,6 +13,8 @@ type PalaceCardProps = {
   annotation?: QimenPatternPalaceAnnotation;
   status: BoardViewState;
   isSelected: boolean;
+  interactive?: boolean;
+  detailMode?: 'compact' | 'expanded' | 'adaptive';
   selectionMode: boolean;
   isFilterSelected: boolean;
   onSelect: (palaceIndex: number) => void;
@@ -20,6 +22,8 @@ type PalaceCardProps = {
   onSelectionToggle: (palacePosition: number) => void;
   onSelectionDragStart: () => void;
   onSelectionEnter: (palacePosition: number) => void;
+  testId?: string;
+  className?: string;
 };
 
 type PalaceDetailChip = {
@@ -104,11 +108,55 @@ function formatPalaceDetails(palace: QimenPalace): PalaceDetailChip[] {
   return chips.slice(0, 3);
 }
 
+function formatPalaceDetailValue(
+  primary: string | null | undefined,
+  secondary: string | null | undefined,
+) {
+  if (!primary) {
+    return '';
+  }
+
+  return secondary ? `${primary}/${secondary}` : primary;
+}
+
+function buildExpandedDetailRows(palace: QimenPalace): PalaceDetailChip[] {
+  return [
+    { label: '八门', value: palace.door || '--' },
+    { label: '八神', value: palace.god || '--' },
+    {
+      label: '天盘',
+      value: formatPalaceDetailValue(palace.skyGan, palace.skyExtraGan) || '--',
+    },
+    {
+      label: '地盘',
+      value: formatPalaceDetailValue(palace.groundGan, palace.groundExtraGan) || '--',
+    },
+    {
+      label: '外盘',
+      value: formatPalaceDetailValue(palace.outGan, palace.outExtraGan) || '--',
+    },
+    { label: '五行', value: palace.wuxing || '--' },
+    {
+      label: '地支',
+      value: palace.branches && palace.branches.length > 0 ? palace.branches.join(' / ') : '--',
+    },
+    {
+      label: '空亡',
+      value:
+        palace.emptyMarkers && palace.emptyMarkers.length > 0
+          ? palace.emptyMarkers.join(' / ')
+          : '--',
+    },
+  ];
+}
+
 export function PalaceCard({
   palace,
   annotation,
   status,
   isSelected,
+  interactive,
+  detailMode = 'adaptive',
   selectionMode,
   isFilterSelected,
   onSelect,
@@ -116,15 +164,30 @@ export function PalaceCard({
   onSelectionToggle,
   onSelectionDragStart,
   onSelectionEnter,
+  testId = 'qimen-palace',
+  className = '',
 }: PalaceCardProps) {
   const isCenterPalace = palace.position === 5;
-  const interactive = status === 'ready';
+  const isInteractive = interactive ?? status === 'ready';
+  const layoutMinHeightClass =
+    detailMode === 'compact'
+      ? 'min-h-[10.5rem] sm:min-h-[12rem]'
+      : detailMode === 'expanded'
+        ? 'min-h-[18rem] sm:min-h-[22rem]'
+        : 'min-h-[10.5rem] sm:min-h-[22rem]';
   const patternNames = annotation?.patternNames ?? [];
   const invalidReasonLabel = annotation?.invalidReasons.join('/') ?? '';
   const detailChips = formatPalaceDetails(palace);
+  const compactDoorGodRows = [
+    { label: '门', value: palace.door },
+    { label: '神', value: palace.god },
+  ];
+  const expandedDetailRows = buildExpandedDetailRows(palace);
+  const shouldRenderCompact = detailMode === 'compact' || detailMode === 'adaptive';
+  const shouldRenderExpanded = detailMode === 'expanded' || detailMode === 'adaptive';
 
   function handleCardClick() {
-    if (!interactive) {
+    if (!isInteractive) {
       return;
     }
 
@@ -148,13 +211,13 @@ export function PalaceCard({
   return (
     <article
       aria-label={`${palace.name}宫 ${palace.star}`}
-      aria-pressed={interactive ? isSelected : undefined}
-      className={`group relative h-full overflow-hidden rounded-[1.1rem] border px-3 py-3 text-left transition sm:rounded-[1.25rem] sm:px-4 sm:py-4 ${
+      aria-pressed={isInteractive ? isSelected : undefined}
+      className={`group relative h-full overflow-hidden rounded-[1.1rem] border px-2.5 py-2.5 text-left transition sm:rounded-[1.25rem] sm:px-4 sm:py-4 ${
         isCenterPalace
           ? 'palace-card-center'
           : 'palace-card-shell'
       } ${
-        interactive
+        isInteractive
           ? 'cursor-pointer hover:-translate-y-0.5'
           : 'cursor-default'
       } ${
@@ -164,45 +227,49 @@ export function PalaceCard({
             : 'opacity-90'
           : ''
       } ${
-        isSelected && interactive
+        isSelected && isInteractive
           ? 'ring-1 ring-[var(--accent-strong)] shadow-[var(--shadow-strong)]'
           : ''
       } ${
         isFilterSelected
           ? 'ring-2 ring-[#f0d59a] ring-offset-0'
           : ''
-      } ${resolveToneClass(annotation)}`}
+      } ${layoutMinHeightClass} ${resolveToneClass(annotation)} ${className}`}
       data-pattern-tone={annotation?.tone ?? 'none'}
-      data-testid="qimen-palace"
-      onClick={handleCardClick}
-      onKeyDown={handleKeyDown}
-      onPointerDown={() => selectionMode && onSelectionDragStart()}
-      onPointerEnter={() => selectionMode && onSelectionEnter(palace.position)}
-      role="button"
-      tabIndex={interactive ? 0 : -1}
+      data-testid={testId}
+      onClick={isInteractive ? handleCardClick : undefined}
+      onKeyDown={isInteractive ? handleKeyDown : undefined}
+      onPointerDown={
+        isInteractive ? () => selectionMode && onSelectionDragStart() : undefined
+      }
+      onPointerEnter={
+        isInteractive ? () => selectionMode && onSelectionEnter(palace.position) : undefined
+      }
+      role={isInteractive ? 'button' : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_62%)] opacity-60" />
-      <div className="relative flex h-full flex-col justify-between gap-3">
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_62%)] opacity-60" />
+      <div className="relative z-10 flex h-full flex-col gap-3 sm:gap-4">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.34em] text-[var(--text-muted)]">
+            <p className="text-[11px] uppercase tracking-[0.24em] text-[var(--text-muted)] sm:tracking-[0.34em]">
               {palace.name}宫
             </p>
             <p className="mt-1 text-xs text-[var(--text-muted)]">洛书 {palace.position}</p>
           </div>
-          <div className="flex flex-wrap justify-end gap-1">
+          <div className="flex shrink-0 flex-wrap justify-end gap-1">
             {annotation?.isHourPalace ? (
-              <span className="rounded-full border border-[var(--accent-strong)] px-2 py-1 text-[10px] uppercase tracking-[0.24em] text-[var(--accent-strong)]">
+              <span className="rounded-full border border-[var(--accent-strong)] px-1.5 py-0.5 text-[9px] uppercase tracking-[0.2em] text-[var(--accent-strong)] sm:px-2 sm:py-1 sm:text-[10px] sm:tracking-[0.24em]">
                 时干
               </span>
             ) : null}
             {annotation?.isValueDoorPalace ? (
-              <span className="rounded-full border border-[var(--border-strong)] px-2 py-1 text-[10px] uppercase tracking-[0.24em] text-[var(--text-secondary)]">
+              <span className="rounded-full border border-[var(--border-strong)] px-1.5 py-0.5 text-[9px] uppercase tracking-[0.2em] text-[var(--text-secondary)] sm:px-2 sm:py-1 sm:text-[10px] sm:tracking-[0.24em]">
                 值使
               </span>
             ) : null}
             {isCenterPalace ? (
-              <span className="rounded-full border border-[var(--border-strong)] px-2 py-1 text-[10px] uppercase tracking-[0.24em] text-[var(--accent-strong)]">
+              <span className="rounded-full border border-[var(--border-strong)] px-1.5 py-0.5 text-[9px] uppercase tracking-[0.2em] text-[var(--accent-strong)] sm:px-2 sm:py-1 sm:text-[10px] sm:tracking-[0.24em]">
                 局眼
               </span>
             ) : null}
@@ -213,15 +280,17 @@ export function PalaceCard({
           <LoadingLines emphasize={isCenterPalace} />
         ) : (
           <>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <p className={`font-semibold leading-none text-[var(--text-primary)] ${
                 isCenterPalace
-                  ? 'text-[1.3rem] sm:text-[2rem]'
-                  : 'text-[1.02rem] sm:text-[1.55rem]'
-              }`}>
+                  ? 'text-[1.12rem] sm:text-[2rem]'
+                  : 'text-[0.94rem] sm:text-[1.55rem]'
+              } leading-[1.05]`}>
                 {palace.star}
               </p>
-              <p className="hidden text-xs text-[var(--text-muted)] sm:block">
+              <p className={`hidden text-xs text-[var(--text-muted)] sm:block ${
+                detailMode !== 'compact' ? 'sm:hidden' : ''
+              }`}>
                 {selectionMode
                   ? isFilterSelected
                     ? '已纳入宫位筛选'
@@ -232,8 +301,8 @@ export function PalaceCard({
               </p>
             </div>
 
-            {detailChips.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5">
+            {detailMode === 'compact' && detailChips.length > 0 ? (
+              <div className="hidden flex-wrap gap-1.5 sm:flex">
                 {detailChips.map((item) => (
                   <span
                     className="inline-flex items-center gap-1 rounded-full border border-[var(--border-soft)] bg-black/10 px-2 py-1 text-[10px] leading-none text-[var(--text-secondary)]"
@@ -246,19 +315,69 @@ export function PalaceCard({
               </div>
             ) : null}
 
-            <dl className="space-y-2 text-sm">
-              <div className="flex items-center justify-between gap-2 border-t border-[var(--border-soft)] pt-2">
-                <dt className="text-[var(--text-muted)]">门</dt>
-                <dd className="font-medium text-[var(--text-primary)]">{palace.door}</dd>
+            {shouldRenderCompact ? (
+              <div className={`${detailMode === 'adaptive' ? 'flex sm:hidden' : 'flex'} flex-wrap gap-1`}>
+                {palace.skyGan ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border-soft)] bg-black/10 px-2 py-1 text-[10px] leading-none text-[var(--text-secondary)]">
+                    <span className="text-[var(--text-muted)]">天盘</span>
+                    <span className="text-[var(--text-primary)]">
+                      {formatPalaceDetailValue(palace.skyGan, palace.skyExtraGan)}
+                    </span>
+                  </span>
+                ) : null}
+                {palace.emptyMarkers && palace.emptyMarkers.length > 0 ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border-soft)] bg-black/10 px-2 py-1 text-[10px] leading-none text-[var(--text-secondary)]">
+                    <span className="text-[var(--text-muted)]">空亡</span>
+                    <span className="text-[var(--text-primary)]">
+                      {palace.emptyMarkers.join('/')}
+                    </span>
+                  </span>
+                ) : null}
               </div>
-              <div className="flex items-center justify-between gap-2">
-                <dt className="text-[var(--text-muted)]">神</dt>
-                <dd className="font-medium text-[var(--text-primary)]">{palace.god}</dd>
-              </div>
-            </dl>
+            ) : null}
 
-            {patternNames.length > 0 ? (
-              <div className="flex flex-wrap gap-2 border-t border-[var(--border-soft)] pt-2">
+            {shouldRenderCompact ? (
+              <dl
+                className={`grid grid-cols-2 gap-1.5 border-t border-[var(--border-soft)] pt-3 text-[11px] sm:text-sm ${
+                  detailMode === 'adaptive' ? 'sm:hidden' : 'sm:block sm:space-y-2'
+                }`}
+              >
+                {compactDoorGodRows.map((item) => (
+                  <div
+                    className="rounded-full border border-[var(--border-soft)] bg-black/10 px-2 py-1 sm:flex sm:items-center sm:justify-between sm:gap-2 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0"
+                    key={item.label}
+                  >
+                    <dt className="text-[var(--text-muted)]">{item.label}</dt>
+                    <dd className="font-medium text-[var(--text-primary)]">{item.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <></>
+            )}
+
+            {shouldRenderExpanded ? (
+              <dl
+                className={`grid grid-cols-2 gap-2 border-t border-[var(--border-soft)] pt-3 text-[10px] sm:pt-4 sm:text-[11px] ${
+                  detailMode === 'adaptive' ? 'hidden sm:grid' : ''
+                }`}
+              >
+                {expandedDetailRows.map((item) => (
+                  <div
+                    className="flex min-h-[4.4rem] flex-col justify-between rounded-[0.85rem] border border-[var(--border-soft)] bg-black/10 px-2 py-1.5"
+                    key={item.label}
+                  >
+                    <dt className="text-[var(--text-muted)]">{item.label}</dt>
+                    <dd className="mt-1.5 font-medium leading-5 text-[var(--text-primary)]">
+                      {item.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            ) : null}
+
+            {shouldRenderCompact && patternNames.length > 0 ? (
+              <div className="hidden flex-wrap gap-2 border-t border-[var(--border-soft)] pt-2 sm:flex">
                 {patternNames.map((patternName) => (
                   <button
                     className="rounded-full border border-[var(--border-strong)] bg-black/10 px-2.5 py-1 text-xs text-[var(--text-primary)] transition hover:border-[var(--accent-soft)]"
@@ -275,8 +394,8 @@ export function PalaceCard({
               </div>
             ) : null}
 
-            {invalidReasonLabel ? (
-              <p className="border-t border-[var(--border-soft)] pt-2 text-xs leading-6 text-[var(--text-muted)]">
+            {shouldRenderCompact && invalidReasonLabel ? (
+              <p className="hidden border-t border-[var(--border-soft)] pt-2 text-xs leading-6 text-[var(--text-muted)] sm:block">
                 失效: {invalidReasonLabel}
               </p>
             ) : null}

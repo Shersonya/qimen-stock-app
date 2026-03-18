@@ -20,11 +20,14 @@ describe('QimenGrid', () => {
   it('renders nine palaces and focuses the center palace by default', () => {
     render(<QimenGrid palaces={palaces} />);
 
-    expect(screen.getByTestId('qimen-grid')).toBeInTheDocument();
+    const qimenGrid = screen.getByTestId('qimen-grid');
+
+    expect(qimenGrid).toBeInTheDocument();
+    expect(qimenGrid.className).toContain('sm:aspect-auto');
     expect(screen.getAllByTestId('qimen-palace')).toHaveLength(9);
     expect(screen.getByText('天心星')).toBeInTheDocument();
-    expect(screen.getByText('开门')).toBeInTheDocument();
-    expect(screen.getByText('值符')).toBeInTheDocument();
+    expect(screen.getAllByText('开门').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('值符').length).toBeGreaterThan(0);
     expect(screen.getByText('中宫局眼')).toBeInTheDocument();
   });
 
@@ -59,8 +62,42 @@ describe('QimenGrid', () => {
 
     render(<QimenGrid palaces={palacesWithDetail} />);
 
-    expect(screen.getByText((_, element) => element?.textContent === '天盘丁')).toBeInTheDocument();
-    expect(screen.getByText((_, element) => element?.textContent === '地盘壬')).toBeInTheDocument();
-    expect(screen.getByText((_, element) => element?.textContent === '空亡日空')).toBeInTheDocument();
+    expect(
+      screen.getAllByText((_, element) => element?.textContent === '天盘丁').length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText((_, element) => element?.textContent === '地盘壬').length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText((_, element) => element?.textContent === '空亡日空').length,
+    ).toBeGreaterThan(0);
+  });
+
+  it('surfaces palace metadata in the focus panel after selecting a palace', async () => {
+    const user = userEvent.setup();
+    const palacesWithDetail = palaces.map((palace, index) => {
+      if (index !== 8) {
+        return palace;
+      }
+
+      return {
+        ...palace,
+        skyGan: '丙',
+        groundGan: '辛',
+        outGan: '癸',
+        branches: ['戌', '亥'],
+        emptyMarkers: ['时空'],
+      } as QimenPalace;
+    });
+
+    render(<QimenGrid palaces={palacesWithDetail} />);
+
+    await user.click(screen.getByRole('button', { name: '乾宫 天任星' }));
+
+    expect(screen.getByText('天盘 丙')).toBeInTheDocument();
+    expect(screen.getByText('地盘 辛')).toBeInTheDocument();
+    expect(screen.getByText('外盘 癸')).toBeInTheDocument();
+    expect(screen.getByText('地支 戌 / 亥')).toBeInTheDocument();
+    expect(screen.getByText('空亡 时空')).toBeInTheDocument();
   });
 });
