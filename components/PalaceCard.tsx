@@ -22,6 +22,11 @@ type PalaceCardProps = {
   onSelectionEnter: (palacePosition: number) => void;
 };
 
+type PalaceDetailChip = {
+  label: string;
+  value: string;
+};
+
 function LoadingLines({ emphasize = false }: { emphasize?: boolean }) {
   return (
     <div className="space-y-2">
@@ -49,6 +54,56 @@ function resolveToneClass(annotation: QimenPatternPalaceAnnotation | undefined) 
   }
 }
 
+function formatPalaceDetails(palace: QimenPalace): PalaceDetailChip[] {
+  const chips: PalaceDetailChip[] = [];
+
+  if (palace.skyGan) {
+    chips.push({
+      label: '天盘',
+      value: palace.skyExtraGan ? `${palace.skyGan}/${palace.skyExtraGan}` : palace.skyGan,
+    });
+  }
+
+  if (palace.groundGan) {
+    chips.push({
+      label: '地盘',
+      value: palace.groundExtraGan
+        ? `${palace.groundGan}/${palace.groundExtraGan}`
+        : palace.groundGan,
+    });
+  }
+
+  if (palace.emptyMarkers && palace.emptyMarkers.length > 0) {
+    chips.push({
+      label: '空亡',
+      value: palace.emptyMarkers.join('/'),
+    });
+  }
+
+  if (palace.wuxing) {
+    chips.push({
+      label: '五行',
+      value: palace.wuxing,
+    });
+  }
+
+  if (palace.outGan) {
+    chips.push({
+      label: '外盘',
+      value: palace.outExtraGan ? `${palace.outGan}/${palace.outExtraGan}` : palace.outGan,
+    });
+  }
+
+  if (palace.branches && palace.branches.length > 0) {
+    chips.push({
+      label: '地支',
+      value: palace.branches.join(''),
+    });
+  }
+
+  return chips.slice(0, 3);
+}
+
 export function PalaceCard({
   palace,
   annotation,
@@ -66,6 +121,7 @@ export function PalaceCard({
   const interactive = status === 'ready';
   const patternNames = annotation?.patternNames ?? [];
   const invalidReasonLabel = annotation?.invalidReasons.join('/') ?? '';
+  const detailChips = formatPalaceDetails(palace);
 
   function handleCardClick() {
     if (!interactive) {
@@ -160,12 +216,12 @@ export function PalaceCard({
             <div className="space-y-1">
               <p className={`font-semibold leading-none text-[var(--text-primary)] ${
                 isCenterPalace
-                  ? 'text-[1.7rem] sm:text-[2rem]'
-                  : 'text-[1.3rem] sm:text-[1.55rem]'
+                  ? 'text-[1.3rem] sm:text-[2rem]'
+                  : 'text-[1.02rem] sm:text-[1.55rem]'
               }`}>
                 {palace.star}
               </p>
-              <p className="text-xs text-[var(--text-muted)]">
+              <p className="hidden text-xs text-[var(--text-muted)] sm:block">
                 {selectionMode
                   ? isFilterSelected
                     ? '已纳入宫位筛选'
@@ -175,6 +231,20 @@ export function PalaceCard({
                     : '主星显化'}
               </p>
             </div>
+
+            {detailChips.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {detailChips.map((item) => (
+                  <span
+                    className="inline-flex items-center gap-1 rounded-full border border-[var(--border-soft)] bg-black/10 px-2 py-1 text-[10px] leading-none text-[var(--text-secondary)]"
+                    key={`${item.label}-${item.value}`}
+                  >
+                    <span className="text-[var(--text-muted)]">{item.label}</span>
+                    <span className="text-[var(--text-primary)]">{item.value}</span>
+                  </span>
+                ))}
+              </div>
+            ) : null}
 
             <dl className="space-y-2 text-sm">
               <div className="flex items-center justify-between gap-2 border-t border-[var(--border-soft)] pt-2">

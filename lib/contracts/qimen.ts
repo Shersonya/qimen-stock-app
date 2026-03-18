@@ -37,6 +37,33 @@ export type QimenPalace = {
   star: string;
   door: string;
   god: string;
+  skyGan?: string;
+  skyExtraGan?: string | null;
+  groundGan?: string;
+  groundExtraGan?: string | null;
+  outGan?: string | null;
+  outExtraGan?: string | null;
+  branches?: string[];
+  wuxing?: string;
+  emptyMarkers?: string[];
+};
+
+export type QimenChartMeta = {
+  analysisTime: string;
+  solarTerm: string;
+  xunHead: string;
+  xunHeadGan: string;
+  yearGanzhi: string;
+  monthGanzhi: string;
+  dayGanzhi: string;
+  hourGanzhi: string;
+  rikong: string;
+  shikong: string;
+  isFuyin: boolean;
+  isFanyin: boolean;
+  isWubuyushi: boolean;
+  valueStarPalace: number;
+  valueDoorPalace: number;
 };
 
 export type QimenResult = {
@@ -45,6 +72,80 @@ export type QimenResult = {
   valueStar: string;
   valueDoor: string;
   palaces: QimenPalace[];
+  meta?: QimenChartMeta;
+};
+
+export type QimenDeepDiagnosisAction = 'BUY' | 'WATCH' | 'SELL';
+
+export type QimenDeepDiagnosisBasis = {
+  stockCode: string;
+  stockName: string;
+  analysisTime: string;
+  yearGanzhi: string;
+  monthGanzhi: string;
+  dayGanzhi: string;
+  hourGanzhi: string;
+};
+
+export type QimenDeepDiagnosisUseShen = {
+  kind: 'dayStem' | 'hourStem' | 'shengDoor' | 'valueDoor';
+  label: string;
+  value: string;
+  palacePosition: number;
+  palaceName: string;
+  direction: string;
+  summary: string;
+};
+
+export type QimenDeepDiagnosisPalaceReading = {
+  title: string;
+  role: string;
+  palacePosition: number;
+  palaceName: string;
+  skyGan: string;
+  groundGan: string;
+  star: string;
+  door: string;
+  god: string;
+  emptyMarkers: string[];
+  relationToDayStemPalace: string;
+  tianShi: string;
+  diLi: string;
+  renHe: string;
+  shenZhu: string;
+  stemPattern: string;
+  summary: string;
+};
+
+export type QimenDeepDiagnosisOutlook = {
+  horizon: '明日' | '一周' | '一月' | '一季';
+  trend: '偏多' | '震荡' | '偏空' | '观望';
+  detail: string;
+};
+
+export type QimenDeepDiagnosisReport = {
+  basis: QimenDeepDiagnosisBasis;
+  coreConclusion: string;
+  action: QimenDeepDiagnosisAction;
+  actionLabel: string;
+  successProbability: number;
+  riskLevel: '低' | '中' | '高';
+  firstImpression: string;
+  globalPattern: {
+    isFuyin: boolean;
+    isFanyin: boolean;
+    isWubuyushi: boolean;
+    rikong: string;
+    shikong: string;
+    summary: string;
+  };
+  useShen: QimenDeepDiagnosisUseShen[];
+  palaceReadings: QimenDeepDiagnosisPalaceReading[];
+  decisionRationale: string[];
+  outlooks: QimenDeepDiagnosisOutlook[];
+  keyTimingHints: string[];
+  actionGuide: string[];
+  note: string;
 };
 
 export type PlumPriceBasis = 'open';
@@ -88,6 +189,7 @@ export type PlumResult = PlumReadyResult | PlumUnavailableResult;
 
 export type QimenApiRequest = {
   stockCode: string;
+  analysisTime?: string;
 };
 
 export const QIMEN_DOOR_OPTIONS = [
@@ -298,6 +400,7 @@ export type StockAnalysisSuccessResponse = {
   qimen: QimenResult;
   plum: PlumResult;
   patternAnalysis: QimenPatternAnalysis;
+  deepDiagnosis?: QimenDeepDiagnosisReport;
 };
 
 export type QimenApiSuccessResponse = StockAnalysisSuccessResponse;

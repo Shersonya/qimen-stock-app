@@ -65,7 +65,9 @@ function MetricCard({
   return (
     <article className="rounded-[1.25rem] border border-[var(--border-soft)] bg-[var(--surface-muted)] px-4 py-4">
       <p className="mystic-section-label">{label}</p>
-      <p className="mt-3 text-2xl font-semibold text-[var(--text-primary)]">{value}</p>
+      <p className="mt-3 text-xl font-semibold text-[var(--text-primary)] sm:text-2xl">
+        {value}
+      </p>
     </article>
   );
 }
@@ -158,6 +160,10 @@ function LegendChip({
   );
 }
 
+function renderBooleanLabel(value: boolean, positiveLabel: string, negativeLabel: string) {
+  return value ? positiveLabel : negativeLabel;
+}
+
 export function QimenBoard({
   palaces,
   status,
@@ -199,6 +205,24 @@ export function QimenBoard({
       ]),
     );
   }, [patternAnalysis?.palaceAnnotations]);
+  const chartMetaItems = result?.qimen.meta
+    ? [
+        ['旬首', result.qimen.meta.xunHead],
+        ['旬首六仪', result.qimen.meta.xunHeadGan],
+        ['日干支', result.qimen.meta.dayGanzhi],
+        ['时干支', result.qimen.meta.hourGanzhi],
+        ['日空', result.qimen.meta.rikong],
+        ['时空', result.qimen.meta.shikong],
+        [
+          '格局',
+          [
+            renderBooleanLabel(result.qimen.meta.isFuyin, '伏吟', '非伏吟'),
+            renderBooleanLabel(result.qimen.meta.isFanyin, '反吟', '非反吟'),
+            renderBooleanLabel(result.qimen.meta.isWubuyushi, '五不遇时', '非五不遇时'),
+          ].join(' / '),
+        ],
+      ]
+    : [];
 
   function upsertSelection(palacePosition: number) {
     setSelectedFilterPositions((current) => {
@@ -268,6 +292,19 @@ export function QimenBoard({
               <p className="mt-3 rounded-[1rem] border border-[var(--border-soft)] bg-[var(--surface-muted)] px-4 py-3 text-sm leading-7 text-[var(--text-secondary)]">
                 {summary.synopsis}
               </p>
+              {chartMetaItems.length > 0 ? (
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  {chartMetaItems.map(([label, value]) => (
+                    <div
+                      className="rounded-[1rem] border border-[var(--border-soft)] bg-[var(--surface-overlay)] px-3 py-3"
+                      key={label}
+                    >
+                      <p className="mystic-section-label">{label}</p>
+                      <p className="mt-2 text-sm text-[var(--text-primary)]">{value}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </article>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -370,7 +407,7 @@ export function QimenBoard({
                   </h3>
                 </div>
                 <button
-                  className={`rounded-full border px-3 py-2 text-sm transition ${
+                  className={`w-full rounded-full border px-3 py-2 text-sm transition sm:w-auto ${
                     selectionMode
                       ? 'border-[var(--accent-strong)] bg-[var(--surface-raised)] text-[var(--text-primary)]'
                       : 'border-[var(--border-soft)] bg-[var(--surface-overlay)] text-[var(--text-secondary)] hover:border-[var(--accent-soft)]'
@@ -419,7 +456,7 @@ export function QimenBoard({
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
-                    className="mystic-button-secondary"
+                    className="mystic-button-secondary w-full sm:w-auto"
                     disabled={selectedFilterPositions.length === 0}
                     onClick={() => onApplyPalaceFilter(selectedFilterPositions)}
                     type="button"
@@ -427,7 +464,7 @@ export function QimenBoard({
                     以所选宫位筛全市场
                   </button>
                   <button
-                    className="mystic-chip"
+                    className="mystic-chip w-full justify-center sm:w-auto"
                     disabled={selectedFilterPositions.length === 0}
                     onClick={() => setSelectedFilterPositions([])}
                     type="button"
@@ -441,7 +478,7 @@ export function QimenBoard({
         ) : null}
 
         <div
-          className="board-shell relative mt-5 aspect-square overflow-hidden rounded-[1.9rem] border border-[var(--border-soft)] p-3 sm:p-4"
+          className="board-shell relative mt-5 aspect-[0.88] overflow-hidden rounded-[1.9rem] border border-[var(--border-soft)] p-2.5 sm:aspect-[0.94] sm:p-4 md:aspect-square"
           data-testid="qimen-grid"
           onPointerLeave={() => setDraggingSelection(false)}
           onPointerUp={() => setDraggingSelection(false)}
@@ -455,7 +492,7 @@ export function QimenBoard({
           <div className="pointer-events-none absolute top-2/3 left-4 h-px w-[calc(100%-2rem)] -translate-y-1/2 bg-[linear-gradient(90deg,transparent,var(--line-soft),transparent)]" />
           <div className="pointer-events-none absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[var(--border-strong)] bg-[radial-gradient(circle,rgba(255,217,143,0.14),transparent_65%)] blur-sm sm:h-36 sm:w-36" />
 
-          <div className="relative grid h-full grid-cols-3 grid-rows-3 gap-2.5 sm:gap-3">
+          <div className="relative grid h-full grid-cols-3 grid-rows-3 gap-2 sm:gap-3">
             {palaces.map((palace) => (
               <PalaceCard
                 annotation={patternAnnotationMap.get(palace.position)}
@@ -566,6 +603,135 @@ export function QimenBoard({
                     <InsightCard body={item.body} key={item.title} title={item.title} />
                   ))}
                 </div>
+                {result.deepDiagnosis ? (
+                  <div
+                    className="mt-5 space-y-4"
+                    data-testid="deep-diagnosis-panel"
+                  >
+                    <article className="rounded-[1.4rem] border border-[var(--border-strong)] bg-[var(--surface-raised)] px-4 py-4">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="mystic-section-label">深度诊断</p>
+                          <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)] sm:text-2xl">
+                            {result.deepDiagnosis.actionLabel}
+                          </h3>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="mystic-chip">成功率 {result.deepDiagnosis.successProbability}%</span>
+                          <span className="mystic-chip">风险 {result.deepDiagnosis.riskLevel}</span>
+                        </div>
+                      </div>
+                      <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
+                        {result.deepDiagnosis.coreConclusion}
+                      </p>
+                      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                        {result.deepDiagnosis.useShen.map((item) => (
+                          <article
+                            className="rounded-[1.1rem] border border-[var(--border-soft)] bg-[var(--surface-muted)] px-4 py-4"
+                            key={`${item.kind}-${item.palacePosition}`}
+                          >
+                            <p className="mystic-section-label">{item.label}</p>
+                            <h4 className="mt-2 text-lg font-semibold text-[var(--text-primary)]">
+                              {item.value} · {item.palaceName}{item.palacePosition}宫
+                            </h4>
+                            <p className="mt-2 text-sm leading-7 text-[var(--text-secondary)]">
+                              {item.summary}
+                            </p>
+                          </article>
+                        ))}
+                      </div>
+                    </article>
+
+                    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+                      <article className="rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-muted)] px-4 py-4">
+                        <p className="mystic-section-label">五步推演</p>
+                        <div className="mt-4 space-y-4">
+                          {result.deepDiagnosis.palaceReadings.map((item) => (
+                            <article
+                              className="rounded-[1.15rem] border border-[var(--border-soft)] bg-[var(--surface-overlay)] px-4 py-4"
+                              key={`${item.title}-${item.palacePosition}`}
+                            >
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <h4 className="text-lg font-semibold text-[var(--text-primary)]">
+                                  {item.title} · {item.palaceName}{item.palacePosition}宫
+                                </h4>
+                                <span className="mystic-chip">{item.role}</span>
+                              </div>
+                              <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
+                                {item.summary}
+                              </p>
+                              <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--text-secondary)]">
+                                <p><span className="text-[var(--text-primary)]">天时：</span>{item.tianShi}</p>
+                                <p><span className="text-[var(--text-primary)]">地利：</span>{item.diLi}</p>
+                                <p><span className="text-[var(--text-primary)]">人和：</span>{item.renHe}</p>
+                                <p><span className="text-[var(--text-primary)]">神助：</span>{item.shenZhu}</p>
+                                <p><span className="text-[var(--text-primary)]">干盘：</span>{item.stemPattern}</p>
+                              </div>
+                            </article>
+                          ))}
+                        </div>
+                      </article>
+
+                      <div className="space-y-4">
+                        <article className="rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-muted)] px-4 py-4">
+                          <p className="mystic-section-label">综合判断</p>
+                          <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
+                            {result.deepDiagnosis.firstImpression}
+                          </p>
+                          <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--text-secondary)]">
+                            {result.deepDiagnosis.decisionRationale.map((item) => (
+                              <p key={item}>{item}</p>
+                            ))}
+                          </div>
+                        </article>
+
+                        <article className="rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-muted)] px-4 py-4">
+                          <p className="mystic-section-label">走势推演</p>
+                          <div className="mt-4 space-y-3">
+                            {result.deepDiagnosis.outlooks.map((item) => (
+                              <div
+                                className="rounded-[1rem] border border-[var(--border-soft)] bg-[var(--surface-overlay)] px-4 py-3"
+                                key={item.horizon}
+                              >
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <p className="text-sm font-semibold text-[var(--text-primary)]">
+                                    {item.horizon}
+                                  </p>
+                                  <span className="mystic-chip">{item.trend}</span>
+                                </div>
+                                <p className="mt-2 text-sm leading-7 text-[var(--text-secondary)]">
+                                  {item.detail}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </article>
+
+                        <article className="rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-muted)] px-4 py-4">
+                          <p className="mystic-section-label">行动指南</p>
+                          <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--text-secondary)]">
+                            {result.deepDiagnosis.actionGuide.map((item) => (
+                              <p key={item}>{item}</p>
+                            ))}
+                          </div>
+                          {result.deepDiagnosis.keyTimingHints.length > 0 ? (
+                            <div className="mt-4 border-t border-[var(--border-soft)] pt-4">
+                              <p className="mystic-section-label">关键节点</p>
+                              <div className="mt-3 space-y-3 text-sm leading-7 text-[var(--text-secondary)]">
+                                {result.deepDiagnosis.keyTimingHints.map((item) => (
+                                  <p key={item}>{item}</p>
+                                ))}
+                              </div>
+                            </div>
+                          ) : null}
+                          <p className="mt-4 text-xs leading-6 text-[var(--text-muted)]">
+                            {result.deepDiagnosis.note}
+                          </p>
+                        </article>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
               </section>
             ) : (
               <section

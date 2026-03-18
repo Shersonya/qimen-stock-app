@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import HomePage from '@/app/page';
@@ -93,6 +93,101 @@ const patternAnalysis = {
   ],
 };
 
+const deepDiagnosis = {
+  basis: {
+    stockCode: '600519',
+    stockName: '贵州茅台',
+    analysisTime: '2001-08-27T01:30:00.000Z',
+    yearGanzhi: '辛巳',
+    monthGanzhi: '丙申',
+    dayGanzhi: '壬戌',
+    hourGanzhi: '乙巳',
+  },
+  coreConclusion: '此局生门对时干有承接，当前更偏向等待确认后试多。',
+  action: 'BUY' as const,
+  actionLabel: '强烈看涨 / 可考虑买入',
+  successProbability: 68,
+  riskLevel: '中' as const,
+  firstImpression: '全局不伏吟，日空子丑，时空寅卯，整体仍有转圜空间。',
+  globalPattern: {
+    isFuyin: false,
+    isFanyin: false,
+    isWubuyushi: false,
+    rikong: '子丑',
+    shikong: '寅卯',
+    summary: '测试摘要',
+  },
+  useShen: [
+    {
+      kind: 'dayStem' as const,
+      label: '日干',
+      value: '壬',
+      palacePosition: 9,
+      palaceName: '离',
+      direction: '正南',
+      summary: '日干壬落离9宫。',
+    },
+    {
+      kind: 'hourStem' as const,
+      label: '时干',
+      value: '乙',
+      palacePosition: 1,
+      palaceName: '坎',
+      direction: '正北',
+      summary: '时干乙落坎1宫。',
+    },
+    {
+      kind: 'shengDoor' as const,
+      label: '核心用神',
+      value: '生门',
+      palacePosition: 9,
+      palaceName: '离',
+      direction: '正南',
+      summary: '生门落离9宫。',
+    },
+    {
+      kind: 'valueDoor' as const,
+      label: '值使门',
+      value: '开门',
+      palacePosition: 3,
+      palaceName: '震',
+      direction: '正东',
+      summary: '值使门落震3宫。',
+    },
+  ],
+  palaceReadings: [
+    {
+      title: '生门宫',
+      role: '利润与结果',
+      palacePosition: 9,
+      palaceName: '离',
+      skyGan: '壬',
+      groundGan: '丁',
+      star: '天柱星',
+      door: '生门',
+      god: '腾蛇',
+      emptyMarkers: [],
+      relationToDayStemPalace: '比和',
+      tianShi: '天柱主阻力与分歧。',
+      diLi: '离9宫属火，相对日干宫为比和。',
+      renHe: '生门主利润与增量。',
+      shenZhu: '腾蛇多虚实难辨。',
+      stemPattern: '壬丁相见，宜结合门星神综合判断。',
+      summary: '生门宫综合偏积极。',
+    },
+  ],
+  decisionRationale: ['生门宫与时干宫能形成承接。'],
+  outlooks: [
+    { horizon: '明日' as const, trend: '偏多' as const, detail: '先看时干宫表现。' },
+    { horizon: '一周' as const, trend: '震荡' as const, detail: '值使门附近更容易变盘。' },
+    { horizon: '一月' as const, trend: '偏多' as const, detail: '若生门持续承托，月内偏强。' },
+    { horizon: '一季' as const, trend: '震荡' as const, detail: '节气转换后再验证。' },
+  ],
+  keyTimingHints: ['重点关注子丑、寅卯填实时段。'],
+  actionGuide: ['等待时干宫确认后分批试仓。'],
+  note: '仅供功能演示。',
+};
+
 const successPayload: QimenApiSuccessResponse = {
   stock: {
     code: '600519',
@@ -160,6 +255,7 @@ const successPayload: QimenApiSuccessResponse = {
     },
   },
   patternAnalysis,
+  deepDiagnosis,
 };
 
 const altSuccessPayload: QimenApiSuccessResponse = {
@@ -178,6 +274,11 @@ const altSuccessPayload: QimenApiSuccessResponse = {
     bullishSignal: false,
     predictedDirection: '观望',
   },
+  deepDiagnosis: {
+    ...deepDiagnosis,
+    action: 'WATCH',
+    actionLabel: '观望',
+  },
 };
 
 const plumUnavailablePayload: QimenApiSuccessResponse = {
@@ -189,6 +290,7 @@ const plumUnavailablePayload: QimenApiSuccessResponse = {
     message: '当日开盘价缺失，暂时无法起梅花卦。',
   },
   patternAnalysis: altSuccessPayload.patternAnalysis,
+  deepDiagnosis: altSuccessPayload.deepDiagnosis,
 };
 
 const marketScreenSuccessPayload: MarketScreenSuccessResponse = {
@@ -382,8 +484,15 @@ describe('HomePage', () => {
     expect(screen.getByTestId('qimen-result-section')).toBeInTheDocument();
     expect(screen.getAllByTestId('qimen-palace')).toHaveLength(9);
     expect(screen.getByTestId('pattern-analysis-panel')).toBeInTheDocument();
+    expect(screen.getByTestId('deep-diagnosis-panel')).toBeInTheDocument();
     expect(screen.getByText('吉格专项分析')).toBeInTheDocument();
+    expect(screen.getByText('深度诊断')).toBeInTheDocument();
     expect(screen.getByText('高强度(趋势共振)')).toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        '首页现在只保留单一的稳重玄学版，首屏优先呈现起局入口、核心九宫盘和市场镇盘参考，不再出现额外风格或场景控制器。',
+      ),
+    ).not.toBeInTheDocument();
   });
 
   it('renders the error state when the API returns an error', async () => {
@@ -488,10 +597,10 @@ describe('HomePage', () => {
     const resultSection = screen.getByTestId('qimen-result-section');
 
     expect(resultSection).toHaveTextContent('贵州茅台 (600519)');
-    expect(screen.getByText('阴阳遁')).toBeInTheDocument();
-    expect(screen.getByText('局数')).toBeInTheDocument();
-    expect(screen.getByText('值符星')).toBeInTheDocument();
-    expect(screen.getByText('值使门')).toBeInTheDocument();
+    expect(within(resultSection).getByText('阴阳遁')).toBeInTheDocument();
+    expect(within(resultSection).getByText('局数')).toBeInTheDocument();
+    expect(within(resultSection).getByText('值符星')).toBeInTheDocument();
+    expect(within(resultSection).getAllByText('值使门').length).toBeGreaterThan(0);
     expect(screen.getByText('上市时间 2001-08-27 09:30')).toBeInTheDocument();
     expect(resultSection).toHaveTextContent('局势观察');
     expect(resultSection).toHaveTextContent('核心结论');

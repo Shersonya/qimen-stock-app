@@ -1,3 +1,4 @@
+import { TimeDunjia } from '@yhjs/dunjia';
 import { Solar } from 'lunar-typescript';
 
 import type { QimenPalace, QimenResult } from '@/lib/contracts/qimen';
@@ -24,6 +25,55 @@ const PALACE_NAMES: Record<number, string> = {
   7: '兑',
   8: '艮',
   9: '离',
+};
+
+const PALACE_WUXING_MAP: Record<number, string> = {
+  1: '水',
+  2: '土',
+  3: '木',
+  4: '木',
+  5: '土',
+  6: '金',
+  7: '金',
+  8: '土',
+  9: '火',
+};
+
+const PALACE_BRANCH_MAP: Record<number, string[]> = {
+  1: ['子'],
+  2: ['未', '申'],
+  3: ['卯'],
+  4: ['辰', '巳'],
+  5: [],
+  6: ['戌', '亥'],
+  7: ['酉'],
+  8: ['丑', '寅'],
+  9: ['午'],
+};
+
+const OPPOSITE_PALACE_MAP: Record<number, number> = {
+  1: 9,
+  2: 8,
+  3: 7,
+  4: 6,
+  5: 5,
+  6: 4,
+  7: 3,
+  8: 2,
+  9: 1,
+};
+
+const WU_BU_YU_SHI_MAP: Record<string, string> = {
+  甲: '庚',
+  乙: '辛',
+  丙: '壬',
+  丁: '癸',
+  戊: '甲',
+  己: '乙',
+  庚: '丙',
+  辛: '丁',
+  壬: '戊',
+  癸: '己',
 };
 
 const LIUJIA_XUN: Record<string, string> = {
@@ -155,6 +205,10 @@ function getChinaDateParts(datetime: Date): ChinaDateParts {
 function getStemAndBranch(ganzhi: string): { stem: string; branch: string } {
   const [stem = '', branch = ''] = Array.from(ganzhi);
   return { stem, branch };
+}
+
+function hasAnyBranch(branches: string[], targetValue: string) {
+  return Array.from(targetValue).some((item) => branches.includes(item));
 }
 
 function getXunShou(ganzhi: string): string {
@@ -444,8 +498,24 @@ function formatValueStar(valueStar: string): string {
   return valueStar === '天芮' ? '禽芮' : valueStar;
 }
 
+function buildSolar(datetime: Date) {
+  const chinaDate = getChinaDateParts(datetime);
+
+  return Solar.fromYmdHms(
+    chinaDate.year,
+    chinaDate.month,
+    chinaDate.day,
+    chinaDate.hour,
+    chinaDate.minute,
+    chinaDate.second,
+  );
+}
+
 export function generateQimenChart(datetime: Date): QimenResult {
-  const { hourGanzhi, yinYang, ju } = resolveChartMeta(datetime);
+  const solar = buildSolar(datetime);
+  const lunar = solar.getLunar();
+  const vendorBoard = TimeDunjia.create({ datetime });
+  const { solarTerm, hourGanzhi, yinYang, ju } = resolveChartMeta(datetime);
   const earthPlate = buildEarthPlate(ju, yinYang);
   const { xunShou, valueStar, originPalace } = getValueStarOrigin(
     hourGanzhi,
@@ -457,12 +527,65 @@ export function generateQimenChart(datetime: Date): QimenResult {
   const doors = arrangeDoors(valueDoor, doorPalace);
   const gods = arrangeGods(valueStarPalace, yinYang);
   const palaces = buildPalaces(stars, doors, gods);
+  const rikong = lunar.getDayXunKongExact();
+  const shikong = lunar.getTimeXunKong();
+  const dayGanzhi = lunar.getDayInGanZhiExact();
+  const hourStem = getStemAndBranch(hourGanzhi).stem;
+  const dayStem = getStemAndBranch(dayGanzhi).stem;
+  const isFuyin =
+    valueStarPalace === STAR_ORIGINAL_POSITIONS[valueStar] &&
+    doorPalace === GATE_ORIGINAL_POSITIONS[valueDoor];
+  const isFanyin =
+    OPPOSITE_PALACE_MAP[valueStarPalace] === STAR_ORIGINAL_POSITIONS[valueStar] &&
+    OPPOSITE_PALACE_MAP[doorPalace] === GATE_ORIGINAL_POSITIONS[valueDoor];
+  const isWubuyushi = WU_BU_YU_SHI_MAP[dayStem] === hourStem;
+  const vendorPalaceMap = new Map(
+    vendorBoard.palaces.map((palace) => [palace.position, palace]),
+  );
+  const mappedPalaces = mapPalaces(palaces).map((palace) => {
+    const vendorPalace = vendorPalaceMap.get(palace.position);
+    const branches = PALACE_BRANCH_MAP[palace.position] ?? [];
+    const emptyMarkers = [
+      ...(hasAnyBranch(branches, rikong) ? ['日空'] : []),
+      ...(hasAnyBranch(branches, shikong) ? ['时空'] : []),
+    ];
+
+    return {
+      ...palace,
+      skyGan: vendorPalace?.skyGan ?? '',
+      skyExtraGan: vendorPalace?.skyExtraGan ?? null,
+      groundGan: vendorPalace?.groundGan ?? '',
+      groundExtraGan: vendorPalace?.groundExtraGan ?? null,
+      outGan: vendorPalace?.outGan ?? null,
+      outExtraGan: vendorPalace?.outExtraGan ?? null,
+      branches,
+      wuxing: PALACE_WUXING_MAP[palace.position] ?? '',
+      emptyMarkers,
+    };
+  });
 
   return {
     yinYang,
     ju,
     valueStar: formatValueStar(valueStar),
     valueDoor,
-    palaces: mapPalaces(palaces),
+    palaces: mappedPalaces,
+    meta: {
+      analysisTime: datetime.toISOString(),
+      solarTerm,
+      xunHead: xunShou,
+      xunHeadGan: vendorBoard.meta.xunHeadGan,
+      yearGanzhi: lunar.getYearInGanZhiExact(),
+      monthGanzhi: lunar.getMonthInGanZhiExact(),
+      dayGanzhi,
+      hourGanzhi,
+      rikong,
+      shikong,
+      isFuyin,
+      isFanyin,
+      isWubuyushi,
+      valueStarPalace,
+      valueDoorPalace: doorPalace,
+    },
   };
 }

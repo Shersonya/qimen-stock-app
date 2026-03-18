@@ -10,6 +10,7 @@ import { generatePlumAnalysisFromOpenPrice } from '@/lib/plum/engine';
 import { generateQimenChart } from '@/lib/qimen/engine';
 import { evaluateQimenAuspiciousPatterns } from '@/lib/qimen/auspicious-patterns';
 import { analyzeStockForMarketScreen } from '@/lib/qimen/analysis';
+import { buildDeepDiagnosisReport } from '@/lib/qimen/deep-diagnosis';
 import { buildQimenPatternAnalysis } from '@/lib/qimen/pattern-report';
 import { getStockListingInfo } from '@/lib/services/stock-data';
 import { getStockOpenPrice } from '@/lib/services/stock-quote';
@@ -59,8 +60,11 @@ export async function POST(request: NextRequest) {
     }
 
     const stock = await getStockListingInfo(payload.stockCode ?? '');
+    const analysisDatetime = payload.analysisTime
+      ? new Date(payload.analysisTime)
+      : toChinaDate(stock.listingDate, stock.listingTime);
     const qimen = generateQimenChart(
-      toChinaDate(stock.listingDate, stock.listingTime),
+      analysisDatetime,
     );
     const plum = await getPlumResult(stock.code, stock.market);
     const patternSnapshot = analyzeStockForMarketScreen({
@@ -73,12 +77,14 @@ export async function POST(request: NextRequest) {
       patternSnapshot.patternInput,
     );
     const patternAnalysis = buildQimenPatternAnalysis(qimen, patternEvaluation);
+    const deepDiagnosis = buildDeepDiagnosisReport(stock, qimen);
 
     return NextResponse.json<QimenApiSuccessResponse>({
       stock,
       qimen,
       plum,
       patternAnalysis,
+      deepDiagnosis,
     });
   } catch (error) {
     const { statusCode, body } = toErrorResponse(error);

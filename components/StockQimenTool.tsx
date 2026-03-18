@@ -414,9 +414,6 @@ export function StockQimenTool() {
         <div className="relative z-10">
           <header className="mb-6 max-w-3xl">
             <p className="mystic-section-label">玄学分析系统</p>
-            <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)] sm:text-[15px]">
-              首页现在只保留单一的稳重玄学版，首屏优先呈现起局入口、核心九宫盘和市场镇盘参考，不再出现额外风格或场景控制器。
-            </p>
           </header>
 
           <div className="space-y-6">

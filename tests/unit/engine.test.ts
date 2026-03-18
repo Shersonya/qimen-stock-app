@@ -20,5 +20,19 @@ describe('generateQimenChart', () => {
       door: '--',
       god: '--',
     });
+    expect(result.meta).toMatchObject({
+      solarTerm: expect.any(String),
+      dayGanzhi: expect.any(String),
+      hourGanzhi: expect.any(String),
+      rikong: expect.any(String),
+      shikong: expect.any(String),
+    });
+    expect(result.palaces[0]).toMatchObject({
+      skyGan: expect.any(String),
+      groundGan: expect.any(String),
+      wuxing: expect.any(String),
+      branches: expect.any(Array),
+      emptyMarkers: expect.any(Array),
+    });
   });
 });

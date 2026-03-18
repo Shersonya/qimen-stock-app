@@ -13,6 +13,7 @@ import { generatePlumAnalysisFromOpenPrice } from '@/lib/plum/engine';
 import { generateQimenChart } from '@/lib/qimen/engine';
 import { evaluateQimenAuspiciousPatterns } from '@/lib/qimen/auspicious-patterns';
 import { analyzeStockForMarketScreen } from '@/lib/qimen/analysis';
+import { buildDeepDiagnosisReport } from '@/lib/qimen/deep-diagnosis';
 import { buildQimenPatternAnalysis } from '@/lib/qimen/pattern-report';
 import { getStockListingInfo } from '@/lib/services/stock-data';
 import { getStockOpenPrice } from '@/lib/services/stock-quote';
@@ -24,6 +25,7 @@ jest.mock('@/lib/plum/engine');
 jest.mock('@/lib/qimen/analysis');
 jest.mock('@/lib/qimen/auspicious-patterns');
 jest.mock('@/lib/qimen/pattern-report');
+jest.mock('@/lib/qimen/deep-diagnosis');
 
 const mockedGetStockListingInfo = jest.mocked(getStockListingInfo);
 const mockedGenerateQimenChart = jest.mocked(generateQimenChart);
@@ -34,6 +36,7 @@ const mockedEvaluateQimenAuspiciousPatterns = jest.mocked(
   evaluateQimenAuspiciousPatterns,
 );
 const mockedBuildQimenPatternAnalysis = jest.mocked(buildQimenPatternAnalysis);
+const mockedBuildDeepDiagnosisReport = jest.mocked(buildDeepDiagnosisReport);
 
 function createRequest(body: unknown) {
   return new NextRequest('http://localhost:3000/api/qimen', {
@@ -51,6 +54,7 @@ describe('POST /api/qimen', () => {
     mockedAnalyzeStockForMarketScreen.mockReset();
     mockedEvaluateQimenAuspiciousPatterns.mockReset();
     mockedBuildQimenPatternAnalysis.mockReset();
+    mockedBuildDeepDiagnosisReport.mockReset();
   });
 
   it('returns stock and qimen data on success', async () => {
@@ -205,6 +209,38 @@ describe('POST /api/qimen', () => {
       invalidPalaces: [],
       palaceAnnotations: [],
     });
+    mockedBuildDeepDiagnosisReport.mockReturnValueOnce({
+      basis: {
+        stockCode: '600519',
+        stockName: '贵州茅台',
+        analysisTime: '2001-08-27T01:30:00.000Z',
+        yearGanzhi: '辛巳',
+        monthGanzhi: '丙申',
+        dayGanzhi: '壬戌',
+        hourGanzhi: '乙巳',
+      },
+      coreConclusion: '测试结论',
+      action: 'WATCH',
+      actionLabel: '观望',
+      successProbability: 61,
+      riskLevel: '中',
+      firstImpression: '测试首印象',
+      globalPattern: {
+        isFuyin: false,
+        isFanyin: false,
+        isWubuyushi: false,
+        rikong: '子丑',
+        shikong: '寅卯',
+        summary: '测试摘要',
+      },
+      useShen: [],
+      palaceReadings: [],
+      decisionRationale: [],
+      outlooks: [],
+      keyTimingHints: [],
+      actionGuide: [],
+      note: '测试备注',
+    });
 
     const response = await POST(createRequest({ stockCode: '600519' }));
     const body = await response.json();
@@ -284,6 +320,38 @@ describe('POST /api/qimen', () => {
         },
         invalidPalaces: [],
         palaceAnnotations: [],
+      },
+      deepDiagnosis: {
+        basis: {
+          stockCode: '600519',
+          stockName: '贵州茅台',
+          analysisTime: '2001-08-27T01:30:00.000Z',
+          yearGanzhi: '辛巳',
+          monthGanzhi: '丙申',
+          dayGanzhi: '壬戌',
+          hourGanzhi: '乙巳',
+        },
+        coreConclusion: '测试结论',
+        action: 'WATCH',
+        actionLabel: '观望',
+        successProbability: 61,
+        riskLevel: '中',
+        firstImpression: '测试首印象',
+        globalPattern: {
+          isFuyin: false,
+          isFanyin: false,
+          isWubuyushi: false,
+          rikong: '子丑',
+          shikong: '寅卯',
+          summary: '测试摘要',
+        },
+        useShen: [],
+        palaceReadings: [],
+        decisionRationale: [],
+        outlooks: [],
+        keyTimingHints: [],
+        actionGuide: [],
+        note: '测试备注',
       },
     });
   });
@@ -400,6 +468,38 @@ describe('POST /api/qimen', () => {
       invalidPalaces: [],
       palaceAnnotations: [],
     });
+    mockedBuildDeepDiagnosisReport.mockReturnValueOnce({
+      basis: {
+        stockCode: '000001',
+        stockName: '平安银行',
+        analysisTime: '1991-04-03T01:30:00.000Z',
+        yearGanzhi: '辛未',
+        monthGanzhi: '辛卯',
+        dayGanzhi: '甲子',
+        hourGanzhi: '甲子',
+      },
+      coreConclusion: '测试结论',
+      action: 'SELL',
+      actionLabel: '不宜操作 / 可考虑卖出',
+      successProbability: 66,
+      riskLevel: '高',
+      firstImpression: '测试首印象',
+      globalPattern: {
+        isFuyin: false,
+        isFanyin: false,
+        isWubuyushi: false,
+        rikong: '戌亥',
+        shikong: '申酉',
+        summary: '测试摘要',
+      },
+      useShen: [],
+      palaceReadings: [],
+      decisionRationale: [],
+      outlooks: [],
+      keyTimingHints: [],
+      actionGuide: [],
+      note: '测试备注',
+    });
 
     const response = await POST(createRequest({ stockCode: '000001' }));
     const body = await response.json();
@@ -410,6 +510,7 @@ describe('POST /api/qimen', () => {
       code: ERROR_CODES.PLUM_PRICE_UNAVAILABLE,
       message: '当日开盘价缺失，暂时无法起梅花卦。',
     });
+    expect(body.deepDiagnosis).toBeTruthy();
     expect(mockedGeneratePlumAnalysisFromOpenPrice).not.toHaveBeenCalled();
   });
 
