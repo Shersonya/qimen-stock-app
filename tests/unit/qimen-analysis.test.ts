@@ -3,6 +3,7 @@
 import type { VendorBoard } from '@yhjs/dunjia';
 
 import {
+  analyzeStockForMarketScreen,
   analyzeStockWindows,
   findWindowBySkyStem,
   getGanzhiSnapshot,
@@ -57,6 +58,24 @@ describe('qimen analysis helpers', () => {
         star: '天辅星',
         god: '白虎',
       },
+    });
+  });
+
+  it('builds a market-screen snapshot with pattern input for downstream scoring', () => {
+    const result = analyzeStockForMarketScreen({
+      code: '600519',
+      name: '贵州茅台',
+      market: 'SH',
+      listingDate: '2001-08-27',
+    });
+
+    expect(result.patternInput.stock_id).toBe('600519');
+    expect(result.patternInput.qimen_data.值使门).toBeTruthy();
+    expect(result.patternInput.qimen_data.宫位信息).toHaveLength(9);
+    expect(result.patternInput.qimen_data.全局时间).toMatchObject({
+      日干支: '壬戌',
+      时干支: '乙巳',
+      是否伏吟: false,
     });
   });
 

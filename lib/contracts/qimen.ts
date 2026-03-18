@@ -11,6 +11,7 @@ export const ERROR_CODES = {
   PLUM_PRICE_UNAVAILABLE: 'PLUM_PRICE_UNAVAILABLE',
   PLUM_DATA_SOURCE_ERROR: 'PLUM_DATA_SOURCE_ERROR',
   MARKET_FILTER_REQUIRED: 'MARKET_FILTER_REQUIRED',
+  MARKET_ENVIRONMENT_UNFAVORABLE: 'MARKET_ENVIRONMENT_UNFAVORABLE',
   API_ERROR: 'API_ERROR',
 } as const;
 
@@ -126,14 +127,46 @@ export type MarketScreenWindowFilter = {
   god?: string;
 };
 
+export type MarketScreenPatternFilter = {
+  names?: string[];
+  minScore?: number;
+  bullishOnly?: boolean;
+  hourOnly?: boolean;
+};
+
 export type MarketScreenFilters = {
   hour: MarketScreenWindowFilter;
   day: MarketScreenWindowFilter;
   month: MarketScreenWindowFilter;
+  pattern?: MarketScreenPatternFilter;
+};
+
+export type MarketScreenMarketSignal = {
+  hasBAboveGE?: boolean;
+};
+
+export type MarketScreenPatternSummary = {
+  totalScore: number;
+  rating: 'S' | 'A' | 'B' | 'C';
+  energyLabel: string;
+  summary: string;
+  corePatternsLabel: string;
+  matchedPatternNames: string[];
+  hourPatternNames: string[];
+  counts: {
+    COMPOSITE: number;
+    A: number;
+    B: number;
+    C: number;
+  };
+  bullishSignal: boolean;
+  isEligible: boolean;
+  exclusionReason: string | null;
 };
 
 export type MarketScreenRequest = {
   filters?: Partial<MarketScreenFilters>;
+  marketSignal?: MarketScreenMarketSignal;
   page?: number;
   pageSize?: number;
 };
@@ -152,6 +185,7 @@ export type MarketScreenResultItem = {
   hourWindow: MarketScreenWindow;
   dayWindow: MarketScreenWindow;
   monthWindow: MarketScreenWindow;
+  patternSummary?: MarketScreenPatternSummary;
 };
 
 export type MarketScreenSuccessResponse = {
@@ -215,7 +249,9 @@ export function getErrorMessage(code: ErrorCode): string {
     case ERROR_CODES.PLUM_DATA_SOURCE_ERROR:
       return '梅花行情数据源暂时不可用，请稍后重试。';
     case ERROR_CODES.MARKET_FILTER_REQUIRED:
-      return '请至少设置一个时干、日干或月干筛选条件。';
+      return '请至少设置一个时干、日干、月干或吉格筛选条件。';
+    case ERROR_CODES.MARKET_ENVIRONMENT_UNFAVORABLE:
+      return '市场整体无吉气，个股吉格效力大幅减弱，建议空仓观望。';
     case ERROR_CODES.API_ERROR:
     default:
       return '请求处理失败，请稍后重试。';

@@ -60,6 +60,24 @@ describe('POST /api/market-screen', () => {
             star: '天任星',
             god: '九天',
           },
+          patternSummary: {
+            totalScore: 36,
+            rating: 'S',
+            energyLabel: '顶级机会(资金驱动)',
+            summary: '主力资金在利好驱动下入场，短期动能强劲。',
+            corePatternsLabel: '[COMPOSITE]真诈格(离9宫)、[A]青龙返首(坎1宫)',
+            matchedPatternNames: ['真诈格', '青龙返首'],
+            hourPatternNames: ['青龙返首'],
+            counts: {
+              COMPOSITE: 1,
+              A: 1,
+              B: 0,
+              C: 0,
+            },
+            bullishSignal: false,
+            isEligible: true,
+            exclusionReason: null,
+          },
         },
       ],
     });
@@ -76,6 +94,7 @@ describe('POST /api/market-screen', () => {
     expect(response.status).toBe(200);
     expect(body.total).toBe(1);
     expect(body.items[0].stock.code).toBe('000001');
+    expect(body.items[0].patternSummary.totalScore).toBe(36);
   });
 
   it('returns 400 when no filter condition is provided', async () => {
@@ -88,5 +107,28 @@ describe('POST /api/market-screen', () => {
 
     expect(response.status).toBe(400);
     expect(body.error.code).toBe(ERROR_CODES.MARKET_FILTER_REQUIRED);
+  });
+
+  it('returns 400 when the market environment is unfavorable', async () => {
+    mockedScreenMarketStocks.mockRejectedValueOnce(
+      new AppError(ERROR_CODES.MARKET_ENVIRONMENT_UNFAVORABLE, 400),
+    );
+
+    const response = await POST(
+      createRequest({
+        marketSignal: {
+          hasBAboveGE: false,
+        },
+        filters: {
+          pattern: {
+            names: ['青龙返首'],
+          },
+        },
+      }),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error.code).toBe(ERROR_CODES.MARKET_ENVIRONMENT_UNFAVORABLE);
   });
 });

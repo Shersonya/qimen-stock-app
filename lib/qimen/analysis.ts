@@ -8,9 +8,22 @@ import {
   type MarketScreenWindow,
   type Market,
 } from '@/lib/contracts/qimen';
+import type { RawQimenStockInput } from '@/lib/qimen/auspicious-patterns';
+import { generateQimenChart } from '@/lib/qimen/engine';
 import { AppError } from '@/lib/errors';
 
 const EMPTY_SLOT = '--';
+const PALACE_WUXING_MAP: Record<number, string> = {
+  1: '水',
+  2: '土',
+  3: '木',
+  4: '木',
+  5: '土',
+  6: '金',
+  7: '金',
+  8: '土',
+  9: '火',
+};
 
 type ChinaDateParts = {
   year: number;
@@ -26,6 +39,10 @@ type ScreenableStock = {
   name: string;
   market: Market;
   listingDate: string;
+};
+
+export type MarketScreenAnalysisSnapshot = MarketScreenResultItem & {
+  patternInput: RawQimenStockInput;
 };
 
 type GanzhiSnapshot = {
@@ -108,6 +125,36 @@ export function getGanzhiSnapshot(datetime: Date): GanzhiSnapshot {
   };
 }
 
+function buildPatternInput(
+  stock: ScreenableStock,
+  board: VendorBoard,
+  ganzhi: GanzhiSnapshot,
+): RawQimenStockInput {
+  const qimen = generateQimenChart(toChinaDate(stock.listingDate));
+
+  return {
+    stock_id: stock.code,
+    stock_name: stock.name,
+    qimen_data: {
+      天盘干: board.palaces.map((palace) => palace.skyGan ?? ''),
+      地盘干: board.palaces.map((palace) => palace.groundGan ?? ''),
+      门盘: board.palaces.map((palace) => palace.door?.name ?? '--'),
+      神盘: board.palaces.map((palace) => palace.god?.name ?? '--'),
+      宫位信息: board.palaces.map((palace) => ({
+        id: palace.position,
+        五行: PALACE_WUXING_MAP[palace.position] ?? '',
+        八卦: palace.name ?? '中',
+      })),
+      值使门: qimen.valueDoor,
+      全局时间: {
+        日干支: ganzhi.dayGanzhi,
+        时干支: ganzhi.hourGanzhi,
+        是否伏吟: false,
+      },
+    },
+  };
+}
+
 function toWindowResult(stem: string, palace: VendorPalace): MarketScreenWindow {
   return {
     stem,
@@ -156,5 +203,26 @@ export function analyzeStockWindows(
     hourWindow: findWindowBySkyStem(board, getStem(ganzhi.hourGanzhi)),
     dayWindow: findWindowBySkyStem(board, getStem(ganzhi.dayGanzhi)),
     monthWindow: findWindowBySkyStem(board, getStem(ganzhi.monthGanzhi)),
+  };
+}
+
+export function analyzeStockForMarketScreen(
+  stock: ScreenableStock,
+): MarketScreenAnalysisSnapshot {
+  const datetime = toChinaDate(stock.listingDate);
+  const board = TimeDunjia.create({ datetime });
+  const ganzhi = getGanzhiSnapshot(datetime);
+
+  return {
+    stock: {
+      code: stock.code,
+      name: stock.name,
+      market: stock.market,
+      listingDate: stock.listingDate,
+    },
+    hourWindow: findWindowBySkyStem(board, getStem(ganzhi.hourGanzhi)),
+    dayWindow: findWindowBySkyStem(board, getStem(ganzhi.dayGanzhi)),
+    monthWindow: findWindowBySkyStem(board, getStem(ganzhi.monthGanzhi)),
+    patternInput: buildPatternInput(stock, board, ganzhi),
   };
 }
