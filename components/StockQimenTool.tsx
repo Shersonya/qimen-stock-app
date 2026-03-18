@@ -2,6 +2,7 @@
 
 import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
 
+import type { StockSearchItem } from '@/data/stocks';
 import {
   ERROR_CODES,
   getErrorMessage,
@@ -26,6 +27,7 @@ import { FilterPanel, type BoardFilterPreset } from '@/components/FilterPanel';
 import { QimenBoard, type ResultTab } from '@/components/QimenBoard';
 import { QueryPanel } from '@/components/QueryPanel';
 import { ReferenceBoardPanel } from '@/components/ReferenceBoardPanel';
+import { findStockByCode, formatStockDisplay } from '@/lib/stockSearch';
 
 const RECENT_STOCK_CODES_STORAGE_KEY = 'qimen-stock-recent-codes';
 const DEFAULT_STOCK_CODE = '600519';
@@ -106,7 +108,9 @@ export function StockQimenTool() {
   const [result, setResult] = useState<QimenApiSuccessResponse | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [stockCode, setStockCode] = useState(DEFAULT_STOCK_CODE);
+  const [inputValue, setInputValue] = useState(DEFAULT_STOCK_CODE);
+  const [selectedStock, setSelectedStock] = useState<StockSearchItem | null>(null);
+  const [searchErrorMessage, setSearchErrorMessage] = useState<string | null>(null);
   const [recentStockCodes, setRecentStockCodes] = useState<string[]>([]);
   const [launchingStockCode, setLaunchingStockCode] = useState<string | null>(null);
   const [pendingResultFocus, setPendingResultFocus] = useState(false);
@@ -261,7 +265,15 @@ export function StockQimenTool() {
       startTransition(() => {
         setError(null);
         setResult(payload);
-        setStockCode(payload.stock.code);
+        const matchedStock = findStockByCode(payload.stock.code) ?? {
+          code: payload.stock.code,
+          name: payload.stock.name,
+          market: payload.stock.market,
+        };
+
+        setSelectedStock(matchedStock);
+        setInputValue(formatStockDisplay(matchedStock));
+        setSearchErrorMessage(null);
         setRecentStockCodes(nextRecentStockCodes);
         setSelectedMarket(payload.stock.market);
       });
@@ -277,8 +289,11 @@ export function StockQimenTool() {
 
   async function handleRecentStockCodeSelect(nextStockCode: string) {
     const inferredMarket = getMarketFromStockCode(nextStockCode);
+    const matchedStock = findStockByCode(nextStockCode);
 
-    setStockCode(nextStockCode);
+    setSelectedStock(matchedStock);
+    setInputValue(matchedStock ? formatStockDisplay(matchedStock) : nextStockCode);
+    setSearchErrorMessage(null);
 
     if (inferredMarket) {
       setSelectedMarket(inferredMarket);
@@ -293,9 +308,12 @@ export function StockQimenTool() {
     }
 
     const inferredMarket = getMarketFromStockCode(nextStockCode);
+    const matchedStock = findStockByCode(nextStockCode);
 
     setLaunchingStockCode(nextStockCode);
-    setStockCode(nextStockCode);
+    setSelectedStock(matchedStock);
+    setInputValue(matchedStock ? formatStockDisplay(matchedStock) : nextStockCode);
+    setSearchErrorMessage(null);
 
     if (inferredMarket) {
       setSelectedMarket(inferredMarket);
@@ -310,11 +328,35 @@ export function StockQimenTool() {
 
   function handleSampleCodeSelect(nextStockCode: string) {
     const inferredMarket = getMarketFromStockCode(nextStockCode);
+    const matchedStock = findStockByCode(nextStockCode);
 
-    setStockCode(nextStockCode);
+    setSelectedStock(matchedStock);
+    setInputValue(matchedStock ? formatStockDisplay(matchedStock) : nextStockCode);
+    setSearchErrorMessage(null);
 
     if (inferredMarket) {
       setSelectedMarket(inferredMarket);
+    }
+  }
+
+  function handleInputValueChange(nextValue: string) {
+    const trimmed = nextValue.trim();
+    const digitsMatch = trimmed.match(/^\d{1,6}$/);
+    const inferredMarket = digitsMatch ? getMarketFromStockCode(digitsMatch[0]) : null;
+
+    setInputValue(nextValue);
+    setSelectedStock(null);
+
+    if (inferredMarket) {
+      setSelectedMarket(inferredMarket);
+    }
+  }
+
+  function handleSelectedStockChange(nextStock: StockSearchItem | null) {
+    setSelectedStock(nextStock);
+
+    if (nextStock) {
+      setSelectedMarket(nextStock.market);
     }
   }
 
@@ -322,9 +364,19 @@ export function StockQimenTool() {
     setSelectedMarket(market);
 
     const marketSampleCodes = SAMPLE_CODES_BY_MARKET[market];
+    const currentCandidateCode =
+      selectedStock?.code ?? inputValue.trim().match(/^\d{6}$/)?.[0] ?? null;
 
-    if (marketSampleCodes.length > 0 && !recentStockCodes.includes(stockCode)) {
-      setStockCode(marketSampleCodes[0] ?? stockCode);
+    if (
+      marketSampleCodes.length > 0 &&
+      (!currentCandidateCode || !recentStockCodes.includes(currentCandidateCode))
+    ) {
+      const nextSampleCode = marketSampleCodes[0] ?? currentCandidateCode ?? DEFAULT_STOCK_CODE;
+      const matchedStock = findStockByCode(nextSampleCode);
+
+      setSelectedStock(matchedStock);
+      setInputValue(matchedStock ? formatStockDisplay(matchedStock) : nextSampleCode);
+      setSearchErrorMessage(null);
     }
   }
 
@@ -371,14 +423,18 @@ export function StockQimenTool() {
             <div className="grid gap-6 xl:grid-cols-[minmax(360px,0.86fr)_minmax(0,1.14fr)] xl:items-start">
               <div className="space-y-5">
                 <QueryPanel
+                  inputValue={inputValue}
                   isSubmitting={isSubmitting}
+                  onInputValueChange={handleInputValueChange}
                   onRecentStockCodeSelect={handleRecentStockCodeSelect}
                   onSampleCodeSelect={handleSampleCodeSelect}
-                  onStockCodeChange={setStockCode}
+                  onSearchErrorMessageChange={setSearchErrorMessage}
+                  onSelectedStockChange={handleSelectedStockChange}
                   onSubmit={handleSubmit}
                   recentStockCodes={recentStockCodes}
+                  searchErrorMessage={searchErrorMessage}
+                  selectedStock={selectedStock}
                   selectedMarket={selectedMarket}
-                  stockCode={stockCode}
                 />
                 <ReferenceBoardPanel
                   onMarketChange={handleMarketChange}

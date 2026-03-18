@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import HomePage from '@/app/page';
@@ -406,9 +406,9 @@ describe('HomePage', () => {
     await user.click(screen.getByRole('button', { name: '开始排盘分析' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      '请输入 6 位 A 股股票代码。',
+      '匹配结果较多，请先从候选列表中选择股票。',
     );
-    expect(screen.getByRole('heading', { name: '阵盘待重启' })).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('stores successful queries in recent history and can replay them', async () => {
@@ -485,7 +485,7 @@ describe('HomePage', () => {
     await user.click(screen.getByRole('button', { name: '开始排盘分析' }));
     await screen.findByRole('heading', { name: '贵州茅台 上市时刻九宫盘' });
 
-    const resultSection = await screen.findByTestId('qimen-result-section');
+    const resultSection = screen.getByTestId('qimen-result-section');
 
     expect(resultSection).toHaveTextContent('贵州茅台 (600519)');
     expect(screen.getByText('阴阳遁')).toBeInTheDocument();
@@ -566,7 +566,7 @@ describe('HomePage', () => {
       await screen.findByRole('heading', { name: '平安银行 上市时刻九宫盘' }),
     ).toBeInTheDocument();
     expect(screen.getByText('平安银行 (000001)')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('000001')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('000001 平安银行')).toBeInTheDocument();
     expect(screen.getByText('共筛得 1 只标的')).toBeInTheDocument();
     expect(window.localStorage.getItem('qimen-stock-recent-codes')).toBe(
       JSON.stringify(['000001']),
@@ -727,5 +727,141 @@ describe('HomePage', () => {
     expect(
       JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body ?? '{}')).items[0].stock.code,
     ).toBe('000001');
+  });
+
+  it('shows autocomplete candidates for fuzzy Chinese names and fills the formatted value after selection', async () => {
+    const user = userEvent.setup();
+
+    render(<HomePage />);
+
+    const input = screen.getByRole('combobox', { name: '股票代码' });
+
+    await user.clear(input);
+    await user.type(input, '茅台');
+
+    const option = await screen.findByRole('option', { name: /600519 贵州茅台/ });
+
+    await user.click(option);
+
+    expect(screen.getByDisplayValue('600519 贵州茅台')).toBeInTheDocument();
+  });
+
+  it('supports keyboard navigation for code-prefix searches', async () => {
+    const user = userEvent.setup();
+
+    render(<HomePage />);
+
+    const input = screen.getByRole('combobox', { name: '股票代码' });
+
+    await user.clear(input);
+    await user.type(input, '300');
+    const options = await screen.findAllByRole('option');
+
+    expect(options.length).toBeGreaterThan(3);
+
+    const activeBefore = input.getAttribute('aria-activedescendant');
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+
+    await waitFor(() => {
+      expect(screen.getByRole('combobox', { name: '股票代码' })).toHaveAttribute(
+        'aria-activedescendant',
+        expect.any(String),
+      );
+      expect(screen.getByRole('combobox', { name: '股票代码' }).getAttribute('aria-activedescendant')).not.toBe(
+        activeBefore,
+      );
+    });
+
+    const activeAfterFirstMove = screen
+      .getByRole('combobox', { name: '股票代码' })
+      .getAttribute('aria-activedescendant');
+
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+
+    await waitFor(() => {
+      expect(screen.getByRole('combobox', { name: '股票代码' }).getAttribute('aria-activedescendant')).not.toBe(
+        activeAfterFirstMove,
+      );
+    });
+
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    await waitFor(() => {
+      const resolvedValue = (
+        screen.getByRole('combobox', { name: '股票代码' }) as HTMLInputElement
+      ).value;
+
+      expect(resolvedValue).not.toBe('300');
+      expect(resolvedValue).toMatch(/^300\d{3}\s.+$/);
+    });
+  });
+
+  it('shows many real candidates for broad one-character fuzzy queries such as 川', async () => {
+    const user = userEvent.setup();
+
+    render(<HomePage />);
+
+    const input = screen.getByRole('combobox', { name: '股票代码' });
+
+    await user.clear(input);
+    await user.type(input, '川');
+
+    const options = await screen.findAllByRole('option', { name: /川/ });
+
+    expect(options.length).toBeGreaterThanOrEqual(8);
+  });
+
+  it('shows the empty state when no stocks match the current query', async () => {
+    const user = userEvent.setup();
+
+    render(<HomePage />);
+
+    const input = screen.getByRole('combobox', { name: '股票代码' });
+
+    await user.clear(input);
+    await user.type(input, '不存在');
+
+    expect(
+      await screen.findByText('未找到匹配股票，请尝试输入完整代码或更准确的名称'),
+    ).toBeInTheDocument();
+  });
+
+  it('auto-submits the best unique match when the user clicks without explicitly selecting a suggestion', async () => {
+    const user = userEvent.setup();
+
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => successPayload,
+    } as Response);
+
+    render(<HomePage />);
+
+    const input = screen.getByRole('combobox', { name: '股票代码' });
+
+    await user.clear(input);
+    await user.type(input, '茅台');
+    await user.click(screen.getByRole('button', { name: '开始排盘分析' }));
+
+    expect(
+      JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body ?? '{}')).stockCode,
+    ).toBe('600519');
+    expect(await screen.findByDisplayValue('600519 贵州茅台')).toBeInTheDocument();
+  });
+
+  it('requires explicit choice when the fuzzy query remains ambiguous', async () => {
+    const user = userEvent.setup();
+
+    render(<HomePage />);
+
+    const input = screen.getByRole('combobox', { name: '股票代码' });
+
+    await user.clear(input);
+    await user.type(input, '平安');
+    await user.click(screen.getByRole('button', { name: '开始排盘分析' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      '匹配结果较多，请先从候选列表中选择股票。',
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

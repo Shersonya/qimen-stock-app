@@ -1,25 +1,40 @@
 'use client';
 
+import type { StockSearchItem } from '@/data/stocks';
+import { StockSearchInput } from '@/components/StockSearchInput';
+import {
+  findStockByCode,
+  formatStockDisplay,
+  resolveStock,
+} from '@/lib/stockSearch';
 import type { Market } from '@/lib/contracts/qimen';
 import { SAMPLE_CODES_BY_MARKET, getMarketDescription, getMarketShortLabel } from '@/lib/ui';
 
 type QueryPanelProps = {
-  stockCode: string;
+  inputValue: string;
+  selectedStock: StockSearchItem | null;
+  searchErrorMessage: string | null;
   recentStockCodes: string[];
   selectedMarket: Market;
   isSubmitting: boolean;
-  onStockCodeChange: (stockCode: string) => void;
+  onInputValueChange: (value: string) => void;
+  onSearchErrorMessageChange: (message: string | null) => void;
+  onSelectedStockChange: (stock: StockSearchItem | null) => void;
   onRecentStockCodeSelect: (stockCode: string) => void;
   onSampleCodeSelect: (stockCode: string) => void;
   onSubmit: (stockCode: string) => Promise<void>;
 };
 
 export function QueryPanel({
-  stockCode,
+  inputValue,
+  selectedStock,
+  searchErrorMessage,
   recentStockCodes,
   selectedMarket,
   isSubmitting,
-  onStockCodeChange,
+  onInputValueChange,
+  onSearchErrorMessageChange,
+  onSelectedStockChange,
   onRecentStockCodeSelect,
   onSampleCodeSelect,
   onSubmit,
@@ -28,7 +43,24 @@ export function QueryPanel({
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    await onSubmit(stockCode);
+
+    if (selectedStock) {
+      onSearchErrorMessageChange(null);
+      await onSubmit(selectedStock.code);
+      return;
+    }
+
+    const resolution = resolveStock(inputValue);
+
+    if (!resolution.isConfident) {
+      onSearchErrorMessageChange(resolution.errorMessage);
+      return;
+    }
+
+    onSelectedStockChange(resolution.stock);
+    onInputValueChange(formatStockDisplay(resolution.stock));
+    onSearchErrorMessageChange(null);
+    await onSubmit(resolution.stock.code);
   }
 
   return (
@@ -64,18 +96,17 @@ export function QueryPanel({
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_240px] xl:items-end">
             <label className="block">
               <span className="text-sm font-medium text-[var(--text-secondary)]">
-                股票代码
+                股票代码 / 名称
               </span>
-              <input
-                className="mystic-input mt-2"
-                inputMode="numeric"
-                maxLength={6}
-                name="stockCode"
-                onChange={(event) =>
-                  onStockCodeChange(event.target.value.replace(/\D/g, '').slice(0, 6))
-                }
-                placeholder={`输入 6 位 ${getMarketShortLabel(selectedMarket)} 股票代码`}
-                value={stockCode}
+              <StockSearchInput
+                disabled={isSubmitting}
+                errorMessage={searchErrorMessage}
+                inputValue={inputValue}
+                onErrorMessageChange={onSearchErrorMessageChange}
+                onInputValueChange={onInputValueChange}
+                onSelectedStockChange={onSelectedStockChange}
+                placeholder={`输入 ${getMarketShortLabel(selectedMarket)} 股票代码、名称或简称`}
+                selectedStock={selectedStock}
               />
             </label>
             <button
@@ -97,6 +128,7 @@ export function QueryPanel({
                     key={code}
                     className="mystic-chip"
                     onClick={() => onSampleCodeSelect(code)}
+                    title={findStockByCode(code)?.name ?? code}
                     type="button"
                   >
                     样例 {code}
