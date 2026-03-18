@@ -1,11 +1,14 @@
 'use client';
 
+import { useMemo, useState } from 'react';
+
 import type {
   ApiError,
   Market,
   PlumStage,
   QimenApiSuccessResponse,
   QimenPalace,
+  QimenPatternAnalysis,
 } from '@/lib/contracts/qimen';
 import {
   buildInsightBlocks,
@@ -44,9 +47,12 @@ type QimenBoardProps = {
   valuePair?: string;
   summary: BoardSummary | null;
   result: QimenApiSuccessResponse | null;
+  patternAnalysis: QimenPatternAnalysis | null;
   error: ApiError | null;
   activeTab: ResultTab;
   onTabChange: (tab: ResultTab) => void;
+  onApplyPatternFilter: (patternName: string, palacePosition?: number) => void;
+  onApplyPalaceFilter: (palacePositions: number[]) => void;
 };
 
 function MetricCard({
@@ -136,7 +142,21 @@ function PlaceholderPanel({
       </p>
     </div>
   );
-};
+}
+
+function LegendChip({
+  label,
+  colorClass,
+}: {
+  label: string;
+  colorClass: string;
+}) {
+  return (
+    <span className={`rounded-full border px-3 py-1 text-xs ${colorClass}`}>
+      {label}
+    </span>
+  );
+}
 
 export function QimenBoard({
   palaces,
@@ -150,10 +170,16 @@ export function QimenBoard({
   valuePair,
   summary,
   result,
+  patternAnalysis,
   error,
   activeTab,
   onTabChange,
+  onApplyPatternFilter,
+  onApplyPalaceFilter,
 }: QimenBoardProps) {
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [draggingSelection, setDraggingSelection] = useState(false);
+  const [selectedFilterPositions, setSelectedFilterPositions] = useState<number[]>([]);
   const selectedPalace =
     palaces.find((palace) => palace.index === selectedPalaceIndex) ?? null;
   const insightBlocks = result ? buildInsightBlocks(result, selectedPalace) : [];
@@ -165,6 +191,38 @@ export function QimenBoard({
       : error
         ? '这次起局未成功，可修正股票代码后重试，或从下方筛盘结果中直接起局。'
         : '输入股票代码后，这里会直接呈现标的摘要、九宫阵盘与同区解读，不再拆成两块结果面板。';
+  const patternAnnotationMap = useMemo(() => {
+    return new Map(
+      (patternAnalysis?.palaceAnnotations ?? []).map((annotation) => [
+        annotation.palacePosition,
+        annotation,
+      ]),
+    );
+  }, [patternAnalysis?.palaceAnnotations]);
+
+  function upsertSelection(palacePosition: number) {
+    setSelectedFilterPositions((current) => {
+      return current.includes(palacePosition)
+        ? current
+        : [...current, palacePosition].sort((left, right) => left - right);
+    });
+  }
+
+  function toggleSelection(palacePosition: number) {
+    setSelectedFilterPositions((current) => {
+      return current.includes(palacePosition)
+        ? current.filter((item) => item !== palacePosition)
+        : [...current, palacePosition].sort((left, right) => left - right);
+    });
+  }
+
+  function handleSelectionEnter(palacePosition: number) {
+    if (!selectionMode || !draggingSelection) {
+      return;
+    }
+
+    upsertSelection(palacePosition);
+  }
 
   return (
     <section
@@ -241,9 +299,152 @@ export function QimenBoard({
           </div>
         ) : null}
 
+        {patternAnalysis ? (
+          <div
+            className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]"
+            data-testid="pattern-analysis-panel"
+          >
+            <article className="rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-muted)] px-4 py-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="mystic-section-label">吉格专项分析</p>
+                  <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+                    {patternAnalysis.rating}级 · {patternAnalysis.totalScore} 分
+                  </h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <span className="mystic-chip">{patternAnalysis.energyLabel}</span>
+                  <span className="mystic-chip">
+                    预测 {patternAnalysis.predictedDirection}
+                  </span>
+                </div>
+              </div>
+              <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
+                {patternAnalysis.summary}
+              </p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-4">
+                <MetricCard label="复合格" value={`${patternAnalysis.counts.COMPOSITE}`} />
+                <MetricCard label="A级" value={`${patternAnalysis.counts.A}`} />
+                <MetricCard label="B级" value={`${patternAnalysis.counts.B}`} />
+                <MetricCard label="C级" value={`${patternAnalysis.counts.C}`} />
+              </div>
+              <div className="mt-4">
+                <p className="mystic-section-label">点击吉格联动筛盘</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {patternAnalysis.matchedPatternNames.length > 0 ? (
+                    patternAnalysis.matchedPatternNames.map((name) => (
+                      <button
+                        className="rounded-full border border-[var(--border-strong)] bg-[var(--surface-overlay)] px-3 py-2 text-sm text-[var(--text-primary)] transition hover:border-[var(--accent-soft)]"
+                        key={name}
+                        onClick={() => onApplyPatternFilter(name)}
+                        type="button"
+                      >
+                        {name}
+                      </button>
+                    ))
+                  ) : (
+                    <span className="text-sm text-[var(--text-muted)]">当前未识别到可联动吉格。</span>
+                  )}
+                </div>
+              </div>
+              {patternAnalysis.invalidPalaces.length > 0 ? (
+                <div className="mt-4 border-t border-[var(--border-soft)] pt-4">
+                  <p className="mystic-section-label">失效宫位</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {patternAnalysis.invalidPalaces.map((item) => (
+                      <span className="mystic-chip" key={item.palaceLabel}>
+                        {item.palaceLabel} · {item.reasons.join('/')}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </article>
+
+            <article className="rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-muted)] px-4 py-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="mystic-section-label">看图联动</p>
+                  <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
+                    宫位框选筛全市场
+                  </h3>
+                </div>
+                <button
+                  className={`rounded-full border px-3 py-2 text-sm transition ${
+                    selectionMode
+                      ? 'border-[var(--accent-strong)] bg-[var(--surface-raised)] text-[var(--text-primary)]'
+                      : 'border-[var(--border-soft)] bg-[var(--surface-overlay)] text-[var(--text-secondary)] hover:border-[var(--accent-soft)]'
+                  }`}
+                  onClick={() => setSelectionMode((current) => !current)}
+                  type="button"
+                >
+                  {selectionMode ? '退出框选' : '框选宫位'}
+                </button>
+              </div>
+              <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
+                金色代表 A 级/复合吉格，橙色代表 B 级趋势共振，蓝色代表 C 级结构机会，灰色表示宫位失效。进入框选模式后，点击或拖过九宫即可加入筛盘条件。
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <LegendChip
+                  colorClass="border-[#e5be68] text-[#f4d796]"
+                  label="A级 / 复合格"
+                />
+                <LegendChip
+                  colorClass="border-[#d98a3b] text-[#f1bb82]"
+                  label="B级"
+                />
+                <LegendChip
+                  colorClass="border-[#6ba4c8] text-[#a7d2ef]"
+                  label="C级"
+                />
+                <LegendChip
+                  colorClass="border-[#6e675d] text-[#bfb8ad]"
+                  label="失效宫"
+                />
+              </div>
+              <div className="mt-4 rounded-[1.15rem] border border-[var(--border-soft)] bg-[var(--surface-overlay)] px-4 py-4">
+                <p className="mystic-section-label">已选宫位</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {selectedFilterPositions.length > 0 ? (
+                    selectedFilterPositions.map((position) => (
+                      <span className="mystic-chip" key={position}>
+                        {position}宫
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-sm text-[var(--text-muted)]">
+                      暂未选中宫位。
+                    </span>
+                  )}
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button
+                    className="mystic-button-secondary"
+                    disabled={selectedFilterPositions.length === 0}
+                    onClick={() => onApplyPalaceFilter(selectedFilterPositions)}
+                    type="button"
+                  >
+                    以所选宫位筛全市场
+                  </button>
+                  <button
+                    className="mystic-chip"
+                    disabled={selectedFilterPositions.length === 0}
+                    onClick={() => setSelectedFilterPositions([])}
+                    type="button"
+                  >
+                    清空选择
+                  </button>
+                </div>
+              </div>
+            </article>
+          </div>
+        ) : null}
+
         <div
           className="board-shell relative mt-5 aspect-square overflow-hidden rounded-[1.9rem] border border-[var(--border-soft)] p-3 sm:p-4"
           data-testid="qimen-grid"
+          onPointerLeave={() => setDraggingSelection(false)}
+          onPointerUp={() => setDraggingSelection(false)}
         >
           <div className="pointer-events-none absolute inset-3 rounded-[1.55rem] border border-[var(--border-strong)] opacity-80" />
           <div className="pointer-events-none absolute left-1/2 top-4 h-[calc(100%-2rem)] w-px -translate-x-1/2 bg-[linear-gradient(180deg,transparent,var(--line-strong),transparent)]" />
@@ -257,10 +458,17 @@ export function QimenBoard({
           <div className="relative grid h-full grid-cols-3 grid-rows-3 gap-2.5 sm:gap-3">
             {palaces.map((palace) => (
               <PalaceCard
-                key={`${palace.index}-${palace.position}`}
+                annotation={patternAnnotationMap.get(palace.position)}
+                isFilterSelected={selectedFilterPositions.includes(palace.position)}
                 isSelected={selectedPalace?.index === palace.index}
+                key={`${palace.index}-${palace.position}`}
+                onPatternClick={onApplyPatternFilter}
                 onSelect={onSelectPalace}
+                onSelectionDragStart={() => setDraggingSelection(true)}
+                onSelectionEnter={handleSelectionEnter}
+                onSelectionToggle={toggleSelection}
                 palace={palace}
+                selectionMode={selectionMode}
                 status={status}
               />
             ))}
@@ -279,14 +487,18 @@ export function QimenBoard({
               {status === 'loading'
                 ? '排盘生成中'
                 : status === 'ready'
-                  ? '结果已生成'
+                  ? selectionMode
+                    ? '框选模式'
+                    : '结果已生成'
                   : '待起局'}
             </div>
           </div>
           <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
             {status === 'loading'
               ? '阵盘正在聚势，中心局眼会先被点亮，宫位信息随后逐步显现。'
-              : getSelectedPalaceSummary(selectedPalace)}
+              : selectionMode
+                ? '当前处于框选模式，点击或拖过宫位即可把该宫加入筛盘条件。'
+                : getSelectedPalaceSummary(selectedPalace)}
           </p>
         </div>
 

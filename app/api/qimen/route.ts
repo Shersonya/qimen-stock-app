@@ -8,6 +8,9 @@ import type {
 import { ERROR_CODES, getErrorMessage } from '@/lib/contracts/qimen';
 import { generatePlumAnalysisFromOpenPrice } from '@/lib/plum/engine';
 import { generateQimenChart } from '@/lib/qimen/engine';
+import { evaluateQimenAuspiciousPatterns } from '@/lib/qimen/auspicious-patterns';
+import { analyzeStockForMarketScreen } from '@/lib/qimen/analysis';
+import { buildQimenPatternAnalysis } from '@/lib/qimen/pattern-report';
 import { getStockListingInfo } from '@/lib/services/stock-data';
 import { getStockOpenPrice } from '@/lib/services/stock-quote';
 import { toErrorResponse } from '@/lib/errors';
@@ -60,11 +63,22 @@ export async function POST(request: NextRequest) {
       toChinaDate(stock.listingDate, stock.listingTime),
     );
     const plum = await getPlumResult(stock.code, stock.market);
+    const patternSnapshot = analyzeStockForMarketScreen({
+      code: stock.code,
+      name: stock.name,
+      market: stock.market,
+      listingDate: stock.listingDate,
+    });
+    const patternEvaluation = evaluateQimenAuspiciousPatterns(
+      patternSnapshot.patternInput,
+    );
+    const patternAnalysis = buildQimenPatternAnalysis(qimen, patternEvaluation);
 
     return NextResponse.json<QimenApiSuccessResponse>({
       stock,
       qimen,
       plum,
+      patternAnalysis,
     });
   } catch (error) {
     const { statusCode, body } = toErrorResponse(error);

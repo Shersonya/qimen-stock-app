@@ -1,13 +1,25 @@
 'use client';
 
-import type { QimenPalace } from '@/lib/contracts/qimen';
+import type { KeyboardEvent } from 'react';
+
+import type {
+  QimenPalace,
+  QimenPatternPalaceAnnotation,
+} from '@/lib/contracts/qimen';
 import type { BoardViewState } from '@/lib/ui';
 
 type PalaceCardProps = {
   palace: QimenPalace;
+  annotation?: QimenPatternPalaceAnnotation;
   status: BoardViewState;
   isSelected: boolean;
+  selectionMode: boolean;
+  isFilterSelected: boolean;
   onSelect: (palaceIndex: number) => void;
+  onPatternClick: (patternName: string, palacePosition: number) => void;
+  onSelectionToggle: (palacePosition: number) => void;
+  onSelectionDragStart: () => void;
+  onSelectionEnter: (palacePosition: number) => void;
 };
 
 function LoadingLines({ emphasize = false }: { emphasize?: boolean }) {
@@ -21,17 +33,64 @@ function LoadingLines({ emphasize = false }: { emphasize?: boolean }) {
   );
 }
 
+function resolveToneClass(annotation: QimenPatternPalaceAnnotation | undefined) {
+  switch (annotation?.tone) {
+    case 'gold':
+      return 'border-[#e5be68] bg-[radial-gradient(circle_at_top,rgba(229,190,104,0.18),transparent_55%),linear-gradient(180deg,rgba(53,37,24,0.96),rgba(32,22,16,0.92))] shadow-[0_0_0_1px_rgba(229,190,104,0.16),0_18px_34px_rgba(0,0,0,0.28)]';
+    case 'orange':
+      return 'border-[#d98a3b] bg-[radial-gradient(circle_at_top,rgba(217,138,59,0.16),transparent_55%),linear-gradient(180deg,rgba(53,33,24,0.96),rgba(31,21,16,0.92))]';
+    case 'blue':
+      return 'border-[#6ba4c8] bg-[radial-gradient(circle_at_top,rgba(107,164,200,0.16),transparent_55%),linear-gradient(180deg,rgba(32,40,50,0.96),rgba(23,20,26,0.92))]';
+    case 'muted':
+      return 'border-[#6e675d] bg-[linear-gradient(180deg,rgba(42,36,33,0.96),rgba(24,20,19,0.92))] opacity-90';
+    case 'none':
+    default:
+      return 'border-[var(--border-soft)]';
+  }
+}
+
 export function PalaceCard({
   palace,
+  annotation,
   status,
   isSelected,
+  selectionMode,
+  isFilterSelected,
   onSelect,
+  onPatternClick,
+  onSelectionToggle,
+  onSelectionDragStart,
+  onSelectionEnter,
 }: PalaceCardProps) {
   const isCenterPalace = palace.position === 5;
   const interactive = status === 'ready';
+  const patternNames = annotation?.patternNames ?? [];
+  const invalidReasonLabel = annotation?.invalidReasons.join('/') ?? '';
+
+  function handleCardClick() {
+    if (!interactive) {
+      return;
+    }
+
+    if (selectionMode) {
+      onSelectionToggle(palace.position);
+      return;
+    }
+
+    onSelect(palace.index);
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+
+    event.preventDefault();
+    handleCardClick();
+  }
 
   return (
-    <button
+    <article
       aria-label={`${palace.name}宫 ${palace.star}`}
       aria-pressed={interactive ? isSelected : undefined}
       className={`group relative h-full overflow-hidden rounded-[1.1rem] border px-3 py-3 text-left transition sm:rounded-[1.25rem] sm:px-4 sm:py-4 ${
@@ -39,12 +98,8 @@ export function PalaceCard({
           ? 'palace-card-center'
           : 'palace-card-shell'
       } ${
-        isSelected && interactive
-          ? 'border-[var(--accent-strong)] shadow-[var(--shadow-strong)]'
-          : 'border-[var(--border-soft)]'
-      } ${
         interactive
-          ? 'cursor-pointer hover:-translate-y-0.5 hover:border-[var(--accent-soft)]'
+          ? 'cursor-pointer hover:-translate-y-0.5'
           : 'cursor-default'
       } ${
         status === 'loading'
@@ -52,10 +107,23 @@ export function PalaceCard({
             ? 'animate-pulse'
             : 'opacity-90'
           : ''
-      }`}
+      } ${
+        isSelected && interactive
+          ? 'ring-1 ring-[var(--accent-strong)] shadow-[var(--shadow-strong)]'
+          : ''
+      } ${
+        isFilterSelected
+          ? 'ring-2 ring-[#f0d59a] ring-offset-0'
+          : ''
+      } ${resolveToneClass(annotation)}`}
+      data-pattern-tone={annotation?.tone ?? 'none'}
       data-testid="qimen-palace"
-      onClick={() => interactive && onSelect(palace.index)}
-      type="button"
+      onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
+      onPointerDown={() => selectionMode && onSelectionDragStart()}
+      onPointerEnter={() => selectionMode && onSelectionEnter(palace.position)}
+      role="button"
+      tabIndex={interactive ? 0 : -1}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_62%)] opacity-60" />
       <div className="relative flex h-full flex-col justify-between gap-3">
@@ -66,11 +134,23 @@ export function PalaceCard({
             </p>
             <p className="mt-1 text-xs text-[var(--text-muted)]">洛书 {palace.position}</p>
           </div>
-          {isCenterPalace ? (
-            <span className="rounded-full border border-[var(--border-strong)] px-2 py-1 text-[10px] uppercase tracking-[0.24em] text-[var(--accent-strong)]">
-              局眼
-            </span>
-          ) : null}
+          <div className="flex flex-wrap justify-end gap-1">
+            {annotation?.isHourPalace ? (
+              <span className="rounded-full border border-[var(--accent-strong)] px-2 py-1 text-[10px] uppercase tracking-[0.24em] text-[var(--accent-strong)]">
+                时干
+              </span>
+            ) : null}
+            {annotation?.isValueDoorPalace ? (
+              <span className="rounded-full border border-[var(--border-strong)] px-2 py-1 text-[10px] uppercase tracking-[0.24em] text-[var(--text-secondary)]">
+                值使
+              </span>
+            ) : null}
+            {isCenterPalace ? (
+              <span className="rounded-full border border-[var(--border-strong)] px-2 py-1 text-[10px] uppercase tracking-[0.24em] text-[var(--accent-strong)]">
+                局眼
+              </span>
+            ) : null}
+          </div>
         </div>
 
         {status === 'loading' ? (
@@ -86,7 +166,13 @@ export function PalaceCard({
                 {palace.star}
               </p>
               <p className="text-xs text-[var(--text-muted)]">
-                {isCenterPalace ? '中宫核心星' : '主星显化'}
+                {selectionMode
+                  ? isFilterSelected
+                    ? '已纳入宫位筛选'
+                    : '点击或拖过即可加入筛选'
+                  : isCenterPalace
+                    ? '中宫核心星'
+                    : '主星显化'}
               </p>
             </div>
 
@@ -100,9 +186,33 @@ export function PalaceCard({
                 <dd className="font-medium text-[var(--text-primary)]">{palace.god}</dd>
               </div>
             </dl>
+
+            {patternNames.length > 0 ? (
+              <div className="flex flex-wrap gap-2 border-t border-[var(--border-soft)] pt-2">
+                {patternNames.map((patternName) => (
+                  <button
+                    className="rounded-full border border-[var(--border-strong)] bg-black/10 px-2.5 py-1 text-xs text-[var(--text-primary)] transition hover:border-[var(--accent-soft)]"
+                    key={`${palace.index}-${patternName}`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onPatternClick(patternName, palace.position);
+                    }}
+                    type="button"
+                  >
+                    {patternName}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
+            {invalidReasonLabel ? (
+              <p className="border-t border-[var(--border-soft)] pt-2 text-xs leading-6 text-[var(--text-muted)]">
+                失效: {invalidReasonLabel}
+              </p>
+            ) : null}
           </>
         )}
       </div>
-    </button>
+    </article>
   );
 }

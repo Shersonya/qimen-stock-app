@@ -11,6 +11,9 @@ import { POST } from '@/app/api/qimen/route';
 import { AppError } from '@/lib/errors';
 import { generatePlumAnalysisFromOpenPrice } from '@/lib/plum/engine';
 import { generateQimenChart } from '@/lib/qimen/engine';
+import { evaluateQimenAuspiciousPatterns } from '@/lib/qimen/auspicious-patterns';
+import { analyzeStockForMarketScreen } from '@/lib/qimen/analysis';
+import { buildQimenPatternAnalysis } from '@/lib/qimen/pattern-report';
 import { getStockListingInfo } from '@/lib/services/stock-data';
 import { getStockOpenPrice } from '@/lib/services/stock-quote';
 
@@ -18,11 +21,19 @@ jest.mock('@/lib/services/stock-data');
 jest.mock('@/lib/qimen/engine');
 jest.mock('@/lib/services/stock-quote');
 jest.mock('@/lib/plum/engine');
+jest.mock('@/lib/qimen/analysis');
+jest.mock('@/lib/qimen/auspicious-patterns');
+jest.mock('@/lib/qimen/pattern-report');
 
 const mockedGetStockListingInfo = jest.mocked(getStockListingInfo);
 const mockedGenerateQimenChart = jest.mocked(generateQimenChart);
 const mockedGetStockOpenPrice = jest.mocked(getStockOpenPrice);
 const mockedGeneratePlumAnalysisFromOpenPrice = jest.mocked(generatePlumAnalysisFromOpenPrice);
+const mockedAnalyzeStockForMarketScreen = jest.mocked(analyzeStockForMarketScreen);
+const mockedEvaluateQimenAuspiciousPatterns = jest.mocked(
+  evaluateQimenAuspiciousPatterns,
+);
+const mockedBuildQimenPatternAnalysis = jest.mocked(buildQimenPatternAnalysis);
 
 function createRequest(body: unknown) {
   return new NextRequest('http://localhost:3000/api/qimen', {
@@ -37,6 +48,9 @@ describe('POST /api/qimen', () => {
     mockedGenerateQimenChart.mockReset();
     mockedGetStockOpenPrice.mockReset();
     mockedGeneratePlumAnalysisFromOpenPrice.mockReset();
+    mockedAnalyzeStockForMarketScreen.mockReset();
+    mockedEvaluateQimenAuspiciousPatterns.mockReset();
+    mockedBuildQimenPatternAnalysis.mockReset();
   });
 
   it('returns stock and qimen data on success', async () => {
@@ -95,6 +109,101 @@ describe('POST /api/qimen', () => {
         stockSuggestion: '量能聚集。',
         yaoci: '九四：大吉，无咎。',
       },
+    });
+    mockedAnalyzeStockForMarketScreen.mockReturnValueOnce({
+      stock: {
+        code: '600519',
+        name: '贵州茅台',
+        market: 'SH',
+        listingDate: '2001-08-27',
+      },
+      hourWindow: {
+        stem: '乙',
+        palaceName: '坎',
+        position: 1,
+        door: '生门',
+        star: '天冲星',
+        god: '值符',
+      },
+      dayWindow: {
+        stem: '壬',
+        palaceName: '离',
+        position: 9,
+        door: '开门',
+        star: '天心星',
+        god: '六合',
+      },
+      monthWindow: {
+        stem: '丙',
+        palaceName: '兑',
+        position: 7,
+        door: '景门',
+        star: '天任星',
+        god: '九天',
+      },
+      patternInput: {
+        stock_id: '600519',
+        stock_name: '贵州茅台',
+        qimen_data: {
+          天盘干: [],
+          地盘干: [],
+          门盘: [],
+          神盘: [],
+          宫位信息: [],
+          值使门: '开门',
+          全局时间: {
+            日干支: '壬戌',
+            时干支: '乙巳',
+            是否伏吟: false,
+          },
+        },
+      },
+    });
+    mockedEvaluateQimenAuspiciousPatterns.mockReturnValueOnce({
+      stockId: '600519',
+      stockName: '贵州茅台',
+      marketSignal: {
+        hasBAboveGE: true,
+      },
+      baseScore: 25,
+      totalScore: 25,
+      rating: 'A',
+      activeMatches: [],
+      invalidPalaces: [],
+      counts: {
+        COMPOSITE: 1,
+        A: 1,
+        B: 0,
+        C: 0,
+      },
+      corePatternsLabel: '[A]青龙返首(坎1宫)',
+      energyLabel: '高强度(趋势共振)',
+      summary: '主力资金在利好驱动下入场，短期动能强劲。',
+      corePalaces: {
+        timeStemPalaceId: 1,
+        valueDoorPalaceId: 9,
+        shengDoorPalaceId: 1,
+        skyWuPalaceId: 2,
+      },
+    });
+    mockedBuildQimenPatternAnalysis.mockReturnValueOnce({
+      totalScore: 25,
+      rating: 'A',
+      energyLabel: '高强度(趋势共振)',
+      summary: '主力资金在利好驱动下入场，短期动能强劲。',
+      corePatternsLabel: '[A]青龙返首(坎1宫)',
+      bullishSignal: true,
+      predictedDirection: '涨',
+      matchedPatternNames: ['青龙返首'],
+      hourPatternNames: ['青龙返首'],
+      counts: {
+        COMPOSITE: 0,
+        A: 1,
+        B: 0,
+        C: 0,
+      },
+      invalidPalaces: [],
+      palaceAnnotations: [],
     });
 
     const response = await POST(createRequest({ stockCode: '600519' }));
@@ -157,6 +266,25 @@ describe('POST /api/qimen', () => {
           yaoci: '九四：大吉，无咎。',
         },
       },
+      patternAnalysis: {
+        totalScore: 25,
+        rating: 'A',
+        energyLabel: '高强度(趋势共振)',
+        summary: '主力资金在利好驱动下入场，短期动能强劲。',
+        corePatternsLabel: '[A]青龙返首(坎1宫)',
+        bullishSignal: true,
+        predictedDirection: '涨',
+        matchedPatternNames: ['青龙返首'],
+        hourPatternNames: ['青龙返首'],
+        counts: {
+          COMPOSITE: 0,
+          A: 1,
+          B: 0,
+          C: 0,
+        },
+        invalidPalaces: [],
+        palaceAnnotations: [],
+      },
     });
   });
 
@@ -177,6 +305,101 @@ describe('POST /api/qimen', () => {
       palaces: [],
     });
     mockedGetStockOpenPrice.mockResolvedValueOnce(null);
+    mockedAnalyzeStockForMarketScreen.mockReturnValueOnce({
+      stock: {
+        code: '000001',
+        name: '平安银行',
+        market: 'SZ',
+        listingDate: '1991-04-03',
+      },
+      hourWindow: {
+        stem: '甲',
+        palaceName: '坎',
+        position: 1,
+        door: '死门',
+        star: '天冲星',
+        god: '玄武',
+      },
+      dayWindow: {
+        stem: '乙',
+        palaceName: '离',
+        position: 9,
+        door: '生门',
+        star: '天心星',
+        god: '六合',
+      },
+      monthWindow: {
+        stem: '丙',
+        palaceName: '兑',
+        position: 7,
+        door: '景门',
+        star: '天任星',
+        god: '九天',
+      },
+      patternInput: {
+        stock_id: '000001',
+        stock_name: '平安银行',
+        qimen_data: {
+          天盘干: [],
+          地盘干: [],
+          门盘: [],
+          神盘: [],
+          宫位信息: [],
+          值使门: '死门',
+          全局时间: {
+            日干支: '甲子',
+            时干支: '甲子',
+            是否伏吟: false,
+          },
+        },
+      },
+    });
+    mockedEvaluateQimenAuspiciousPatterns.mockReturnValueOnce({
+      stockId: '000001',
+      stockName: '平安银行',
+      marketSignal: {
+        hasBAboveGE: true,
+      },
+      baseScore: 0,
+      totalScore: 0,
+      rating: 'C',
+      activeMatches: [],
+      invalidPalaces: [],
+      counts: {
+        COMPOSITE: 0,
+        A: 0,
+        B: 0,
+        C: 0,
+      },
+      corePatternsLabel: '',
+      energyLabel: '结构机会(等待催化)',
+      summary: '当前样本未识别到有效吉格。',
+      corePalaces: {
+        timeStemPalaceId: 1,
+        valueDoorPalaceId: 1,
+        shengDoorPalaceId: 8,
+        skyWuPalaceId: 2,
+      },
+    });
+    mockedBuildQimenPatternAnalysis.mockReturnValueOnce({
+      totalScore: 0,
+      rating: 'C',
+      energyLabel: '结构机会(等待催化)',
+      summary: '当前样本未识别到有效吉格。',
+      corePatternsLabel: '',
+      bullishSignal: false,
+      predictedDirection: '观望',
+      matchedPatternNames: [],
+      hourPatternNames: [],
+      counts: {
+        COMPOSITE: 0,
+        A: 0,
+        B: 0,
+        C: 0,
+      },
+      invalidPalaces: [],
+      palaceAnnotations: [],
+    });
 
     const response = await POST(createRequest({ stockCode: '000001' }));
     const body = await response.json();

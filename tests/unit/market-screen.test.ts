@@ -269,6 +269,7 @@ describe('market-screen service', () => {
           names: ['青龙返首'],
           hourOnly: true,
           minScore: 20,
+          palacePositions: [1],
         },
       },
     });

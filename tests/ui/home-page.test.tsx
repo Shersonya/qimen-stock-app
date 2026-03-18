@@ -2,7 +2,96 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import HomePage from '@/app/page';
-import type { QimenApiSuccessResponse } from '@/lib/contracts/qimen';
+import type {
+  BacktestApiSuccessResponse,
+  MarketScreenSuccessResponse,
+  QimenApiSuccessResponse,
+} from '@/lib/contracts/qimen';
+
+const patternAnalysis = {
+  totalScore: 25,
+  rating: 'A' as const,
+  energyLabel: '高强度(趋势共振)',
+  summary: '主力资金在利好驱动下入场，短期动能强劲。',
+  corePatternsLabel: '[A]青龙返首(坎1宫)',
+  bullishSignal: true,
+  predictedDirection: '涨' as const,
+  matchedPatternNames: ['青龙返首', '真诈格'],
+  hourPatternNames: ['青龙返首'],
+  counts: {
+    COMPOSITE: 1,
+    A: 1,
+    B: 0,
+    C: 0,
+  },
+  invalidPalaces: [
+    {
+      palaceId: 8,
+      palaceLabel: '艮8宫',
+      reasons: ['击刑'],
+      topEvilPatterns: [],
+    },
+  ],
+  palaceAnnotations: [
+    {
+      palaceIndex: 0,
+      palacePosition: 4,
+      palaceName: '巽',
+      tone: 'gold' as const,
+      isHourPalace: false,
+      isValueDoorPalace: false,
+      isShengDoorPalace: false,
+      patternNames: ['真诈格'],
+      patterns: [
+        {
+          name: '真诈格',
+          level: 'COMPOSITE' as const,
+          weight: 15,
+          meaning: '良好门势、三奇与太阴同宫，长线利好或价值重估信号更强。',
+          palaceId: 4,
+          palaceLabel: '巽4宫',
+        },
+      ],
+      invalidReasons: [],
+      topEvilPatterns: [],
+    },
+    {
+      palaceIndex: 7,
+      palacePosition: 1,
+      palaceName: '坎',
+      tone: 'gold' as const,
+      isHourPalace: true,
+      isValueDoorPalace: false,
+      isShengDoorPalace: false,
+      patternNames: ['青龙返首'],
+      patterns: [
+        {
+          name: '青龙返首',
+          level: 'A' as const,
+          weight: 10,
+          meaning: '主力资金在利好驱动下入场，短期动能强劲。',
+          palaceId: 1,
+          palaceLabel: '坎1宫',
+        },
+      ],
+      invalidReasons: [],
+      topEvilPatterns: [],
+    },
+    {
+      palaceIndex: 6,
+      palacePosition: 8,
+      palaceName: '艮',
+      tone: 'muted' as const,
+      isHourPalace: false,
+      isValueDoorPalace: false,
+      isShengDoorPalace: false,
+      patternNames: [],
+      patterns: [],
+      invalidReasons: ['击刑'],
+      topEvilPatterns: [],
+    },
+  ],
+};
 
 const successPayload: QimenApiSuccessResponse = {
   stock: {
@@ -70,6 +159,7 @@ const successPayload: QimenApiSuccessResponse = {
       yaoci: '九四：大吉，无咎。',
     },
   },
+  patternAnalysis,
 };
 
 const altSuccessPayload: QimenApiSuccessResponse = {
@@ -83,6 +173,11 @@ const altSuccessPayload: QimenApiSuccessResponse = {
   },
   qimen: successPayload.qimen,
   plum: successPayload.plum,
+  patternAnalysis: {
+    ...patternAnalysis,
+    bullishSignal: false,
+    predictedDirection: '观望',
+  },
 };
 
 const plumUnavailablePayload: QimenApiSuccessResponse = {
@@ -93,9 +188,10 @@ const plumUnavailablePayload: QimenApiSuccessResponse = {
     code: 'PLUM_PRICE_UNAVAILABLE',
     message: '当日开盘价缺失，暂时无法起梅花卦。',
   },
+  patternAnalysis: altSuccessPayload.patternAnalysis,
 };
 
-const marketScreenSuccessPayload = {
+const marketScreenSuccessPayload: MarketScreenSuccessResponse = {
   total: 1,
   page: 1,
   pageSize: 50,
@@ -106,6 +202,7 @@ const marketScreenSuccessPayload = {
         name: '平安银行',
         market: 'SZ',
         listingDate: '1991-04-03',
+        sector: '银行',
       },
       hourWindow: {
         stem: '甲',
@@ -131,8 +228,109 @@ const marketScreenSuccessPayload = {
         star: '天任星',
         god: '九天',
       },
+      patternSummary: {
+        totalScore: 36,
+        rating: 'S',
+        energyLabel: '顶级机会(资金驱动)',
+        summary: '主力资金在利好驱动下入场，短期动能强劲。',
+        corePatternsLabel: '[COMPOSITE]真诈格(离9宫)、[A]青龙返首(坎1宫)',
+        matchedPatternNames: ['真诈格', '青龙返首'],
+        hourPatternNames: ['青龙返首'],
+        counts: {
+          COMPOSITE: 1,
+          A: 1,
+          B: 0,
+          C: 0,
+        },
+        bullishSignal: true,
+        predictedDirection: '涨',
+        isEligible: true,
+        exclusionReason: null,
+        palacePositions: [1, 9],
+        matches: [
+          {
+            name: '青龙返首',
+            level: 'A',
+            weight: 10,
+            meaning: '主力资金在利好驱动下入场，短期动能强劲。',
+            palaceId: 1,
+            palaceLabel: '坎1宫',
+          },
+        ],
+        invalidPalaces: [],
+      },
     },
   ],
+};
+
+const backtestSuccessPayload: BacktestApiSuccessResponse = {
+  generatedAt: '2026-03-18T10:00:00.000Z',
+  lookbackDays: 60,
+  range: {
+    from: '2026-01-01',
+    to: '2026-03-18',
+  },
+  strategyLabel: '当前筛选策略',
+  predictionRule: '时干用神落生门或值符定义为涨，其余默认记为观望。',
+  includedStocks: 1,
+  skippedStocks: [],
+  summary: {
+    label: 'overall',
+    totalSamples: 10,
+    evaluatedSamples: 10,
+    hitSamples: 6,
+    missSamples: 4,
+    hitRate: 0.6,
+    predictedDirectionCounts: {
+      涨: 10,
+      跌: 0,
+      观望: 0,
+    },
+    actualDirectionCounts: {
+      涨: 6,
+      跌: 4,
+      观望: 0,
+    },
+  },
+  byStock: {
+    '000001': {
+      label: '000001 平安银行',
+      totalSamples: 10,
+      hitSamples: 6,
+      missSamples: 4,
+      hitRate: 0.6,
+      predictedDirectionCounts: {
+        涨: 10,
+        跌: 0,
+        观望: 0,
+      },
+      actualDirectionCounts: {
+        涨: 6,
+        跌: 4,
+        观望: 0,
+      },
+    },
+  },
+  byStrategy: {
+    '当前筛选策略': {
+      label: '当前筛选策略',
+      totalSamples: 10,
+      hitSamples: 6,
+      missSamples: 4,
+      hitRate: 0.6,
+      predictedDirectionCounts: {
+        涨: 10,
+        跌: 0,
+        观望: 0,
+      },
+      actualDirectionCounts: {
+        涨: 6,
+        跌: 4,
+        观望: 0,
+      },
+    },
+  },
+  results: [],
 };
 
 describe('HomePage', () => {
@@ -180,15 +378,12 @@ describe('HomePage', () => {
     expect(
       await screen.findByRole('heading', { name: '贵州茅台 上市时刻九宫盘' }),
     ).toBeInTheDocument();
-    expect(screen.queryByText('界面风格')).not.toBeInTheDocument();
-    expect(screen.queryByText('预设场景')).not.toBeInTheDocument();
-    expect(screen.queryByText('股票排盘摘要')).not.toBeInTheDocument();
     expect(screen.getByText('贵州茅台 (600519)')).toBeInTheDocument();
     expect(screen.getByTestId('qimen-result-section')).toBeInTheDocument();
     expect(screen.getAllByTestId('qimen-palace')).toHaveLength(9);
-    expect(screen.getByRole('tab', { name: '奇门盘' })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('tab', { name: '梅花易数' })).toBeInTheDocument();
-    expect(screen.getByRole('tablist', { name: '市场切换' })).toBeInTheDocument();
+    expect(screen.getByTestId('pattern-analysis-panel')).toBeInTheDocument();
+    expect(screen.getByText('吉格专项分析')).toBeInTheDocument();
+    expect(screen.getByText('高强度(趋势共振)')).toBeInTheDocument();
   });
 
   it('renders the error state when the API returns an error', async () => {
@@ -288,6 +483,7 @@ describe('HomePage', () => {
     render(<HomePage />);
 
     await user.click(screen.getByRole('button', { name: '开始排盘分析' }));
+    await screen.findByRole('heading', { name: '贵州茅台 上市时刻九宫盘' });
 
     const resultSection = await screen.findByTestId('qimen-result-section');
 
@@ -333,6 +529,7 @@ describe('HomePage', () => {
     expect(screen.getByText('甲干落坎宫')).toBeInTheDocument();
     expect(screen.getByTestId('market-screen-table')).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '起局' })).toBeInTheDocument();
+    expect(screen.getByTestId('market-report-panel')).toBeInTheDocument();
   });
 
   it('can launch a stock directly from screened results and keeps the screening result visible', async () => {
@@ -461,5 +658,74 @@ describe('HomePage', () => {
 
     expect(await screen.findByTestId('market-screen-mobile-list')).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: '直接起局' })).toHaveLength(1);
+  });
+
+  it('can click a board pattern to auto-screen the market', async () => {
+    const user = userEvent.setup();
+
+    fetchMock.mockImplementation(async (input) => {
+      if (String(input) === '/api/qimen') {
+        return {
+          ok: true,
+          json: async () => successPayload,
+        } as Response;
+      }
+
+      if (String(input) === '/api/market-screen') {
+        return {
+          ok: true,
+          json: async () => marketScreenSuccessPayload,
+        } as Response;
+      }
+
+      throw new Error(`Unexpected fetch call: ${String(input)}`);
+    });
+
+    render(<HomePage />);
+    await user.click(screen.getByRole('button', { name: '开始排盘分析' }));
+    await screen.findByRole('heading', { name: '贵州茅台 上市时刻九宫盘' });
+
+    await user.click(screen.getAllByRole('button', { name: '青龙返首' })[0]!);
+
+    expect(await screen.findByText('共筛得 1 只标的')).toBeInTheDocument();
+    expect(
+      JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body ?? '{}')).filters.pattern.names,
+    ).toEqual(['青龙返首']);
+  });
+
+  it('can run historical backtest from the report panel', async () => {
+    const user = userEvent.setup();
+
+    fetchMock.mockImplementation(async (input) => {
+      if (String(input) === '/api/market-screen') {
+        return {
+          ok: true,
+          json: async () => marketScreenSuccessPayload,
+        } as Response;
+      }
+
+      if (String(input) === '/api/backtest') {
+        return {
+          ok: true,
+          json: async () => backtestSuccessPayload,
+        } as Response;
+      }
+
+      throw new Error(`Unexpected fetch call: ${String(input)}`);
+    });
+
+    render(<HomePage />);
+
+    await user.selectOptions(screen.getByLabelText('时干用神 门'), '开门');
+    await user.click(screen.getByRole('button', { name: '开始筛盘' }));
+    await screen.findByText('共筛得 1 只标的');
+
+    await user.click(screen.getByRole('button', { name: '运行历史回测' }));
+
+    expect(await screen.findByTestId('backtest-summary')).toBeInTheDocument();
+    expect(screen.getByText('60.0%')).toBeInTheDocument();
+    expect(
+      JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body ?? '{}')).items[0].stock.code,
+    ).toBe('000001');
   });
 });

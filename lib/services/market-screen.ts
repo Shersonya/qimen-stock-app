@@ -11,10 +11,14 @@ import {
 import { AppError } from '@/lib/errors';
 import { evaluateQimenAuspiciousPatterns } from '@/lib/qimen/auspicious-patterns';
 import { analyzeStockForMarketScreen } from '@/lib/qimen/analysis';
+import {
+  buildMarketPatternSummary,
+  comparePatternLevelCount,
+} from '@/lib/qimen/pattern-report';
 import { isStStockName } from '@/lib/services/stock-data';
 
 const MARKET_POOL_ENDPOINT =
-  'https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=10000&po=1&np=1&fltt=2&invt=2&fid=f12&fs=m:1+t:2,m:0+t:6,m:0+t:80&fields=f12,f14,f26';
+  'https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=10000&po=1&np=1&fltt=2&invt=2&fid=f12&fs=m:1+t:2,m:0+t:6,m:0+t:80&fields=f12,f14,f26,f100';
 const MARKET_CACHE_TTL_MS = 30 * 60 * 1000;
 const DEFAULT_PAGE_SIZE = 50;
 const MAX_PAGE_SIZE = 200;
@@ -23,6 +27,7 @@ type EastMoneyMarketPoolItem = {
   f12?: string;
   f14?: string;
   f26?: number | string;
+  f100?: string;
 };
 
 type EastMoneyMarketPoolResponse = {
@@ -88,12 +93,19 @@ function normalizePatternFilter(
     ?.map((name) => name.trim())
     .filter(Boolean);
   const minScore = Number.isFinite(filter.minScore) ? Number(filter.minScore) : undefined;
+  const palacePositions = filter.palacePositions
+    ?.map((value) => Number(value))
+    .filter((value) => Number.isInteger(value) && value >= 1 && value <= 9);
 
   return {
     names: names && names.length > 0 ? Array.from(new Set(names)) : undefined,
     minScore: minScore && minScore > 0 ? minScore : undefined,
     bullishOnly: filter.bullishOnly === true ? true : undefined,
     hourOnly: filter.hourOnly === true ? true : undefined,
+    palacePositions:
+      palacePositions && palacePositions.length > 0
+        ? Array.from(new Set(palacePositions))
+        : undefined,
   };
 }
 
@@ -103,7 +115,8 @@ function hasPatternFilters(filter: MarketScreenPatternFilter | undefined): boole
       ((filter.names && filter.names.length > 0) ||
         filter.minScore ||
         filter.bullishOnly ||
-        filter.hourOnly),
+        filter.hourOnly ||
+        (filter.palacePositions && filter.palacePositions.length > 0)),
   );
 }
 
@@ -157,6 +170,7 @@ function parseMarketPoolItem(item: EastMoneyMarketPoolItem): ScreenableStock | n
   const code = item.f12?.trim();
   const name = item.f14?.trim();
   const listingDate = formatListingDate(item.f26);
+  const sector = item.f100?.trim() || null;
 
   if (!code || !name || !listingDate) {
     return null;
@@ -171,6 +185,7 @@ function parseMarketPoolItem(item: EastMoneyMarketPoolItem): ScreenableStock | n
     name,
     market: resolveMarket(code),
     listingDate,
+    sector,
   };
 }
 
@@ -203,67 +218,6 @@ async function fetchMarketPool(): Promise<EastMoneyMarketPoolItem[]> {
   return payload.data?.diff ?? [];
 }
 
-function resolvePatternExclusionReason(
-  item: MarketScreenResultItem,
-  evaluation: ReturnType<typeof evaluateQimenAuspiciousPatterns>,
-): string | null {
-  if (
-    evaluation.counts.COMPOSITE === 0 &&
-    evaluation.counts.A === 0 &&
-    evaluation.counts.B === 0
-  ) {
-    return '无 A/B 级核心动力';
-  }
-
-  const protectedPalaceIds = new Set<number>(
-    [
-      item.hourWindow.position,
-      evaluation.corePalaces.shengDoorPalaceId,
-      evaluation.corePalaces.skyWuPalaceId,
-    ].filter((value): value is number => Boolean(value)),
-  );
-  const invalidProtectedPalace = evaluation.invalidPalaces.find((palace) => {
-    return protectedPalaceIds.has(palace.palaceId);
-  });
-
-  if (invalidProtectedPalace) {
-    return `核心用神受制: ${invalidProtectedPalace.palaceLabel} ${invalidProtectedPalace.reasons.join('/')}`;
-  }
-
-  return null;
-}
-
-function createPatternSummary(
-  item: MarketScreenResultItem,
-  evaluation: ReturnType<typeof evaluateQimenAuspiciousPatterns>,
-): MarketScreenPatternSummary {
-  const hourPatternNames = Array.from(
-    new Set(
-      evaluation.activeMatches
-        .filter((match) => match.palaceId === item.hourWindow.position)
-        .map((match) => match.name),
-    ),
-  );
-  const exclusionReason = resolvePatternExclusionReason(item, evaluation);
-
-  return {
-    totalScore: evaluation.totalScore,
-    rating: evaluation.rating,
-    energyLabel: evaluation.energyLabel,
-    summary: evaluation.summary,
-    corePatternsLabel: evaluation.corePatternsLabel,
-    matchedPatternNames: Array.from(
-      new Set(evaluation.activeMatches.map((match) => match.name)),
-    ),
-    hourPatternNames,
-    counts: evaluation.counts,
-    bullishSignal:
-      item.hourWindow.door === '生门' || item.hourWindow.god === '值符',
-    isEligible: exclusionReason === null,
-    exclusionReason,
-  };
-}
-
 async function buildMarketStockPool(): Promise<CachedMarketScreenResult[]> {
   const items = await fetchMarketPool();
 
@@ -280,14 +234,14 @@ async function buildMarketStockPool(): Promise<CachedMarketScreenResult[]> {
           hourWindow: snapshot.hourWindow,
           dayWindow: snapshot.dayWindow,
           monthWindow: snapshot.monthWindow,
-          patternSummary: createPatternSummary(snapshot, patternEvaluation),
+          patternSummary: buildMarketPatternSummary(snapshot, patternEvaluation),
         };
       } catch {
         return null;
       }
     })
     .filter((item): item is CachedMarketScreenResult => Boolean(item))
-    .sort((left, right) => left.stock.code.localeCompare(right.stock.code));
+    .sort(comparePatternLevelCount);
 }
 
 export function resetMarketStockPoolCacheForTests() {
@@ -365,6 +319,16 @@ function matchesPatternFilter(
     }
   }
 
+  if (filter?.palacePositions && filter.palacePositions.length > 0) {
+    if (
+      !filter.palacePositions.some((position) =>
+        item.patternSummary.palacePositions.includes(position),
+      )
+    ) {
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -391,7 +355,7 @@ export async function screenMarketStocks(
       matchesWindowFilter(item.monthWindow, filters.month) &&
       matchesPatternFilter(item, filters.pattern)
     );
-  });
+  }).sort(comparePatternLevelCount);
   const startIndex = (page - 1) * pageSize;
 
   return {

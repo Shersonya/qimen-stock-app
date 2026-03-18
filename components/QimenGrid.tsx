@@ -25,9 +25,12 @@ export function QimenGrid({ palaces }: QimenGridProps) {
       error={null}
       headerBadge="组件预览"
       market="SH"
+      onApplyPalaceFilter={() => {}}
+      onApplyPatternFilter={() => {}}
       onSelectPalace={setSelectedPalaceIndex}
       onTabChange={() => {}}
       palaces={palaces}
+      patternAnalysis={null}
       result={null}
       selectedPalaceIndex={selectedPalaceIndex}
       status="ready"

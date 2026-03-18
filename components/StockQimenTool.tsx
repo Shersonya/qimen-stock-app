@@ -12,12 +12,17 @@ import {
   type QimenApiSuccessResponse,
 } from '@/lib/contracts/qimen';
 import {
+  getDemoQimenResponse,
+  isDemoAutoplay,
+  isDemoMode,
+} from '@/lib/demo-fixtures';
+import {
   type BoardViewState,
   SAMPLE_CODES_BY_MARKET,
   getDefaultPalaceIndex,
   getMarketFromStockCode,
 } from '@/lib/ui';
-import { FilterPanel } from '@/components/FilterPanel';
+import { FilterPanel, type BoardFilterPreset } from '@/components/FilterPanel';
 import { QimenBoard, type ResultTab } from '@/components/QimenBoard';
 import { QueryPanel } from '@/components/QueryPanel';
 import { ReferenceBoardPanel } from '@/components/ReferenceBoardPanel';
@@ -108,6 +113,8 @@ export function StockQimenTool() {
   const [activeTab, setActiveTab] = useState<ResultTab>('qimen');
   const [selectedMarket, setSelectedMarket] = useState<Market>('SH');
   const [selectedPalaceIndex, setSelectedPalaceIndex] = useState<number | null>(null);
+  const [boardFilterPreset, setBoardFilterPreset] = useState<BoardFilterPreset | null>(null);
+  const demoAutoplayRef = useRef(false);
   const recentStockCodesRef = useRef<string[]>([]);
   const resultSectionRef = useRef<HTMLDivElement | null>(null);
 
@@ -212,23 +219,30 @@ export function StockQimenTool() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/qimen', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ stockCode: nextStockCode }),
-      });
-
       let payload: QimenApiResponse | null = null;
+      let ok = true;
 
-      try {
-        payload = (await response.json()) as QimenApiResponse;
-      } catch {
-        payload = null;
+      if (isDemoMode()) {
+        payload = getDemoQimenResponse(nextStockCode);
+      } else {
+        const response = await fetch('/api/qimen', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ stockCode: nextStockCode }),
+        });
+
+        ok = response.ok;
+
+        try {
+          payload = (await response.json()) as QimenApiResponse;
+        } catch {
+          payload = null;
+        }
       }
 
-      if (!payload || !response.ok || isApiErrorResponse(payload)) {
+      if (!payload || !ok || isApiErrorResponse(payload)) {
         startTransition(() => {
           setResult(null);
           setError(payload && isApiErrorResponse(payload) ? payload.error : createFallbackError());
@@ -314,6 +328,34 @@ export function StockQimenTool() {
     }
   }
 
+  function handleApplyPatternFilter(patternName: string, palacePosition?: number) {
+    setBoardFilterPreset({
+      key: Date.now(),
+      patternNames: [patternName],
+      palacePositions: palacePosition ? [palacePosition] : undefined,
+      sourceLabel: palacePosition
+        ? `${patternName} · ${palacePosition}宫`
+        : `盘面吉格 ${patternName}`,
+    });
+  }
+
+  function handleApplyPalaceFilter(palacePositions: number[]) {
+    setBoardFilterPreset({
+      key: Date.now(),
+      palacePositions,
+      sourceLabel: `盘面框选 ${palacePositions.join('、')}宫`,
+    });
+  }
+
+  useEffect(() => {
+    if (demoAutoplayRef.current || !isDemoAutoplay()) {
+      return;
+    }
+
+    demoAutoplayRef.current = true;
+    void handleSubmit(DEFAULT_STOCK_CODE, { focusResult: true });
+  }, []);
+
   return (
     <section className="mystic-page-shell">
       <div className="mx-auto max-w-[1560px] px-4 py-5 sm:px-6 sm:py-8 xl:px-8">
@@ -349,10 +391,14 @@ export function StockQimenTool() {
                   activeTab={activeTab}
                   error={error}
                   headerBadge={boardCopy.headerBadge}
+                  key={result?.stock.code ?? boardStatus}
                   market={selectedMarket}
+                  onApplyPalaceFilter={handleApplyPalaceFilter}
+                  onApplyPatternFilter={handleApplyPatternFilter}
                   onSelectPalace={setSelectedPalaceIndex}
                   onTabChange={setActiveTab}
                   palaces={boardPalaces}
+                  patternAnalysis={result?.patternAnalysis ?? null}
                   result={result}
                   selectedPalaceIndex={selectedPalaceIndex}
                   status={boardStatus}
@@ -365,6 +411,7 @@ export function StockQimenTool() {
             </div>
 
             <FilterPanel
+              boardFilterPreset={boardFilterPreset}
               isLaunchingStock={isSubmitting}
               launchingStockCode={launchingStockCode}
               onLaunchStock={handleLaunchStock}

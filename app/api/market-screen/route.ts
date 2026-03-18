@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
 
     const result = await screenMarketStocks({
       filters: payload.filters,
+      marketSignal: payload.marketSignal,
       page: payload.page,
       pageSize: payload.pageSize,
     });

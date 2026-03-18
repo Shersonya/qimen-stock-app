@@ -1,3 +1,5 @@
+import type { BacktestDirection, BacktestRunResult } from '@/lib/backtest';
+
 export const DEFAULT_LISTING_TIME = '09:30' as const;
 export const DEFAULT_TIME_SOURCE = 'default' as const;
 
@@ -121,6 +123,77 @@ export const QIMEN_GOD_OPTIONS = [
   '九天',
 ] as const;
 
+export const QIMEN_AUSPICIOUS_PATTERN_OPTIONS = [
+  '青龙返首',
+  '飞鸟跌穴',
+  '青龙耀明',
+  '青龙转光',
+  '天显时格',
+  '三奇得使',
+  '玉女守门',
+  '奇仪相合',
+  '门宫和义',
+  '三奇贵人升殿',
+  '真诈格',
+  '天遁格',
+  '人遁格',
+] as const;
+
+export type QimenPatternLevel = 'COMPOSITE' | 'A' | 'B' | 'C';
+export type QimenPatternTone = 'gold' | 'orange' | 'blue' | 'muted' | 'none';
+export type QimenAuspiciousPatternName =
+  (typeof QIMEN_AUSPICIOUS_PATTERN_OPTIONS)[number];
+
+export type QimenPatternListItem = {
+  name: string;
+  level: QimenPatternLevel;
+  weight: number;
+  meaning: string;
+  palaceId: number;
+  palaceLabel: string;
+};
+
+export type QimenInvalidPalaceSummary = {
+  palaceId: number;
+  palaceLabel: string;
+  reasons: string[];
+  topEvilPatterns: string[];
+};
+
+export type QimenPatternPalaceAnnotation = {
+  palaceIndex: number;
+  palacePosition: number;
+  palaceName: string;
+  tone: QimenPatternTone;
+  isHourPalace: boolean;
+  isValueDoorPalace: boolean;
+  isShengDoorPalace: boolean;
+  patternNames: string[];
+  patterns: QimenPatternListItem[];
+  invalidReasons: string[];
+  topEvilPatterns: string[];
+};
+
+export type QimenPatternAnalysis = {
+  totalScore: number;
+  rating: 'S' | 'A' | 'B' | 'C';
+  energyLabel: string;
+  summary: string;
+  corePatternsLabel: string;
+  bullishSignal: boolean;
+  predictedDirection: BacktestDirection;
+  matchedPatternNames: string[];
+  hourPatternNames: string[];
+  counts: {
+    COMPOSITE: number;
+    A: number;
+    B: number;
+    C: number;
+  };
+  invalidPalaces: QimenInvalidPalaceSummary[];
+  palaceAnnotations: QimenPatternPalaceAnnotation[];
+};
+
 export type MarketScreenWindowFilter = {
   door?: string;
   star?: string;
@@ -132,6 +205,7 @@ export type MarketScreenPatternFilter = {
   minScore?: number;
   bullishOnly?: boolean;
   hourOnly?: boolean;
+  palacePositions?: number[];
 };
 
 export type MarketScreenFilters = {
@@ -160,8 +234,12 @@ export type MarketScreenPatternSummary = {
     C: number;
   };
   bullishSignal: boolean;
+  predictedDirection: BacktestDirection;
   isEligible: boolean;
   exclusionReason: string | null;
+  palacePositions: number[];
+  matches: QimenPatternListItem[];
+  invalidPalaces: QimenInvalidPalaceSummary[];
 };
 
 export type MarketScreenRequest = {
@@ -180,8 +258,15 @@ export type MarketScreenWindow = {
   god: string;
 };
 
+export type MarketScreenStock = Pick<
+  StockListingData,
+  'code' | 'name' | 'market' | 'listingDate'
+> & {
+  sector?: string | null;
+};
+
 export type MarketScreenResultItem = {
-  stock: Pick<StockListingData, 'code' | 'name' | 'market' | 'listingDate'>;
+  stock: MarketScreenStock;
   hourWindow: MarketScreenWindow;
   dayWindow: MarketScreenWindow;
   monthWindow: MarketScreenWindow;
@@ -212,11 +297,38 @@ export type StockAnalysisSuccessResponse = {
   stock: StockListingData;
   qimen: QimenResult;
   plum: PlumResult;
+  patternAnalysis: QimenPatternAnalysis;
 };
 
 export type QimenApiSuccessResponse = StockAnalysisSuccessResponse;
 
 export type QimenApiResponse = StockAnalysisSuccessResponse | ApiErrorResponse;
+
+export type BacktestRequestItem = {
+  stock: MarketScreenStock;
+  patternSummary: MarketScreenPatternSummary;
+};
+
+export type BacktestRequest = {
+  items: BacktestRequestItem[];
+  lookbackDays?: number;
+  strategyLabel?: string;
+};
+
+export type BacktestApiSuccessResponse = BacktestRunResult & {
+  generatedAt: string;
+  lookbackDays: number;
+  range: {
+    from: string;
+    to: string;
+  };
+  strategyLabel: string;
+  predictionRule: string;
+  includedStocks: number;
+  skippedStocks: string[];
+};
+
+export type BacktestApiResponse = BacktestApiSuccessResponse | ApiErrorResponse;
 
 export function isApiErrorResponse(
   payload: QimenApiResponse | unknown,
