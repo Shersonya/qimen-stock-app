@@ -585,9 +585,13 @@ describe('HomePage', () => {
     render(<HomePage />);
 
     const referenceBoardPanel = screen.getByTestId('reference-board-panel');
+    const referenceBoardScroll = within(referenceBoardPanel).getByTestId('reference-board-scroll');
+    const referencePalaces = within(referenceBoardPanel).getAllByTestId('reference-palace');
 
+    expect(referenceBoardScroll.className).toContain('overflow-x-auto');
     expect(within(referenceBoardPanel).getByTestId('reference-board-grid')).toBeInTheDocument();
-    expect(within(referenceBoardPanel).getAllByTestId('reference-palace')).toHaveLength(9);
+    expect(referencePalaces).toHaveLength(9);
+    expect(referencePalaces[0]).toHaveAttribute('data-detail-mode', 'expanded');
     expect(within(referenceBoardPanel).queryByText('值符落宫')).not.toBeInTheDocument();
     expect(within(referenceBoardPanel).queryByText('旬首六仪')).not.toBeInTheDocument();
     expect(within(referenceBoardPanel).queryByText('阴遁 7局')).not.toBeInTheDocument();

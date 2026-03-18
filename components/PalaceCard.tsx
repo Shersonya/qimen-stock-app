@@ -235,6 +235,7 @@ export function PalaceCard({
           ? 'ring-2 ring-[#f0d59a] ring-offset-0'
           : ''
       } ${layoutMinHeightClass} ${resolveToneClass(annotation)} ${className}`}
+      data-detail-mode={detailMode}
       data-pattern-tone={annotation?.tone ?? 'none'}
       data-testid={testId}
       onClick={isInteractive ? handleCardClick : undefined}
@@ -376,7 +377,7 @@ export function PalaceCard({
               </dl>
             ) : null}
 
-            {shouldRenderCompact && patternNames.length > 0 ? (
+            {patternNames.length > 0 ? (
               <div className="hidden flex-wrap gap-2 border-t border-[var(--border-soft)] pt-2 sm:flex">
                 {patternNames.map((patternName) => (
                   <button
@@ -394,7 +395,7 @@ export function PalaceCard({
               </div>
             ) : null}
 
-            {shouldRenderCompact && invalidReasonLabel ? (
+            {invalidReasonLabel ? (
               <p className="hidden border-t border-[var(--border-soft)] pt-2 text-xs leading-6 text-[var(--text-muted)] sm:block">
                 失效: {invalidReasonLabel}
               </p>

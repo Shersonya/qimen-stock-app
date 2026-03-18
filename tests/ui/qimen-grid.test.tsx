@@ -20,11 +20,15 @@ describe('QimenGrid', () => {
   it('renders nine palaces and focuses the center palace by default', () => {
     render(<QimenGrid palaces={palaces} />);
 
+    const qimenGridScroll = screen.getByTestId('qimen-grid-scroll');
     const qimenGrid = screen.getByTestId('qimen-grid');
+    const palaceCards = screen.getAllByTestId('qimen-palace');
 
+    expect(qimenGridScroll.className).toContain('overflow-x-auto');
     expect(qimenGrid).toBeInTheDocument();
-    expect(qimenGrid.className).toContain('sm:aspect-auto');
-    expect(screen.getAllByTestId('qimen-palace')).toHaveLength(9);
+    expect(qimenGrid.className).toContain('min-w-[50rem]');
+    expect(palaceCards).toHaveLength(9);
+    expect(palaceCards[0]).toHaveAttribute('data-detail-mode', 'expanded');
     expect(screen.getByText('天心星')).toBeInTheDocument();
     expect(screen.getAllByText('开门').length).toBeGreaterThan(0);
     expect(screen.getAllByText('值符').length).toBeGreaterThan(0);

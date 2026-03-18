@@ -82,30 +82,36 @@ export function ReferenceBoardPanel({
           <span className="mystic-chip">{reference.datetimeLabel}</span>
         </div>
         <div
-          className="board-shell relative mt-4 overflow-hidden rounded-[1.8rem] border border-[var(--border-soft)] p-2.5 sm:p-3"
-          data-testid="reference-board-grid"
+          className="-mx-4 overflow-x-auto pb-2 pl-4 pr-4 sm:mx-0 sm:overflow-visible sm:px-0 sm:pb-0"
+          data-testid="reference-board-scroll"
         >
-          <div className="pointer-events-none absolute inset-3 rounded-[1.45rem] border border-[var(--border-strong)] opacity-70" />
-          <div className="relative grid grid-cols-3 gap-2 sm:gap-2.5">
-            {reference.qimen.palaces.map((palace) => (
-              <PalaceCard
-                annotation={undefined}
-                className="min-h-[14rem] sm:min-h-[22rem]"
-                interactive={false}
-                isFilterSelected={false}
-                isSelected={false}
-                key={`${reference.key}-${palace.index}-${palace.position}`}
-                onPatternClick={() => {}}
-                onSelect={() => {}}
-                onSelectionDragStart={() => {}}
-                onSelectionEnter={() => {}}
-                onSelectionToggle={() => {}}
-                palace={palace}
-                selectionMode={false}
-                status="idle"
-                testId="reference-palace"
-              />
-            ))}
+          <div
+            className="board-shell relative mt-4 min-w-[50rem] overflow-hidden rounded-[1.8rem] border border-[var(--border-soft)] p-2.5 sm:min-w-0 sm:p-3"
+            data-testid="reference-board-grid"
+          >
+            <div className="pointer-events-none absolute inset-3 rounded-[1.45rem] border border-[var(--border-strong)] opacity-70" />
+            <div className="relative grid grid-cols-3 gap-2 [grid-template-rows:repeat(3,minmax(18rem,auto))] sm:gap-2.5 sm:[grid-template-rows:repeat(3,minmax(22rem,auto))]">
+              {reference.qimen.palaces.map((palace) => (
+                <PalaceCard
+                  annotation={undefined}
+                  className="min-h-[18rem] sm:min-h-[22rem]"
+                  detailMode="expanded"
+                  interactive={false}
+                  isFilterSelected={false}
+                  isSelected={false}
+                  key={`${reference.key}-${palace.index}-${palace.position}`}
+                  onPatternClick={() => {}}
+                  onSelect={() => {}}
+                  onSelectionDragStart={() => {}}
+                  onSelectionEnter={() => {}}
+                  onSelectionToggle={() => {}}
+                  palace={palace}
+                  selectionMode={false}
+                  status="idle"
+                  testId="reference-palace"
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>

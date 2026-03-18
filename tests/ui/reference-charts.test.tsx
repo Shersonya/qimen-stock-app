@@ -8,12 +8,17 @@ describe('ReferenceBoardPanel', () => {
     render(<HomePage />);
 
     const referenceBoardPanel = screen.getByTestId('reference-board-panel');
+    const referenceBoardScroll = within(referenceBoardPanel).getByTestId('reference-board-scroll');
+    const referencePalaces = within(referenceBoardPanel).getAllByTestId('reference-palace');
 
+    expect(referenceBoardScroll.className).toContain('overflow-x-auto');
     expect(within(referenceBoardPanel).getByTestId('reference-board-grid')).toBeInTheDocument();
-    expect(within(referenceBoardPanel).getAllByTestId('reference-palace')).toHaveLength(9);
-    expect(
-      within(referenceBoardPanel).getAllByTestId('reference-palace')[0]?.className,
-    ).toContain('sm:min-h-[22rem]');
+    expect(within(referenceBoardPanel).getByTestId('reference-board-grid').className).toContain(
+      'min-w-[50rem]',
+    );
+    expect(referencePalaces).toHaveLength(9);
+    expect(referencePalaces[0]).toHaveAttribute('data-detail-mode', 'expanded');
+    expect(referencePalaces[0]?.className).toContain('min-h-[18rem]');
     expect(
       within(referenceBoardPanel).getAllByText(
         (_, element) => element?.textContent === '天盘己',
