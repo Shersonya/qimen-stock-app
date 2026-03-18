@@ -34,9 +34,27 @@ export type QimenPalace = {
   index: number;
   position: number;
   name: string;
+  skyGan?: string;
+  groundGan?: string;
+  skyExtraGan?: string;
+  groundExtraGan?: string;
   star: string;
   door: string;
   god: string;
+};
+
+export type QimenDebugSnapshot = {
+  source: string;
+  solarTerm: string;
+  monthGanzhi: string;
+  dayGanzhi: string;
+  hourGanzhi: string;
+  xunHead: string;
+  xunHeadGan: string;
+  yinYang: '阳' | '阴';
+  ju: number;
+  valueStarPalace: number;
+  valueDoorPalace: number;
 };
 
 export type QimenResult = {
@@ -45,6 +63,7 @@ export type QimenResult = {
   valueStar: string;
   valueDoor: string;
   palaces: QimenPalace[];
+  debug?: QimenDebugSnapshot;
 };
 
 export type PlumPriceBasis = 'open';
@@ -88,11 +107,13 @@ export type PlumResult = PlumReadyResult | PlumUnavailableResult;
 
 export type QimenApiRequest = {
   stockCode: string;
+  debug?: boolean;
 };
 
 export const QIMEN_DOOR_OPTIONS = [
   '休门',
   '生门',
+  '中门',
   '伤门',
   '杜门',
   '景门',

@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
     const stock = await getStockListingInfo(payload.stockCode ?? '');
     const qimen = generateQimenChart(
       toChinaDate(stock.listingDate, stock.listingTime),
+      { includeDebug: payload.debug === true },
     );
     const plum = await getPlumResult(stock.code, stock.market);
     const patternSnapshot = analyzeStockForMarketScreen({

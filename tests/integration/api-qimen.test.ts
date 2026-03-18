@@ -286,6 +286,159 @@ describe('POST /api/qimen', () => {
         palaceAnnotations: [],
       },
     });
+    expect(mockedGenerateQimenChart).toHaveBeenCalledWith(
+      expect.any(Date),
+      { includeDebug: false },
+    );
+  });
+
+  it('passes through qimen debug metadata when explicitly requested', async () => {
+    mockedGetStockListingInfo.mockResolvedValueOnce({
+      code: '600519',
+      name: '贵州茅台',
+      market: 'SH',
+      listingDate: '2001-08-27',
+      listingTime: DEFAULT_LISTING_TIME,
+      timeSource: DEFAULT_TIME_SOURCE,
+    });
+    mockedGenerateQimenChart.mockReturnValueOnce({
+      yinYang: '阴',
+      ju: 2,
+      valueStar: '天心星',
+      valueDoor: '开门',
+      palaces: [],
+      debug: {
+        source: '@yhjs/dunjia@1.0.1',
+        solarTerm: '处暑',
+        monthGanzhi: '丙申',
+        dayGanzhi: '壬戌',
+        hourGanzhi: '乙巳',
+        xunHead: '甲寅',
+        xunHeadGan: '癸',
+        yinYang: '阴',
+        ju: 2,
+        valueStarPalace: 2,
+        valueDoorPalace: 3,
+      },
+    });
+    mockedGetStockOpenPrice.mockResolvedValueOnce(null);
+    mockedAnalyzeStockForMarketScreen.mockReturnValueOnce({
+      stock: {
+        code: '600519',
+        name: '贵州茅台',
+        market: 'SH',
+        listingDate: '2001-08-27',
+      },
+      hourWindow: {
+        stem: '乙',
+        palaceName: '坎',
+        position: 1,
+        door: '生门',
+        star: '天冲星',
+        god: '值符',
+      },
+      dayWindow: {
+        stem: '壬',
+        palaceName: '离',
+        position: 9,
+        door: '开门',
+        star: '天心星',
+        god: '六合',
+      },
+      monthWindow: {
+        stem: '丙',
+        palaceName: '兑',
+        position: 7,
+        door: '景门',
+        star: '天任星',
+        god: '九天',
+      },
+      patternInput: {
+        stock_id: '600519',
+        stock_name: '贵州茅台',
+        qimen_data: {
+          天盘干: [],
+          地盘干: [],
+          门盘: [],
+          神盘: [],
+          宫位信息: [],
+          值使门: '开门',
+          全局时间: {
+            日干支: '壬戌',
+            时干支: '乙巳',
+            是否伏吟: false,
+          },
+        },
+      },
+    });
+    mockedEvaluateQimenAuspiciousPatterns.mockReturnValueOnce({
+      stockId: '600519',
+      stockName: '贵州茅台',
+      marketSignal: {
+        hasBAboveGE: true,
+      },
+      baseScore: 25,
+      totalScore: 25,
+      rating: 'A',
+      activeMatches: [],
+      invalidPalaces: [],
+      counts: {
+        COMPOSITE: 1,
+        A: 1,
+        B: 0,
+        C: 0,
+      },
+      corePatternsLabel: '[A]青龙返首(坎1宫)',
+      energyLabel: '高强度(趋势共振)',
+      summary: '主力资金在利好驱动下入场，短期动能强劲。',
+      corePalaces: {
+        timeStemPalaceId: 1,
+        valueDoorPalaceId: 9,
+        shengDoorPalaceId: 1,
+        skyWuPalaceId: 2,
+      },
+    });
+    mockedBuildQimenPatternAnalysis.mockReturnValueOnce({
+      totalScore: 25,
+      rating: 'A',
+      energyLabel: '高强度(趋势共振)',
+      summary: '主力资金在利好驱动下入场，短期动能强劲。',
+      corePatternsLabel: '[A]青龙返首(坎1宫)',
+      bullishSignal: true,
+      predictedDirection: '涨',
+      matchedPatternNames: ['青龙返首'],
+      hourPatternNames: ['青龙返首'],
+      counts: {
+        COMPOSITE: 0,
+        A: 1,
+        B: 0,
+        C: 0,
+      },
+      invalidPalaces: [],
+      palaceAnnotations: [],
+    });
+
+    const response = await POST(createRequest({ stockCode: '600519', debug: true }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.qimen.debug).toEqual({
+      source: '@yhjs/dunjia@1.0.1',
+      solarTerm: '处暑',
+      monthGanzhi: '丙申',
+      dayGanzhi: '壬戌',
+      hourGanzhi: '乙巳',
+      xunHead: '甲寅',
+      xunHeadGan: '癸',
+      yinYang: '阴',
+      ju: 2,
+      valueStarPalace: 2,
+      valueDoorPalace: 3,
+    });
+    expect(mockedGenerateQimenChart).toHaveBeenCalledWith(
+      expect.any(Date),
+      { includeDebug: true },
+    );
   });
 
   it('returns qimen together with a plum unavailable state when open price is missing', async () => {
