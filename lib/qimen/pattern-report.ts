@@ -3,6 +3,7 @@ import type {
   MarketScreenResultItem,
   QimenPatternAnalysis,
   QimenPatternLevel,
+  QimenRiskConfigOverride,
   QimenPatternTone,
   QimenResult,
 } from '@/lib/contracts/qimen';
@@ -15,6 +16,11 @@ import type {
 function uniqueStrings(values: string[]) {
   return Array.from(new Set(values));
 }
+
+const DEFAULT_MARKET_RISK_CONFIG: Required<QimenRiskConfigOverride> = {
+  excludeInvalidCorePalaces: true,
+  excludeTopEvilPatterns: true,
+};
 
 function resolveTone(
   matches: QimenPatternMatch[],
@@ -61,6 +67,7 @@ function getHourPatternNames(
 export function resolvePatternExclusionReason(
   item: MarketScreenResultItem,
   evaluation: QimenPatternEvaluation,
+  riskConfig: QimenRiskConfigOverride = DEFAULT_MARKET_RISK_CONFIG,
 ): string | null {
   if (
     evaluation.counts.COMPOSITE === 0 &&
@@ -81,8 +88,16 @@ export function resolvePatternExclusionReason(
     return protectedPalaceIds.has(palace.palaceId);
   });
 
-  if (invalidProtectedPalace) {
+  if (riskConfig.excludeInvalidCorePalaces && invalidProtectedPalace) {
     return `核心用神受制: ${invalidProtectedPalace.palaceLabel} ${invalidProtectedPalace.reasons.join('/')}`;
+  }
+
+  const topEvilPalace = evaluation.invalidPalaces.find((palace) => {
+    return palace.topEvilPatterns.length > 0;
+  });
+
+  if (riskConfig.excludeTopEvilPatterns && topEvilPalace) {
+    return `命中顶级凶格: ${topEvilPalace.palaceLabel} ${topEvilPalace.topEvilPatterns.join('/')}`;
   }
 
   return null;
@@ -124,12 +139,13 @@ export function comparePatternLevelCount<
 export function buildMarketPatternSummary(
   item: MarketScreenResultItem,
   evaluation: QimenPatternEvaluation,
+  riskConfig: QimenRiskConfigOverride = DEFAULT_MARKET_RISK_CONFIG,
 ): MarketScreenPatternSummary {
   const hourPatternNames = getHourPatternNames(
     evaluation.activeMatches,
     evaluation.corePalaces.timeStemPalaceId,
   );
-  const exclusionReason = resolvePatternExclusionReason(item, evaluation);
+  const exclusionReason = resolvePatternExclusionReason(item, evaluation, riskConfig);
   const bullishSignal =
     item.hourWindow.door === '生门' || item.hourWindow.god === '值符';
 

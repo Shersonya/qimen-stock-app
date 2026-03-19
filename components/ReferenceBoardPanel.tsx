@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { ExpandedPalaceGrid } from '@/components/ExpandedPalaceGrid';
 import { PalaceCard } from '@/components/PalaceCard';
 import type { Market } from '@/lib/contracts/qimen';
 import { referenceBoards } from '@/lib/reference-boards';
@@ -164,34 +165,14 @@ export function ReferenceBoardPanel({
         </div>
 
         <div className="hidden sm:block" data-testid="reference-desktop-layout">
-          <div
-            className="board-shell relative mt-4 overflow-hidden rounded-[1.8rem] border border-[var(--border-soft)] p-3"
-            data-testid="reference-board-grid"
-          >
-            <div className="pointer-events-none absolute inset-3 rounded-[1.45rem] border border-[var(--border-strong)] opacity-70" />
-            <div className="relative grid grid-cols-3 gap-2.5 [grid-template-rows:repeat(3,minmax(22rem,auto))]">
-              {reference.qimen.palaces.map((palace) => (
-                <PalaceCard
-                  annotation={undefined}
-                  className="min-h-[22rem]"
-                  detailMode="expanded"
-                  interactive={false}
-                  isFilterSelected={false}
-                  isSelected={false}
-                  key={`${reference.key}-${palace.index}-${palace.position}`}
-                  onPatternClick={() => {}}
-                  onSelect={() => {}}
-                  onSelectionDragStart={() => {}}
-                  onSelectionEnter={() => {}}
-                  onSelectionToggle={() => {}}
-                  palace={palace}
-                  selectionMode={false}
-                  status="idle"
-                  testId="reference-palace"
-                />
-              ))}
-            </div>
-          </div>
+          <ExpandedPalaceGrid
+            className="mt-4"
+            interactive={false}
+            palaceTestId="reference-palace"
+            palaces={reference.qimen.palaces}
+            status="idle"
+            testId="reference-desktop-grid"
+          />
         </div>
       </div>
     </aside>

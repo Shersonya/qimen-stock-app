@@ -75,6 +75,7 @@ export async function POST(request: NextRequest) {
     });
     const patternEvaluation = evaluateQimenAuspiciousPatterns(
       patternSnapshot.patternInput,
+      payload.patternConfigOverride,
     );
     const patternAnalysis = buildQimenPatternAnalysis(qimen, patternEvaluation);
     const deepDiagnosis = buildDeepDiagnosisReport(stock, qimen);

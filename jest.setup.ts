@@ -8,3 +8,16 @@ jest.mock('next/image', () => ({
     return React.createElement('img', { ...props, alt: props.alt ?? '' });
   },
 }));
+
+jest.mock('next/link', () => ({
+  __esModule: true,
+  default: ({
+    href,
+    children,
+    ...props
+  }: React.ComponentProps<'a'> & {
+    href: string;
+  }) => {
+    return React.createElement('a', { ...props, href }, children);
+  },
+}));

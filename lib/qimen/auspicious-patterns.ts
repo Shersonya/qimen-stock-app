@@ -1,6 +1,14 @@
-export type PalaceFlag = '空亡' | '击刑' | '入墓' | '门迫';
-export type QimenPatternLevel = 'COMPOSITE' | 'A' | 'B' | 'C';
-export type QimenStockRating = 'S' | 'A' | 'B' | 'C';
+import type {
+  PalaceFlag,
+  QimenAuspiciousPatternName,
+  QimenPatternConfigOverride,
+  QimenPatternLevel,
+  QimenPatternOverrides,
+  QimenPatternThresholds,
+  QimenPatternWeightConfig,
+  QimenStockRating,
+  QimenTopEvilPattern,
+} from '@/lib/contracts/qimen';
 
 export type RawQimenPalaceState = Partial<Record<PalaceFlag, boolean>> & {
   顶级凶格?: string[];
@@ -38,25 +46,15 @@ export type RawQimenStockInput = {
   };
 };
 
-export type QimenPatternWeights = {
-  A: number;
-  B: number;
-  C: number;
-  COMPOSITE: number;
-};
-
-export type QimenPatternThresholds = {
-  S: number;
-  A: number;
-  B: number;
-};
+export type QimenPatternWeights = QimenPatternWeightConfig;
 
 export type QimenPatternConfig = {
   weights: QimenPatternWeights;
   thresholds: QimenPatternThresholds;
   invalidatingStates: PalaceFlag[];
-  topEvilPatterns: string[];
+  topEvilPatterns: QimenTopEvilPattern[];
   bullishUseShen: string[];
+  patternOverrides: QimenPatternOverrides;
 };
 
 export type NormalizedQimenPalace = {
@@ -222,6 +220,7 @@ export const DEFAULT_QIMEN_PATTERN_CONFIG: QimenPatternConfig = {
   invalidatingStates: ['空亡', '击刑', '入墓', '门迫'],
   topEvilPatterns: ['白虎猖狂'],
   bullishUseShen: ['生门', '值符'],
+  patternOverrides: {},
 };
 
 function normalizeDoorName(value: string): string {
@@ -419,6 +418,28 @@ function createPatternMatch(
     meaning: PATTERN_MEANINGS[name],
     palaceId: palace.id,
     palaceLabel: formatPalaceLabel(palace),
+  };
+}
+
+function applyPatternOverride(
+  match: QimenPatternMatch,
+  config: QimenPatternConfig,
+): QimenPatternMatch | null {
+  const override = config.patternOverrides[
+    match.name as QimenAuspiciousPatternName
+  ];
+
+  if (override?.enabled === false) {
+    return null;
+  }
+
+  const level = override?.level ?? match.level;
+  const weight = override?.weight ?? getPatternWeight(level, config);
+
+  return {
+    ...match,
+    level,
+    weight,
   };
 }
 
@@ -646,7 +667,7 @@ export function normalizeQimenPatternInput(
 
 export function evaluateQimenAuspiciousPatterns(
   input: RawQimenStockInput,
-  partialConfig: Partial<QimenPatternConfig> = {},
+  partialConfig: QimenPatternConfigOverride = {},
 ): QimenPatternEvaluation {
   const config: QimenPatternConfig = {
     ...DEFAULT_QIMEN_PATTERN_CONFIG,
@@ -666,6 +687,10 @@ export function evaluateQimenAuspiciousPatterns(
       partialConfig.topEvilPatterns ?? DEFAULT_QIMEN_PATTERN_CONFIG.topEvilPatterns,
     bullishUseShen:
       partialConfig.bullishUseShen ?? DEFAULT_QIMEN_PATTERN_CONFIG.bullishUseShen,
+    patternOverrides: {
+      ...DEFAULT_QIMEN_PATTERN_CONFIG.patternOverrides,
+      ...partialConfig.patternOverrides,
+    },
   };
   const normalized = normalizeQimenPatternInput(input);
   const context = buildPatternContext(normalized, config);
@@ -675,7 +700,7 @@ export function evaluateQimenAuspiciousPatterns(
   normalized.qimenData.palaces.forEach((palace) => {
     const reasons = getInvalidPalaceReasons(palace, config);
     const topEvilPatterns = (palace.状态.顶级凶格 ?? []).filter((item) =>
-      config.topEvilPatterns.includes(item),
+      config.topEvilPatterns.includes(item as QimenTopEvilPattern),
     );
 
     if (reasons.length > 0) {
@@ -690,9 +715,10 @@ export function evaluateQimenAuspiciousPatterns(
 
     PATTERN_DETECTORS.forEach((detector) => {
       const match = detector(palace, context);
+      const overriddenMatch = match ? applyPatternOverride(match, config) : null;
 
-      if (match) {
-        activeMatches.push(match);
+      if (overriddenMatch) {
+        activeMatches.push(overriddenMatch);
       }
     });
   });

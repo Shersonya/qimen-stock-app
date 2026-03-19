@@ -96,19 +96,40 @@ describe('POST /api/market-screen', () => {
       ],
     });
 
-    const response = await POST(
-      createRequest({
-        filters: {
-          hour: { door: '开门' },
+    const payload = {
+      filters: {
+        hour: { door: '开门' },
+      },
+      minRating: 'A',
+      onlyEligible: true,
+      patternConfigOverride: {
+        patternOverrides: {
+          青龙返首: {
+            enabled: false,
+          },
         },
-      }),
-    );
+      },
+      riskConfigOverride: {
+        excludeTopEvilPatterns: false,
+      },
+    };
+    const response = await POST(createRequest(payload));
     const body = await response.json();
 
     expect(response.status).toBe(200);
     expect(body.total).toBe(1);
     expect(body.items[0].stock.code).toBe('000001');
     expect(body.items[0].patternSummary.totalScore).toBe(36);
+    expect(mockedScreenMarketStocks).toHaveBeenCalledWith({
+      filters: payload.filters,
+      marketSignal: undefined,
+      minRating: 'A',
+      onlyEligible: true,
+      page: undefined,
+      pageSize: undefined,
+      patternConfigOverride: payload.patternConfigOverride,
+      riskConfigOverride: payload.riskConfigOverride,
+    });
   });
 
   it('returns 400 when no filter condition is provided', async () => {

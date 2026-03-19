@@ -1,5 +1,6 @@
 import type {
   BacktestApiSuccessResponse,
+  MarketDashboardResponse,
   MarketScreenSuccessResponse,
   QimenApiSuccessResponse,
 } from '@/lib/contracts/qimen';
@@ -89,6 +90,142 @@ const demoPatternAnalysis = {
   ],
 };
 
+const demoDeepDiagnosis = {
+  basis: {
+    stockCode: '600519',
+    stockName: '贵州茅台',
+    analysisTime: '2001-08-27T01:30:00.000Z',
+    yearGanzhi: '辛巳',
+    monthGanzhi: '丙申',
+    dayGanzhi: '壬戌',
+    hourGanzhi: '乙巳',
+  },
+  coreConclusion: '此局生门对时干有承接，当前更偏向等待确认后试多。',
+  action: 'BUY' as const,
+  actionLabel: '强烈看涨 / 可考虑买入',
+  successProbability: 68,
+  riskLevel: '中' as const,
+  firstImpression: '全局不伏吟，日空子丑，时空寅卯，整体仍有转圜空间。',
+  globalPattern: {
+    isFuyin: false,
+    isFanyin: false,
+    isWubuyushi: false,
+    rikong: '子丑',
+    shikong: '寅卯',
+    summary: '盘面整体仍有转圜空间，关键看生门与时干宫是否继续同频。',
+  },
+  useShen: [
+    {
+      kind: 'dayStem' as const,
+      label: '日干',
+      value: '壬',
+      palacePosition: 9,
+      palaceName: '离',
+      direction: '正南',
+      summary: '日干壬落离9宫。',
+    },
+    {
+      kind: 'hourStem' as const,
+      label: '时干',
+      value: '乙',
+      palacePosition: 1,
+      palaceName: '坎',
+      direction: '正北',
+      summary: '时干乙落坎1宫。',
+    },
+    {
+      kind: 'shengDoor' as const,
+      label: '核心用神',
+      value: '生门',
+      palacePosition: 9,
+      palaceName: '离',
+      direction: '正南',
+      summary: '生门落离9宫。',
+    },
+    {
+      kind: 'valueDoor' as const,
+      label: '值使门',
+      value: '开门',
+      palacePosition: 3,
+      palaceName: '震',
+      direction: '正东',
+      summary: '值使门落震3宫。',
+    },
+  ],
+  palaceReadings: [
+    {
+      title: '时干宫',
+      role: '执行与进场',
+      palacePosition: 1,
+      palaceName: '坎',
+      skyGan: '乙',
+      groundGan: '乙',
+      star: '天冲星',
+      door: '死门',
+      god: '玄武',
+      emptyMarkers: ['日空'],
+      relationToDayStemPalace: '克我',
+      tianShi: '天冲主启动与短线冲力。',
+      diLi: '坎1宫属水，与离9宫形成强对冲，需要确认承接。',
+      renHe: '死门主停滞，入场不宜过急。',
+      shenZhu: '玄武多反复与暗盘动作。',
+      stemPattern: '乙乙比和，执行意愿强，但容易过度执着。',
+      summary: '时干宫先动后稳，宜等确认信号再放大仓位。',
+    },
+    {
+      title: '生门宫',
+      role: '利润与结果',
+      palacePosition: 9,
+      palaceName: '离',
+      skyGan: '壬',
+      groundGan: '丁',
+      star: '天柱星',
+      door: '生门',
+      god: '腾蛇',
+      emptyMarkers: [],
+      relationToDayStemPalace: '比和',
+      tianShi: '天柱主阻力与分歧。',
+      diLi: '离9宫属火，相对日干宫为比和。',
+      renHe: '生门主利润与增量。',
+      shenZhu: '腾蛇多虚实难辨。',
+      stemPattern: '壬丁相见，宜结合门星神综合判断。',
+      summary: '生门宫综合偏积极，是本次求财链条中的主承托位。',
+    },
+    {
+      title: '日干宫',
+      role: '主体与承压',
+      palacePosition: 9,
+      palaceName: '离',
+      skyGan: '壬',
+      groundGan: '丁',
+      star: '天柱星',
+      door: '生门',
+      god: '腾蛇',
+      emptyMarkers: [],
+      relationToDayStemPalace: '比和',
+      tianShi: '主体与利润宫同位，更容易聚焦单一主线。',
+      diLi: '离宫火势外显，波动中仍带主动性。',
+      renHe: '若能得到值使门呼应，趋势更容易延续。',
+      shenZhu: '腾蛇提醒要警惕追高后的情绪回摆。',
+      stemPattern: '壬丁交映，利观察真假突破。',
+      summary: '日干宫显示主体仍在主动区，但不宜忽略波动和追价风险。',
+    },
+  ],
+  decisionRationale: [
+    '生门宫与时干宫能形成承接，但时干宫仍带死门和玄武，确认信号比速度更重要。',
+    '值使门落震3宫，意味着节奏会先从消息或盘中异动开始释放。',
+  ],
+  outlooks: [
+    { horizon: '明日' as const, trend: '偏多' as const, detail: '先看时干宫表现和盘中承接。' },
+    { horizon: '一周' as const, trend: '震荡' as const, detail: '值使门附近更容易变盘，宜跟踪量价是否同步。' },
+    { horizon: '一月' as const, trend: '偏多' as const, detail: '若生门持续承托，月内结构偏强。' },
+    { horizon: '一季' as const, trend: '震荡' as const, detail: '节气转换后再验证是否能走成中期主升。' },
+  ],
+  keyTimingHints: ['重点关注子丑、寅卯填实时段。'],
+  actionGuide: ['等待时干宫确认后分批试仓。', '若盘中冲高回落明显，则优先保持观察。'],
+  note: '当前为演示样本，用于固定场景截图与交互验证。',
+};
+
 const demoQimenPayload: QimenApiSuccessResponse = {
   stock: {
     code: '600519',
@@ -156,6 +293,7 @@ const demoQimenPayload: QimenApiSuccessResponse = {
     },
   },
   patternAnalysis: demoPatternAnalysis,
+  deepDiagnosis: demoDeepDiagnosis,
 };
 
 const demoAltQimenPayload: QimenApiSuccessResponse = {
@@ -172,6 +310,16 @@ const demoAltQimenPayload: QimenApiSuccessResponse = {
     ...demoPatternAnalysis,
     bullishSignal: false,
     predictedDirection: '观望',
+  },
+  deepDiagnosis: {
+    ...demoDeepDiagnosis,
+    basis: {
+      ...demoDeepDiagnosis.basis,
+      stockCode: '000001',
+      stockName: '平安银行',
+    },
+    action: 'WATCH',
+    actionLabel: '观望',
   },
 };
 
@@ -317,6 +465,42 @@ const demoBacktestPayload: BacktestApiSuccessResponse = {
   results: [],
 };
 
+const demoMarketDashboardPayload: MarketDashboardResponse = {
+  marketSignal: {
+    hasBAboveGE: true,
+    statusLabel: '有吉气',
+    summary: '当前市场局出现 A 级与复合吉格，适合在筛选结果中优先关注高分标的。',
+    referenceRating: 'A',
+    referencePatterns: ['青龙返首', '真诈格'],
+  },
+  patternHeat: {
+    COMPOSITE: 18,
+    A: 36,
+    B: 94,
+    C: 212,
+  },
+  topSectors: [
+    { label: '银行', count: 12 },
+    { label: '白酒', count: 9 },
+    { label: '电力设备', count: 8 },
+    { label: '半导体', count: 6 },
+    { label: '医药生物', count: 5 },
+  ],
+  topStocks: [
+    { code: '000001', name: '平安银行', sector: '银行', rating: 'S', totalScore: 36 },
+    { code: '600519', name: '贵州茅台', sector: '白酒', rating: 'A', totalScore: 25 },
+    { code: '300750', name: '宁德时代', sector: '电力设备', rating: 'A', totalScore: 24 },
+    { code: '600036', name: '招商银行', sector: '银行', rating: 'A', totalScore: 23 },
+    { code: '000858', name: '五粮液', sector: '白酒', rating: 'B', totalScore: 18 },
+  ],
+  updatedAt: '2026-03-18T10:00:00.000Z',
+  universeSize: 1324,
+  cache: {
+    cached: true,
+    expiresAt: '2026-03-18T10:30:00.000Z',
+  },
+};
+
 export function isDemoMode() {
   if (typeof window === 'undefined') {
     return false;
@@ -345,4 +529,8 @@ export function getDemoMarketScreenResponse(): MarketScreenSuccessResponse {
 
 export function getDemoBacktestResponse(): BacktestApiSuccessResponse {
   return demoBacktestPayload;
+}
+
+export function getDemoMarketDashboardResponse(): MarketDashboardResponse {
+  return demoMarketDashboardPayload;
 }

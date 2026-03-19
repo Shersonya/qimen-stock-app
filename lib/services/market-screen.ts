@@ -1,8 +1,10 @@
 import {
   ERROR_CODES,
   type Market,
+  type QimenPatternConfigOverride,
+  type QimenRiskConfigOverride,
+  type QimenStockRating,
   type MarketScreenPatternFilter,
-  type MarketScreenPatternSummary,
   type MarketScreenFilters,
   type MarketScreenRequest,
   type MarketScreenResultItem,
@@ -10,7 +12,10 @@ import {
 } from '@/lib/contracts/qimen';
 import { AppError } from '@/lib/errors';
 import { evaluateQimenAuspiciousPatterns } from '@/lib/qimen/auspicious-patterns';
-import { analyzeStockForMarketScreen } from '@/lib/qimen/analysis';
+import {
+  analyzeStockForMarketScreen,
+  type MarketScreenAnalysisSnapshot,
+} from '@/lib/qimen/analysis';
 import {
   buildMarketPatternSummary,
   comparePatternLevelCount,
@@ -37,13 +42,19 @@ type EastMoneyMarketPoolResponse = {
 };
 
 type ScreenableStock = MarketScreenResultItem['stock'];
-type CachedMarketScreenResult = MarketScreenResultItem & {
-  patternSummary: MarketScreenPatternSummary;
+type CachedMarketScreenSnapshot = Omit<MarketScreenAnalysisSnapshot, 'stock'> & {
+  stock: MarketScreenAnalysisSnapshot['stock'] & {
+    sector?: string | null;
+  };
+};
+type ScoredMarketScreenResult = MarketScreenResultItem & {
+  patternSummary: NonNullable<MarketScreenResultItem['patternSummary']>;
 };
 
-let marketPoolCache: CachedMarketScreenResult[] | null = null;
+let marketPoolCache: CachedMarketScreenSnapshot[] | null = null;
 let marketPoolCacheExpiresAt = 0;
-let marketPoolPromise: Promise<CachedMarketScreenResult[]> | null = null;
+let marketPoolCacheUpdatedAt = 0;
+let marketPoolPromise: Promise<CachedMarketScreenSnapshot[]> | null = null;
 
 function normalizeFilterValue(value: string | undefined): string | undefined {
   const normalized = value?.trim();
@@ -218,47 +229,124 @@ async function fetchMarketPool(): Promise<EastMoneyMarketPoolItem[]> {
   return payload.data?.diff ?? [];
 }
 
-async function buildMarketStockPool(): Promise<CachedMarketScreenResult[]> {
+function getRatingRank(rating: QimenStockRating) {
+  switch (rating) {
+    case 'S':
+      return 4;
+    case 'A':
+      return 3;
+    case 'B':
+      return 2;
+    case 'C':
+    default:
+      return 1;
+  }
+}
+
+function matchesMinimumRating(
+  rating: QimenStockRating,
+  minRating: MarketScreenRequest['minRating'],
+) {
+  if (!minRating || minRating === 'ALL') {
+    return true;
+  }
+
+  return getRatingRank(rating) >= getRatingRank(minRating);
+}
+
+function buildScoredMarketResult(
+  snapshot: CachedMarketScreenSnapshot,
+  patternConfigOverride?: QimenPatternConfigOverride,
+  riskConfigOverride?: QimenRiskConfigOverride,
+): ScoredMarketScreenResult {
+  const patternEvaluation = evaluateQimenAuspiciousPatterns(
+    snapshot.patternInput,
+    patternConfigOverride,
+  );
+
+  return {
+    stock: snapshot.stock,
+    hourWindow: snapshot.hourWindow,
+    dayWindow: snapshot.dayWindow,
+    monthWindow: snapshot.monthWindow,
+    patternSummary: buildMarketPatternSummary(
+      snapshot,
+      patternEvaluation,
+      riskConfigOverride,
+    ),
+  };
+}
+
+async function buildMarketStockPool(): Promise<CachedMarketScreenSnapshot[]> {
   const items = await fetchMarketPool();
 
   return items
     .map(parseMarketPoolItem)
     .filter((item): item is ScreenableStock => Boolean(item))
-    .map((item) => {
+    .reduce<CachedMarketScreenSnapshot[]>((acc, item) => {
       try {
         const snapshot = analyzeStockForMarketScreen(item);
-        const patternEvaluation = evaluateQimenAuspiciousPatterns(snapshot.patternInput);
 
-        return {
-          stock: snapshot.stock,
+        acc.push({
+          stock: {
+            ...snapshot.stock,
+            sector: item.sector,
+          },
           hourWindow: snapshot.hourWindow,
           dayWindow: snapshot.dayWindow,
           monthWindow: snapshot.monthWindow,
-          patternSummary: buildMarketPatternSummary(snapshot, patternEvaluation),
-        };
+          patternInput: snapshot.patternInput,
+        });
       } catch {
-        return null;
+        // Skip malformed snapshots so the broader market scan can continue.
       }
-    })
-    .filter((item): item is CachedMarketScreenResult => Boolean(item))
-    .sort(comparePatternLevelCount);
+
+      return acc;
+    }, []);
 }
 
 export function resetMarketStockPoolCacheForTests() {
   marketPoolCache = null;
   marketPoolCacheExpiresAt = 0;
+  marketPoolCacheUpdatedAt = 0;
   marketPoolPromise = null;
 }
 
-export async function getMarketStockPool(): Promise<CachedMarketScreenResult[]> {
+export function getMarketStockPoolCacheMeta() {
+  return {
+    cached: Boolean(marketPoolCache && Date.now() < marketPoolCacheExpiresAt),
+    updatedAt:
+      marketPoolCacheUpdatedAt > 0
+        ? new Date(marketPoolCacheUpdatedAt).toISOString()
+        : null,
+    expiresAt:
+      marketPoolCacheExpiresAt > 0
+        ? new Date(marketPoolCacheExpiresAt).toISOString()
+        : null,
+  };
+}
+
+export async function getMarketStockPool(args: {
+  patternConfigOverride?: QimenPatternConfigOverride;
+  riskConfigOverride?: QimenRiskConfigOverride;
+} = {}): Promise<ScoredMarketScreenResult[]> {
   if (marketPoolCache && Date.now() < marketPoolCacheExpiresAt) {
-    return marketPoolCache;
+    return marketPoolCache
+      .map((snapshot) =>
+        buildScoredMarketResult(
+          snapshot,
+          args.patternConfigOverride,
+          args.riskConfigOverride,
+        ),
+      )
+      .sort(comparePatternLevelCount);
   }
 
   if (!marketPoolPromise) {
     marketPoolPromise = buildMarketStockPool()
       .then((items) => {
         marketPoolCache = items;
+        marketPoolCacheUpdatedAt = Date.now();
         marketPoolCacheExpiresAt = Date.now() + MARKET_CACHE_TTL_MS;
         return items;
       })
@@ -267,7 +355,15 @@ export async function getMarketStockPool(): Promise<CachedMarketScreenResult[]> 
       });
   }
 
-  return marketPoolPromise;
+  return (await marketPoolPromise)
+    .map((snapshot) =>
+      buildScoredMarketResult(
+        snapshot,
+        args.patternConfigOverride,
+        args.riskConfigOverride,
+      ),
+    )
+    .sort(comparePatternLevelCount);
 }
 
 function matchesWindowFilter(
@@ -290,7 +386,7 @@ function matchesWindowFilter(
 }
 
 function matchesPatternFilter(
-  item: CachedMarketScreenResult,
+  item: ScoredMarketScreenResult,
   filter: MarketScreenPatternFilter | undefined,
 ): boolean {
   if (!hasPatternFilters(filter)) {
@@ -347,13 +443,18 @@ export async function screenMarketStocks(
 
   const page = normalizePage(request.page);
   const pageSize = normalizePageSize(request.pageSize);
-  const items = await getMarketStockPool();
+  const items = await getMarketStockPool({
+    patternConfigOverride: request.patternConfigOverride,
+    riskConfigOverride: request.riskConfigOverride,
+  });
   const matchedItems = items.filter((item) => {
     return (
       matchesWindowFilter(item.hourWindow, filters.hour) &&
       matchesWindowFilter(item.dayWindow, filters.day) &&
       matchesWindowFilter(item.monthWindow, filters.month) &&
-      matchesPatternFilter(item, filters.pattern)
+      matchesPatternFilter(item, filters.pattern) &&
+      matchesMinimumRating(item.patternSummary.rating, request.minRating) &&
+      (!request.onlyEligible || item.patternSummary.isEligible)
     );
   }).sort(comparePatternLevelCount);
   const startIndex = (page - 1) * pageSize;

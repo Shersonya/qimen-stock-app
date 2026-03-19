@@ -242,10 +242,28 @@ describe('POST /api/qimen', () => {
       note: '测试备注',
     });
 
-    const response = await POST(createRequest({ stockCode: '600519' }));
+    const patternConfigOverride = {
+      patternOverrides: {
+        青龙返首: {
+          enabled: false,
+        },
+      },
+    };
+    const response = await POST(
+      createRequest({
+        stockCode: '600519',
+        patternConfigOverride,
+      }),
+    );
     const body = await response.json();
 
     expect(response.status).toBe(200);
+    expect(mockedEvaluateQimenAuspiciousPatterns).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stock_id: '600519',
+      }),
+      patternConfigOverride,
+    );
     expect(body).toEqual({
       stock: {
         code: '600519',

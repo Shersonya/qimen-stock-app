@@ -187,9 +187,31 @@ export type PlumUnavailableResult = {
 
 export type PlumResult = PlumReadyResult | PlumUnavailableResult;
 
+export const PALACE_FLAG_OPTIONS = ['空亡', '击刑', '入墓', '门迫'] as const;
+export type PalaceFlag = (typeof PALACE_FLAG_OPTIONS)[number];
+
+export const QIMEN_TOP_EVIL_PATTERN_OPTIONS = ['白虎猖狂'] as const;
+export type QimenTopEvilPattern =
+  (typeof QIMEN_TOP_EVIL_PATTERN_OPTIONS)[number];
+
+export type QimenPatternLevel = 'COMPOSITE' | 'A' | 'B' | 'C';
+export type QimenStockRating = 'S' | 'A' | 'B' | 'C';
+export type QimenPatternWeightConfig = {
+  A: number;
+  B: number;
+  C: number;
+  COMPOSITE: number;
+};
+export type QimenPatternThresholds = {
+  S: number;
+  A: number;
+  B: number;
+};
+
 export type QimenApiRequest = {
   stockCode: string;
   analysisTime?: string;
+  patternConfigOverride?: QimenPatternConfigOverride;
 };
 
 export const QIMEN_DOOR_OPTIONS = [
@@ -241,10 +263,119 @@ export const QIMEN_AUSPICIOUS_PATTERN_OPTIONS = [
   '人遁格',
 ] as const;
 
-export type QimenPatternLevel = 'COMPOSITE' | 'A' | 'B' | 'C';
 export type QimenPatternTone = 'gold' | 'orange' | 'blue' | 'muted' | 'none';
 export type QimenAuspiciousPatternName =
   (typeof QIMEN_AUSPICIOUS_PATTERN_OPTIONS)[number];
+
+export const QIMEN_PATTERN_LIBRARY: Array<{
+  name: QimenAuspiciousPatternName;
+  defaultLevel: QimenPatternLevel;
+  defaultWeight: number;
+  meaning: string;
+}> = [
+  {
+    name: '青龙返首',
+    defaultLevel: 'A',
+    defaultWeight: 10,
+    meaning: '主力资金在利好驱动下入场，短期动能强劲。',
+  },
+  {
+    name: '飞鸟跌穴',
+    defaultLevel: 'A',
+    defaultWeight: 10,
+    meaning: '市场热点落在价值洼地，常见于回调结束后的再启动。',
+  },
+  {
+    name: '青龙耀明',
+    defaultLevel: 'A',
+    defaultWeight: 10,
+    meaning: '隐蔽利好与资金结合，适合提前潜伏或跟踪突发催化。',
+  },
+  {
+    name: '青龙转光',
+    defaultLevel: 'A',
+    defaultWeight: 10,
+    meaning: '机会信号与资金呼应，容易形成由弱转强的短线拐点。',
+  },
+  {
+    name: '天显时格',
+    defaultLevel: 'B',
+    defaultWeight: 6,
+    meaning: '时间窗口与盘势共振，看似平静的伏吟局里隐藏转折机会。',
+  },
+  {
+    name: '三奇得使',
+    defaultLevel: 'B',
+    defaultWeight: 6,
+    meaning: '机遇被值使门承接，个股更容易成为板块中的活跃或领涨标的。',
+  },
+  {
+    name: '玉女守门',
+    defaultLevel: 'B',
+    defaultWeight: 6,
+    meaning: '值使守护丁奇，常见于主力控盘或即将启动的个股。',
+  },
+  {
+    name: '奇仪相合',
+    defaultLevel: 'C',
+    defaultWeight: 3,
+    meaning: '多空力量短暂合拍，震荡环境里更容易形成向上合力。',
+  },
+  {
+    name: '门宫和义',
+    defaultLevel: 'C',
+    defaultWeight: 3,
+    meaning: '个股结构与当下表现相生，适合中短结合地持续跟踪。',
+  },
+  {
+    name: '三奇贵人升殿',
+    defaultLevel: 'C',
+    defaultWeight: 3,
+    meaning: '三奇回到旺位，表明个股处在更容易走强的阶段。',
+  },
+  {
+    name: '真诈格',
+    defaultLevel: 'COMPOSITE',
+    defaultWeight: 15,
+    meaning: '良好门势、三奇与太阴同宫，长线利好或价值重估信号更强。',
+  },
+  {
+    name: '天遁格',
+    defaultLevel: 'COMPOSITE',
+    defaultWeight: 15,
+    meaning: '政策、消息与行情共振，是高强度上涨气场。',
+  },
+  {
+    name: '人遁格',
+    defaultLevel: 'COMPOSITE',
+    defaultWeight: 15,
+    meaning: '潜在成长机会被太阴承托，常见于防御板块里的进攻标的。',
+  },
+];
+
+export type QimenPatternConfigOverrideItem = {
+  enabled?: boolean;
+  level?: QimenPatternLevel;
+  weight?: number;
+};
+
+export type QimenPatternOverrides = Partial<
+  Record<QimenAuspiciousPatternName, QimenPatternConfigOverrideItem>
+>;
+
+export type QimenPatternConfigOverride = {
+  weights?: Partial<QimenPatternWeightConfig>;
+  thresholds?: Partial<QimenPatternThresholds>;
+  patternOverrides?: QimenPatternOverrides;
+  invalidatingStates?: PalaceFlag[];
+  topEvilPatterns?: QimenTopEvilPattern[];
+  bullishUseShen?: string[];
+};
+
+export type QimenRiskConfigOverride = {
+  excludeInvalidCorePalaces?: boolean;
+  excludeTopEvilPatterns?: boolean;
+};
 
 export type QimenPatternListItem = {
   name: string;
@@ -349,6 +480,10 @@ export type MarketScreenRequest = {
   marketSignal?: MarketScreenMarketSignal;
   page?: number;
   pageSize?: number;
+  minRating?: QimenStockRating | 'ALL';
+  onlyEligible?: boolean;
+  patternConfigOverride?: QimenPatternConfigOverride;
+  riskConfigOverride?: QimenRiskConfigOverride;
 };
 
 export type MarketScreenWindow = {
@@ -384,6 +519,48 @@ export type MarketScreenSuccessResponse = {
 
 export type MarketScreenApiResponse =
   | MarketScreenSuccessResponse
+  | ApiErrorResponse;
+
+export type MarketDashboardRequest = {
+  patternConfigOverride?: QimenPatternConfigOverride;
+  riskConfigOverride?: QimenRiskConfigOverride;
+};
+
+export type MarketDashboardResponse = {
+  marketSignal: {
+    hasBAboveGE: boolean;
+    statusLabel: '有吉气' | '建议观望';
+    summary: string;
+    referenceRating: QimenStockRating;
+    referencePatterns: string[];
+  };
+  patternHeat: {
+    COMPOSITE: number;
+    A: number;
+    B: number;
+    C: number;
+  };
+  topSectors: Array<{
+    label: string;
+    count: number;
+  }>;
+  topStocks: Array<{
+    code: string;
+    name: string;
+    sector?: string | null;
+    rating: QimenStockRating;
+    totalScore: number;
+  }>;
+  updatedAt: string;
+  universeSize: number;
+  cache: {
+    cached: boolean;
+    expiresAt: string | null;
+  };
+};
+
+export type MarketDashboardApiResponse =
+  | MarketDashboardResponse
   | ApiErrorResponse;
 
 export type ApiError = {

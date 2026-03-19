@@ -22,8 +22,12 @@ export async function POST(request: NextRequest) {
     const result = await screenMarketStocks({
       filters: payload.filters,
       marketSignal: payload.marketSignal,
+      minRating: payload.minRating,
+      onlyEligible: payload.onlyEligible,
       page: payload.page,
       pageSize: payload.pageSize,
+      patternConfigOverride: payload.patternConfigOverride,
+      riskConfigOverride: payload.riskConfigOverride,
     });
 
     return NextResponse.json<MarketScreenSuccessResponse>(result);
