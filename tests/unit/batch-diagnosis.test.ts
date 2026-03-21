@@ -83,7 +83,9 @@ describe('batch diagnosis service', () => {
 
     expect(results).toHaveLength(2);
     expect(results[0]?.stockCode).toBe('000001');
+    expect(results[0]?.stockName).toBe('平安银行');
     expect(results[1]?.stockCode).toBe('600036');
+    expect(results[1]?.stockName).toBe('招商银行');
     expect(progressSnapshots).toEqual([0, 1, 1, 2]);
   });
 
@@ -91,6 +93,7 @@ describe('batch diagnosis service', () => {
     const table = generateComparisonTable([
       {
         stockCode: '000001',
+        stockName: '平安银行',
         diagnosisTime: '2026-03-18T00:00:00.000Z',
         rating: 'A',
         totalScore: 80,
@@ -102,6 +105,7 @@ describe('batch diagnosis service', () => {
       },
       {
         stockCode: '600036',
+        stockName: '招商银行',
         diagnosisTime: new Date().toISOString(),
         rating: 'S',
         totalScore: 92,
@@ -114,6 +118,7 @@ describe('batch diagnosis service', () => {
     ]);
 
     expect(table.items[0]?.stockCode).toBe('600036');
+    expect(table.items[0]?.stockName).toBe('招商银行');
     expect(table.items[1]?.stale).toBe(true);
     expect(isDiagnosisStale('2026-03-18T00:00:00.000Z', new Date('2026-03-20T12:00:00.000Z'))).toBe(true);
   });

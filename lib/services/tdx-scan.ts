@@ -3,6 +3,8 @@ import { calculateTdxIndicators } from '@/lib/tdx/engine';
 import type { ExtendedKLineBar } from '@/lib/tdx/types';
 import { getMarketStockPool } from '@/lib/services/market-screen';
 import { getStockDailyHistory } from '@/lib/services/stock-history';
+import { mapWithConcurrency } from '@/lib/utils/async';
+import { getShanghaiDateString } from '@/lib/utils/date';
 
 const HISTORY_CACHE_TTL_MS = 30 * 60 * 1000;
 const DEFAULT_PAGE_SIZE = 50;
@@ -58,27 +60,6 @@ function normalizeRequest(request: TdxScanRequest) {
     page: normalizePage(request.page),
     pageSize: normalizePageSize(request.pageSize),
   };
-}
-
-async function mapWithConcurrency<TInput, TOutput>(
-  items: TInput[],
-  concurrency: number,
-  worker: (item: TInput) => Promise<TOutput>,
-) {
-  const results: TOutput[] = [];
-  let cursor = 0;
-
-  const runners = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
-    while (cursor < items.length) {
-      const current = items[cursor];
-      cursor += 1;
-      results.push(await worker(current));
-    }
-  });
-
-  await Promise.all(runners);
-
-  return results;
 }
 
 function buildHistoryRange() {
@@ -151,7 +132,7 @@ export async function scanTdxSignals(
 ): Promise<TdxScanResponse> {
   const normalized = normalizeRequest(request);
   const pool = await getMarketStockPool();
-  const scanDate = new Date().toISOString().slice(0, 10);
+  const scanDate = getShanghaiDateString();
 
   const settled = await mapWithConcurrency(pool, SCAN_CONCURRENCY, async (item) => {
     try {
@@ -191,7 +172,7 @@ export async function scanTdxSignals(
         return null;
       }
 
-      if (latest.X_74 < normalized.minSignalStrength) {
+      if (Number(latest.X_74) < normalized.minSignalStrength) {
         return null;
       }
 
@@ -212,14 +193,15 @@ export async function scanTdxSignals(
         meiZhu: latest.meiZhu > 0,
         meiYangYang: latest.meiYangYang,
         meiZhuDate: lastMeiZhuIndex >= 0 ? bars[lastMeiZhuIndex]?.date : undefined,
-        signalStrength: latest.X_74,
+        signalStrength: Number(latest.X_74),
         trueCGain: latest.trueCGain,
         maUp: latest.maUp,
         fiveLinesBull: latest.fiveLinesBull,
         biasRate: latest.biasRate,
-        volumeRatio: latest.X_14,
+        volumeRatio: Number(latest.X_14),
       };
-    } catch {
+    } catch (error) {
+      console.warn(`[TDX Scan] Failed to process ${item.stock.code}:`, error);
       return null;
     }
   });

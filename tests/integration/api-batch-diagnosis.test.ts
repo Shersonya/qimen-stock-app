@@ -26,6 +26,7 @@ describe('POST /api/batch-diagnosis', () => {
     mockedBatchDiagnose.mockResolvedValueOnce([
       {
         stockCode: '000001',
+        stockName: '平安银行',
         diagnosisTime: '2026-03-21T10:00:00.000Z',
         rating: 'A',
         totalScore: 81,
@@ -42,6 +43,7 @@ describe('POST /api/batch-diagnosis', () => {
 
     expect(response.status).toBe(200);
     expect(body[0].stockCode).toBe('000001');
+    expect(body[0].stockName).toBe('平安银行');
     expect(mockedBatchDiagnose).toHaveBeenCalledWith({
       stockCodes: ['000001'],
       poolId: 'pool_1',

@@ -5,19 +5,24 @@ import {
   isLimitUp,
   resetLimitUpCacheForTests,
 } from '@/lib/services/limit-up';
-import { getMarketStockPool } from '@/lib/services/market-screen';
 import { isStStockName } from '@/lib/services/stock-data';
 import { getStockDailyHistory } from '@/lib/services/stock-history';
 
-jest.mock('@/lib/services/market-screen');
 jest.mock('@/lib/services/stock-data');
 jest.mock('@/lib/services/stock-history');
 
-const mockedGetMarketStockPool = jest.mocked(getMarketStockPool);
 const mockedIsStStockName = jest.mocked(isStStockName);
 const mockedGetStockDailyHistory = jest.mocked(getStockDailyHistory);
 
 type HistoryBar = Awaited<ReturnType<typeof getStockDailyHistory>>[number];
+type LimitUpPoolItem = {
+  c: string;
+  m: number;
+  n: string;
+  p: number;
+  amount: number;
+  hybk: string;
+};
 
 function makeDate(baseDate: string, offsetDays: number): string {
   const [year, month, day] = baseDate.split('-').map(Number);
@@ -38,12 +43,13 @@ function createHistory(args: {
   const {
     startDate,
     length,
+    stockCode,
     market,
     limitUpIndices = [],
     closeBase = 10,
   } = args;
   const limitUpSet = new Set(limitUpIndices);
-  const ratio = market === 'CYB' ? 1.199 : 1.099;
+  const ratio = market === 'CYB' || stockCode.startsWith('688') ? 1.199 : 1.099;
   let previousClose = closeBase;
 
   return Array.from({ length }, (_unused, index) => {
@@ -65,31 +71,47 @@ function createHistory(args: {
   });
 }
 
-function createMarketItem(
+function jsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+function createLimitUpPoolItem(
   stockCode: string,
   stockName: string,
-  market: 'SH' | 'SZ' | 'CYB',
-): Awaited<ReturnType<typeof getMarketStockPool>>[number] {
+  marketFlag: number,
+  latestClose: number,
+  sector = '测试板块',
+): LimitUpPoolItem {
   return {
-    stock: {
-      code: stockCode,
-      name: stockName,
-      market,
-      listingDate: '2025-01-01',
-      sector: '测试板块',
-    },
-  } as Awaited<ReturnType<typeof getMarketStockPool>>[number];
+    c: stockCode,
+    m: marketFlag,
+    n: stockName,
+    p: Math.round(latestClose * 1000),
+    amount: Math.round(latestClose * 120000 * 100),
+    hybk: sector,
+  };
 }
 
 describe('limit-up screening', () => {
+  const fetchMock = jest.spyOn(global, 'fetch');
+
   beforeEach(() => {
     resetLimitUpCacheForTests();
-    mockedGetMarketStockPool.mockReset();
     mockedIsStStockName.mockReset();
     mockedGetStockDailyHistory.mockReset();
+    fetchMock.mockReset();
     mockedIsStStockName.mockImplementation((name) =>
       /^(ST|\*ST|SST|S\*ST)/i.test(name.trim()),
     );
+  });
+
+  afterAll(() => {
+    fetchMock.mockRestore();
   });
 
   it('detects limit-up thresholds by board and excludes 688 stocks', () => {
@@ -97,27 +119,62 @@ describe('limit-up screening', () => {
     expect(isLimitUp(10.98, 10, '600000')).toBe(false);
     expect(isLimitUp(11.99, 10, '300000')).toBe(true);
     expect(isLimitUp(11.98, 10, '300000')).toBe(false);
-    expect(isLimitUp(12, 10, '688001')).toBe(false);
+    expect(isLimitUp(11.99, 10, '688001')).toBe(true);
+    expect(isLimitUp(11.98, 10, '688001')).toBe(false);
   });
 
   it('filters stocks, sorts results, paginates, and caches repeated requests', async () => {
-    mockedGetMarketStockPool.mockResolvedValue([
-      createMarketItem('600001', '中国测试A', 'SH'),
-      createMarketItem('300001', '中国测试B', 'CYB'),
-      createMarketItem('600002', '中国测试C', 'SH'),
-      createMarketItem('688001', '中国测试D', 'SH'),
-      createMarketItem('000004', '中国测试E', 'SZ'),
-      createMarketItem('600005', 'ST测试', 'SH'),
-    ]);
+    const tradingDates = createHistory({
+      startDate: '2026-03-01',
+      length: 20,
+      stockCode: '000001',
+      market: 'SH',
+    }).map((item) => item.tradeDate);
+    const recentTradingDates = tradingDates.slice(-5);
+    const poolByDate: Record<string, LimitUpPoolItem[]> = {
+      '20260316': [
+        createLimitUpPoolItem('600001', '中国测试A', 1, 12.8),
+        createLimitUpPoolItem('688001', '中国测试D', 1, 26.4),
+      ],
+      '20260318': [
+        createLimitUpPoolItem('600001', '中国测试A', 1, 13.4),
+        createLimitUpPoolItem('000004', '中国测试E', 0, 9.1),
+        createLimitUpPoolItem('600005', 'ST测试', 1, 8.3),
+      ],
+      '20260320': [
+        createLimitUpPoolItem('300001', '中国测试B', 0, 24.6, '创业板'),
+      ],
+    };
+
+    fetchMock.mockImplementation(async (input) => {
+      const url = new URL(String(input));
+      const date = url.searchParams.get('date');
+
+      return jsonResponse({
+        data: {
+          tc: (date && poolByDate[date]?.length) || 0,
+          pool: (date && poolByDate[date]) || [],
+        },
+      });
+    });
 
     mockedGetStockDailyHistory.mockImplementation(async (stockCode, market) => {
+      if (stockCode === '000001' && market === 'SH') {
+        return createHistory({
+          startDate: '2026-03-01',
+          length: 20,
+          stockCode,
+          market,
+        });
+      }
+
       if (stockCode === '600001') {
         return createHistory({
           startDate: '2025-12-01',
           length: 65,
           stockCode,
           market,
-          limitUpIndices: [40, 60],
+          closeBase: 11,
         });
       }
 
@@ -127,17 +184,7 @@ describe('limit-up screening', () => {
           length: 65,
           stockCode,
           market,
-          limitUpIndices: [55],
-          closeBase: 12,
-        });
-      }
-
-      if (stockCode === '600002') {
-        return createHistory({
-          startDate: '2025-12-01',
-          length: 65,
-          stockCode,
-          market,
+          closeBase: 21,
         });
       }
 
@@ -147,17 +194,6 @@ describe('limit-up screening', () => {
           length: 59,
           stockCode,
           market,
-          limitUpIndices: [50],
-        });
-      }
-
-      if (stockCode === '600005') {
-        return createHistory({
-          startDate: '2025-12-01',
-          length: 65,
-          stockCode,
-          market,
-          limitUpIndices: [50],
         });
       }
 
@@ -165,7 +201,7 @@ describe('limit-up screening', () => {
     });
 
     const first = await filterLimitUpStocks({
-      lookbackDays: 30,
+      lookbackDays: 5,
       minLimitUpCount: 1,
       sortBy: 'limitUpCount',
       sortOrder: 'desc',
@@ -174,19 +210,22 @@ describe('limit-up screening', () => {
     });
 
     expect(first.total).toBe(2);
+    expect(first.filterDate).toBe(recentTradingDates[recentTradingDates.length - 1]);
     expect(first.items.map((item) => item.stockCode)).toEqual(['600001', '300001']);
     expect(first.items[0]).toMatchObject({
       limitUpCount: 2,
-      firstLimitUpDate: '2026-01-10',
-      lastLimitUpDate: '2026-01-30',
+      firstLimitUpDate: '2026-03-16',
+      lastLimitUpDate: '2026-03-18',
+      latestClose: 11,
     });
     expect(first.items[1]).toMatchObject({
       market: 'CYB',
       limitUpCount: 1,
+      sector: '创业板',
     });
 
     const second = await filterLimitUpStocks({
-      lookbackDays: 30,
+      lookbackDays: 5,
       minLimitUpCount: 1,
       sortBy: 'limitUpCount',
       sortOrder: 'desc',
@@ -195,9 +234,10 @@ describe('limit-up screening', () => {
     });
 
     expect(second.items).toEqual([]);
+    expect(fetchMock).toHaveBeenCalledTimes(5);
     expect(mockedGetStockDailyHistory).toHaveBeenCalledTimes(4);
     expect(mockedGetStockDailyHistory).toHaveBeenCalledWith(
-      '600001',
+      '000001',
       'SH',
       expect.objectContaining({
         beg: expect.any(String),
@@ -206,7 +246,7 @@ describe('limit-up screening', () => {
     );
 
     const sortedByDate = await filterLimitUpStocks({
-      lookbackDays: 30,
+      lookbackDays: 5,
       minLimitUpCount: 1,
       sortBy: 'lastLimitUpDate',
       sortOrder: 'asc',
@@ -214,25 +254,47 @@ describe('limit-up screening', () => {
       pageSize: 10,
     });
 
-    expect(sortedByDate.items.map((item) => item.stockCode)).toEqual(['300001', '600001']);
+    expect(sortedByDate.items.map((item) => item.stockCode)).toEqual(['600001', '300001']);
+    expect(fetchMock).toHaveBeenCalledTimes(10);
     expect(mockedGetStockDailyHistory).toHaveBeenCalledTimes(8);
   });
 
   it('honors ST and new-stock exclusions by default', async () => {
-    mockedGetMarketStockPool.mockResolvedValue([
-      createMarketItem('600001', '中国测试A', 'SH'),
-      createMarketItem('600005', 'ST测试', 'SH'),
-      createMarketItem('000004', '中国测试E', 'SZ'),
-    ]);
+    fetchMock.mockImplementation(async (input) => {
+      const url = new URL(String(input));
+      const date = url.searchParams.get('date');
+
+      return jsonResponse({
+        data: {
+          tc: date === '20260320' ? 3 : 0,
+          pool:
+            date === '20260320'
+              ? [
+                  createLimitUpPoolItem('600001', '中国测试A', 1, 12.2),
+                  createLimitUpPoolItem('600005', 'ST测试', 1, 8.6),
+                  createLimitUpPoolItem('000004', '中国测试E', 0, 9.3),
+                ]
+              : [],
+        },
+      });
+    });
 
     mockedGetStockDailyHistory.mockImplementation(async (stockCode, market) => {
+      if (stockCode === '000001' && market === 'SH') {
+        return createHistory({
+          startDate: '2026-03-16',
+          length: 5,
+          stockCode,
+          market,
+        });
+      }
+
       if (stockCode === '600001') {
         return createHistory({
           startDate: '2025-12-01',
           length: 65,
           stockCode,
           market,
-          limitUpIndices: [60],
         });
       }
 
@@ -242,7 +304,6 @@ describe('limit-up screening', () => {
           length: 59,
           stockCode,
           market,
-          limitUpIndices: [50],
         });
       }
 
@@ -250,12 +311,65 @@ describe('limit-up screening', () => {
     });
 
     const result = await filterLimitUpStocks({
-      lookbackDays: 30,
+      lookbackDays: 5,
       page: 1,
       pageSize: 10,
     });
 
     expect(result.items.map((item) => item.stockCode)).toEqual(['600001']);
     expect(mockedIsStStockName).toHaveBeenCalledWith('ST测试');
+  });
+
+  it('applies the 20% threshold to kechuang stocks when they are not excluded', async () => {
+    fetchMock.mockImplementation(async (input) => {
+      const url = new URL(String(input));
+      const date = url.searchParams.get('date');
+
+      return jsonResponse({
+        data: {
+          tc: date === '20260320' ? 1 : 0,
+          pool:
+            date === '20260320'
+              ? [createLimitUpPoolItem('688001', '科创样本', 1, 24.2, '科创板')]
+              : [],
+        },
+      });
+    });
+    mockedGetStockDailyHistory.mockImplementation(async (stockCode, market) => {
+      if (stockCode === '000001' && market === 'SH') {
+        return createHistory({
+          startDate: '2026-03-16',
+          length: 5,
+          stockCode,
+          market,
+        });
+      }
+
+      if (stockCode === '688001' && market === 'SH') {
+        return createHistory({
+          startDate: '2025-12-01',
+          length: 65,
+          stockCode,
+          market,
+          closeBase: 20,
+        });
+      }
+
+      return [];
+    });
+
+    const result = await filterLimitUpStocks({
+      lookbackDays: 5,
+      excludeKechuang: false,
+      excludeNewStock: false,
+      page: 1,
+      pageSize: 10,
+    });
+
+    expect(result.total).toBe(1);
+    expect(result.items[0]).toMatchObject({
+      stockCode: '688001',
+      limitUpCount: 1,
+    });
   });
 });

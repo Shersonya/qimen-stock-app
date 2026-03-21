@@ -6,9 +6,28 @@ export const ACTIVE_POOL_STORAGE_KEY = 'qimen_active_pool_id';
 export const STOCK_POOL_SNAPSHOT_RETENTION_DAYS = 30;
 
 const TIMESTAMP_PAD_LENGTH = 2;
+const serverStorageState = new Map<string, string>();
 
 function hasWindowStorage() {
   return typeof window !== 'undefined' && Boolean(window.localStorage);
+}
+
+function getStorage() {
+  if (hasWindowStorage()) {
+    return window.localStorage;
+  }
+
+  return {
+    getItem(key: string) {
+      return serverStorageState.get(key) ?? null;
+    },
+    setItem(key: string, value: string) {
+      serverStorageState.set(key, value);
+    },
+    removeItem(key: string) {
+      serverStorageState.delete(key);
+    },
+  };
 }
 
 function clone<T>(value: T): T {
@@ -16,12 +35,8 @@ function clone<T>(value: T): T {
 }
 
 function readJson<T>(key: string, fallback: T): T {
-  if (!hasWindowStorage()) {
-    return clone(fallback);
-  }
-
   try {
-    const rawValue = window.localStorage.getItem(key);
+    const rawValue = getStorage().getItem(key);
 
     if (!rawValue) {
       return clone(fallback);
@@ -34,12 +49,8 @@ function readJson<T>(key: string, fallback: T): T {
 }
 
 function writeJson<T>(key: string, value: T) {
-  if (!hasWindowStorage()) {
-    return;
-  }
-
   try {
-    window.localStorage.setItem(key, JSON.stringify(value));
+    getStorage().setItem(key, JSON.stringify(value));
   } catch {
     // Ignore persistence failures so the primary workflow stays usable.
   }
@@ -86,12 +97,8 @@ export function writeAllSnapshots(snapshots: PoolSnapshot[]) {
 }
 
 export function readActivePoolId(): string | null {
-  if (!hasWindowStorage()) {
-    return null;
-  }
-
   try {
-    const rawValue = window.localStorage.getItem(ACTIVE_POOL_STORAGE_KEY);
+    const rawValue = getStorage().getItem(ACTIVE_POOL_STORAGE_KEY);
 
     return rawValue && rawValue.trim() ? rawValue.trim() : null;
   } catch {
@@ -100,19 +107,25 @@ export function readActivePoolId(): string | null {
 }
 
 export function writeActivePoolId(poolId: string | null) {
-  if (!hasWindowStorage()) {
-    return;
-  }
-
   try {
     if (!poolId) {
-      window.localStorage.removeItem(ACTIVE_POOL_STORAGE_KEY);
+      getStorage().removeItem(ACTIVE_POOL_STORAGE_KEY);
       return;
     }
 
-    window.localStorage.setItem(ACTIVE_POOL_STORAGE_KEY, poolId);
+    getStorage().setItem(ACTIVE_POOL_STORAGE_KEY, poolId);
   } catch {
     // Ignore persistence failures so the primary workflow stays usable.
+  }
+}
+
+export function resetPoolStorageForTests() {
+  serverStorageState.clear();
+
+  if (hasWindowStorage()) {
+    window.localStorage.removeItem(STOCK_POOL_STORAGE_KEY);
+    window.localStorage.removeItem(STOCK_POOL_SNAPSHOT_STORAGE_KEY);
+    window.localStorage.removeItem(ACTIVE_POOL_STORAGE_KEY);
   }
 }
 
@@ -139,4 +152,3 @@ export function pruneExpiredSnapshots(
     (snapshot) => !isSnapshotExpired(snapshot, now, retentionDays),
   );
 }
-

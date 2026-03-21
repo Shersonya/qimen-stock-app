@@ -18,6 +18,15 @@ jest.mock('@/lib/client-api', () => ({
   requestTdxScan: jest.fn(),
 }));
 
+jest.mock('@/lib/utils/date', () => {
+  const actual = jest.requireActual('@/lib/utils/date');
+
+  return {
+    ...actual,
+    getShanghaiDateString: jest.fn(() => '2026-03-21'),
+  };
+});
+
 const mockedRequestTdxScan = jest.mocked(requestTdxScan);
 const mockedRequestLimitUp = jest.mocked(requestLimitUp);
 
@@ -121,6 +130,8 @@ describe('StrategyPageClient', () => {
         expect.objectContaining({
           stockCode: '002594',
           addReason: 'tdx_signal',
+          addDate: '2026-03-21',
+          addSource: expect.stringContaining('信号日'),
         }),
       ]),
     );
@@ -176,6 +187,8 @@ describe('StrategyPageClient', () => {
       expect.arrayContaining([
         expect.objectContaining({
           addReason: 'limit_up',
+          addDate: '2026-03-21',
+          addSource: expect.stringContaining('最近涨停'),
         }),
       ]),
     );

@@ -47,11 +47,22 @@ function createIndicator(args: {
   return Array.from({ length: 180 }, () => ({
     X_14: 1.8,
     X_74: signalStrength,
+    virtualVolume: 120000,
+    realVolume: 100000,
+    volumeRatio: 1.8,
+    angle20: 12,
+    trueC: 10.5,
     trueCGain: 3.2,
+    MA5: 10.2,
+    MA10: 10.1,
+    MA20: 10,
+    MA60: 9.8,
+    MA120: 9.5,
     maUp,
     fiveLinesBull,
     biasRate,
     meiZhu: meiZhu ? 0.5 : 0,
+    shadowPressure: 10.8,
     meiYangYang,
   })) as ReturnType<typeof calculateTdxIndicators>;
 }
@@ -73,11 +84,18 @@ function createMarketItem(
 }
 
 describe('tdx scan service', () => {
+  let consoleWarnSpy: jest.SpyInstance;
+
   beforeEach(() => {
     resetTdxScanCacheForTests();
     mockedGetMarketStockPool.mockReset();
     mockedGetStockDailyHistory.mockReset();
     mockedCalculateTdxIndicators.mockReset();
+    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleWarnSpy.mockRestore();
   });
 
   it('filters, sorts, paginates, and caches repeated history fetches', async () => {
@@ -159,6 +177,10 @@ describe('tdx scan service', () => {
 
     expect(result.total).toBe(1);
     expect(result.items[0]?.stockCode).toBe('300001');
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      '[TDX Scan] Failed to process 600001:',
+      expect.any(Error),
+    );
   });
 
   it('applies signal strength and trend filters', async () => {

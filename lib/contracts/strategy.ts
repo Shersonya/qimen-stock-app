@@ -60,6 +60,7 @@ export type LimitUpFilterResponse = {
 
 export type PoolStockDiagnosis = {
   stockCode: string;
+  stockName: string;
   diagnosisTime: string;
   rating: QimenStockRating;
   totalScore: number;

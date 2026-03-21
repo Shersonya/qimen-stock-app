@@ -616,6 +616,7 @@ const demoLimitUpPayload: LimitUpFilterResponse = {
 const demoBatchDiagnosisResults: PoolStockDiagnosis[] = [
   {
     stockCode: '300750',
+    stockName: '宁德时代',
     diagnosisTime: '2026-03-21T10:08:00+08:00',
     rating: 'S',
     totalScore: 92,
@@ -627,6 +628,7 @@ const demoBatchDiagnosisResults: PoolStockDiagnosis[] = [
   },
   {
     stockCode: '002594',
+    stockName: '比亚迪',
     diagnosisTime: '2026-03-21T10:11:00+08:00',
     rating: 'A',
     totalScore: 81,

@@ -22,6 +22,7 @@ const mockedRequestBatchDiagnosis = jest.mocked(requestBatchDiagnosis);
 function createDiagnosis(stockCode: string, overrides: Partial<PoolStockDiagnosis> = {}): PoolStockDiagnosis {
   return {
     stockCode,
+    stockName: stockCode === '600519' ? '贵州茅台' : stockCode === '300750' ? '宁德时代' : stockCode,
     diagnosisTime: '2026-03-21T10:00:00.000Z',
     rating: 'A',
     totalScore: 82,
@@ -110,6 +111,7 @@ describe('StockPoolPageClient', () => {
     const activePool = getActivePool();
 
     expect(activePool?.stocks[0]?.diagnosisResult?.rating).toBe('S');
+    expect(activePool?.stocks[0]?.diagnosisResult?.stockName).toBe('贵州茅台');
     expect(mockedRequestBatchDiagnosis).toHaveBeenCalledWith({
       stockCodes: ['600519'],
       poolId: activePool?.id,
