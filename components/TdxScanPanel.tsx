@@ -12,6 +12,10 @@ type TdxSortKey = 'signalStrength' | 'trueCGain' | 'biasRate' | 'volumeRatio' | 
 
 type TdxScanPanelProps = {
   demoMode?: boolean;
+  activePoolName?: string;
+  poolStockCodes?: string[];
+  onAddStock?: (item: TdxScanResult) => void;
+  onAddAllStocks?: (items: TdxScanResult[]) => void;
 };
 
 const SORT_LABELS: Record<TdxSortKey, string> = {
@@ -52,7 +56,13 @@ function compareValues(left: TdxScanResult, right: TdxScanResult, key: TdxSortKe
   return (left[key] as number) - (right[key] as number);
 }
 
-export function TdxScanPanel({ demoMode = false }: TdxScanPanelProps) {
+export function TdxScanPanel({
+  demoMode = false,
+  activePoolName,
+  poolStockCodes = [],
+  onAddStock,
+  onAddAllStocks,
+}: TdxScanPanelProps) {
   const [request, setRequest] = useState<TdxScanRequest>(DEFAULT_REQUEST);
   const [pageInput, setPageInput] = useState(String(DEFAULT_REQUEST.page));
   const [pageSizeInput, setPageSizeInput] = useState(String(DEFAULT_REQUEST.pageSize));
@@ -75,6 +85,7 @@ export function TdxScanPanel({ demoMode = false }: TdxScanPanelProps) {
   }, [result, sortKey, sortOrder]);
 
   const totalPages = result ? Math.max(1, Math.ceil(result.total / result.pageSize)) : 1;
+  const poolStockCodeSet = useMemo(() => new Set(poolStockCodes), [poolStockCodes]);
 
   async function execute(nextRequest: TdxScanRequest) {
     setIsSubmitting(true);
@@ -295,6 +306,9 @@ export function TdxScanPanel({ demoMode = false }: TdxScanPanelProps) {
             <span className="mystic-chip">扫描半径 180 日</span>
             <span className="mystic-chip">分页可调</span>
             <span className="mystic-chip">表头可排序</span>
+            <span className="mystic-chip">
+              {activePoolName ? `加入 ${activePoolName}` : '未建池时自动创建'}
+            </span>
           </div>
         </section>
 
@@ -400,8 +414,13 @@ export function TdxScanPanel({ demoMode = false }: TdxScanPanelProps) {
                     <td>{item.biasRate.toFixed(2)}%</td>
                     <td>{item.volumeRatio.toFixed(2)}</td>
                     <td>
-                      <button className="mystic-chip" type="button">
-                        加入股票池
+                      <button
+                        className="mystic-chip"
+                        disabled={!onAddStock || poolStockCodeSet.has(item.stockCode)}
+                        onClick={() => onAddStock?.(item)}
+                        type="button"
+                      >
+                        {poolStockCodeSet.has(item.stockCode) ? '已在股票池' : '加入股票池'}
                       </button>
                     </td>
                   </tr>
@@ -417,6 +436,18 @@ export function TdxScanPanel({ demoMode = false }: TdxScanPanelProps) {
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap gap-2">
+            <button
+              className="mystic-button-secondary"
+              disabled={
+                !sortedItems.some((item) => !poolStockCodeSet.has(item.stockCode)) || !onAddAllStocks
+              }
+              onClick={() =>
+                onAddAllStocks?.(sortedItems.filter((item) => !poolStockCodeSet.has(item.stockCode)))
+              }
+              type="button"
+            >
+              将当前页结果加入股票池
+            </button>
             <button
               className="mystic-button-secondary"
               disabled={!result || isSubmitting || result.page <= 1}

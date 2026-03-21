@@ -1,5 +1,5 @@
 import { isStStockName } from '@/lib/services/stock-data';
-import { BARSLAST, COUNT, HHV, LLV, MA } from '@/lib/tdx/indicators';
+import { BARSLAST, COUNT, LLV, MA } from '@/lib/tdx/indicators';
 import type { ExtendedKLineBar, TdxIndicatorResult } from '@/lib/tdx/types';
 
 function refNumber(values: number[], index: number, offset: number, fallback = 0): number {

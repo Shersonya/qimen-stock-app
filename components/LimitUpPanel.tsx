@@ -15,6 +15,10 @@ type LimitUpSortKey = 'limitUpCount' | 'lastLimitUpDate' | 'latestClose';
 
 type LimitUpPanelProps = {
   demoMode?: boolean;
+  activePoolName?: string;
+  poolStockCodes?: string[];
+  onAddStock?: (item: LimitUpStock) => void;
+  onAddAllStocks?: (items: LimitUpStock[]) => void;
 };
 
 const SORT_LABELS: Record<LimitUpSortKey, string> = {
@@ -54,7 +58,13 @@ function compareValues(left: LimitUpStock, right: LimitUpStock, key: LimitUpSort
   return (left[key] as number) - (right[key] as number);
 }
 
-export function LimitUpPanel({ demoMode = false }: LimitUpPanelProps) {
+export function LimitUpPanel({
+  demoMode = false,
+  activePoolName,
+  poolStockCodes = [],
+  onAddStock,
+  onAddAllStocks,
+}: LimitUpPanelProps) {
   const [request, setRequest] = useState<LimitUpFilterRequest>(DEFAULT_REQUEST);
   const [pageInput, setPageInput] = useState(String(DEFAULT_REQUEST.page));
   const [pageSizeInput, setPageSizeInput] = useState(String(DEFAULT_REQUEST.pageSize));
@@ -80,6 +90,7 @@ export function LimitUpPanel({ demoMode = false }: LimitUpPanelProps) {
   }, [result, sortKey, sortOrder]);
 
   const totalPages = result ? Math.max(1, Math.ceil(result.total / result.pageSize)) : 1;
+  const poolStockCodeSet = useMemo(() => new Set(poolStockCodes), [poolStockCodes]);
 
   async function execute(nextRequest: LimitUpFilterRequest) {
     setIsSubmitting(true);
@@ -298,7 +309,9 @@ export function LimitUpPanel({ demoMode = false }: LimitUpPanelProps) {
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="mystic-chip">涨停阈值随板块变化</span>
             <span className="mystic-chip">排除条件可配置</span>
-            <span className="mystic-chip">准备接入股票池</span>
+            <span className="mystic-chip">
+              {activePoolName ? `加入 ${activePoolName}` : '未建池时自动创建'}
+            </span>
           </div>
         </section>
 
@@ -390,8 +403,13 @@ export function LimitUpPanel({ demoMode = false }: LimitUpPanelProps) {
                     <td>{item.lastLimitUpDate}</td>
                     <td>{item.latestClose.toFixed(2)}</td>
                     <td>
-                      <button className="mystic-chip" type="button">
-                        加入股票池
+                      <button
+                        className="mystic-chip"
+                        disabled={!onAddStock || poolStockCodeSet.has(item.stockCode)}
+                        onClick={() => onAddStock?.(item)}
+                        type="button"
+                      >
+                        {poolStockCodeSet.has(item.stockCode) ? '已在股票池' : '加入股票池'}
                       </button>
                     </td>
                   </tr>
@@ -407,6 +425,18 @@ export function LimitUpPanel({ demoMode = false }: LimitUpPanelProps) {
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap gap-2">
+            <button
+              className="mystic-button-secondary"
+              disabled={
+                !sortedItems.some((item) => !poolStockCodeSet.has(item.stockCode)) || !onAddAllStocks
+              }
+              onClick={() =>
+                onAddAllStocks?.(sortedItems.filter((item) => !poolStockCodeSet.has(item.stockCode)))
+              }
+              type="button"
+            >
+              将当前页结果加入股票池
+            </button>
             <button
               className="mystic-button-secondary"
               disabled={!result || isSubmitting || result.page <= 1}

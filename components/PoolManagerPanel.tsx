@@ -1,0 +1,302 @@
+'use client';
+
+import type { StockPool } from '@/lib/contracts/strategy';
+
+type PoolManagerPanelProps = {
+  pools: StockPool[];
+  activePool: StockPool | null;
+  selectedCodes: string[];
+  newPoolName: string;
+  importValue: string;
+  isImportOpen?: boolean;
+  isDiagnosing?: boolean;
+  onNewPoolNameChange: (value: string) => void;
+  onCreatePool: () => void;
+  onSelectPool: (poolId: string) => void;
+  onDeletePool: () => void;
+  onToggleImport: () => void;
+  onImportValueChange: (value: string) => void;
+  onImportPool: () => void;
+  onExportPool: () => void;
+  onSaveSnapshot: () => void;
+  onToggleStock: (stockCode: string) => void;
+  onToggleAll: () => void;
+  onRemoveSelected: () => void;
+  onRemoveStock: (stockCode: string) => void;
+  onRunStockDiagnosis: (stockCode: string) => void;
+};
+
+function formatDateLabel(value?: string) {
+  if (!value) {
+    return '--';
+  }
+
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(parsed);
+}
+
+function formatAddReason(pool: StockPool['stocks'][number]) {
+  switch (pool.addReason) {
+    case 'limit_up':
+      return pool.addSource ?? `涨停 ${pool.limitUpCount ?? 0} 次`;
+    case 'tdx_signal':
+      return pool.addSource ?? '通达信策略';
+    default:
+      return pool.addSource ?? '手动加入';
+  }
+}
+
+function formatDiagnosisLabel(pool: StockPool['stocks'][number]) {
+  if (!pool.diagnosisResult) {
+    return '未诊断';
+  }
+
+  return `${pool.diagnosisResult.rating} (${pool.diagnosisResult.totalScore})`;
+}
+
+export function PoolManagerPanel({
+  pools,
+  activePool,
+  selectedCodes,
+  newPoolName,
+  importValue,
+  isImportOpen = false,
+  isDiagnosing = false,
+  onNewPoolNameChange,
+  onCreatePool,
+  onSelectPool,
+  onDeletePool,
+  onToggleImport,
+  onImportValueChange,
+  onImportPool,
+  onExportPool,
+  onSaveSnapshot,
+  onToggleStock,
+  onToggleAll,
+  onRemoveSelected,
+  onRemoveStock,
+  onRunStockDiagnosis,
+}: PoolManagerPanelProps) {
+  const selectedSet = new Set(selectedCodes);
+  const stockCount = activePool?.stocks.length ?? 0;
+  const allSelected = stockCount > 0 && selectedCodes.length === stockCount;
+
+  return (
+    <section className="workbench-card" data-testid="pool-manager-panel">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="mystic-section-label">股票池管理</p>
+          <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+            当前股票池: {activePool?.name ?? '暂未创建'}
+          </h3>
+          <p className="mt-2 text-sm text-[var(--text-secondary)]">
+            共 {stockCount} 只，创建于 {formatDateLabel(activePool?.createdAt)}。
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <span className="mystic-chip">已选 {selectedCodes.length}</span>
+          <span className="mystic-chip">活跃池 {activePool ? '已设置' : '未设置'}</span>
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,0.85fr),minmax(0,1.15fr)]">
+        <section className="workbench-card workbench-subcard">
+          <p className="mystic-section-label">池切换与导入导出</p>
+
+          <label className="mt-4 block">
+            <span className="mb-2 block text-sm text-[var(--text-secondary)]">当前股票池</span>
+            <select
+              className="mystic-select w-full"
+              onChange={(event) => onSelectPool(event.target.value)}
+              value={activePool?.id ?? ''}
+            >
+              {pools.length > 0 ? (
+                pools.map((pool) => (
+                  <option key={pool.id} value={pool.id}>
+                    {pool.name} / {pool.stocks.length} 只
+                  </option>
+                ))
+              ) : (
+                <option value="">暂无股票池</option>
+              )}
+            </select>
+          </label>
+
+          <label className="mt-4 block">
+            <span className="mb-2 block text-sm text-[var(--text-secondary)]">新建空池名称</span>
+            <input
+              className="mystic-input w-full"
+              onChange={(event) => onNewPoolNameChange(event.target.value)}
+              placeholder="输入新股票池名称"
+              type="text"
+              value={newPoolName}
+            />
+          </label>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button className="mystic-button-primary" onClick={onCreatePool} type="button">
+              新建空池
+            </button>
+            <button className="mystic-button-secondary" onClick={onToggleImport} type="button">
+              {isImportOpen ? '收起导入' : '导入 JSON'}
+            </button>
+            <button
+              className="mystic-button-secondary"
+              disabled={!activePool}
+              onClick={onExportPool}
+              type="button"
+            >
+              导出
+            </button>
+            <button
+              className="mystic-button-secondary"
+              disabled={!activePool}
+              onClick={onSaveSnapshot}
+              type="button"
+            >
+              保存快照
+            </button>
+            <button
+              className="mystic-chip"
+              disabled={!activePool}
+              onClick={onDeletePool}
+              type="button"
+            >
+              删除当前池
+            </button>
+          </div>
+
+          {isImportOpen ? (
+            <div className="mt-4 rounded-3xl border border-white/10 bg-black/10 p-4">
+              <label className="block">
+                <span className="mb-2 block text-sm text-[var(--text-secondary)]">
+                  粘贴股票池 JSON
+                </span>
+                <textarea
+                  className="mystic-input min-h-40 w-full"
+                  onChange={(event) => onImportValueChange(event.target.value)}
+                  placeholder='{"id":"pool_xxx","name":"核心观察池","stocks":[],"removedStocks":[]}'
+                  value={importValue}
+                />
+              </label>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button className="mystic-button-primary" onClick={onImportPool} type="button">
+                  确认导入
+                </button>
+                <button className="mystic-button-secondary" onClick={onToggleImport} type="button">
+                  取消
+                </button>
+              </div>
+            </div>
+          ) : null}
+        </section>
+
+        <section className="workbench-card workbench-subcard">
+          <p className="mystic-section-label">池内股票</p>
+
+          {activePool?.stocks.length ? (
+            <>
+              <div className="mt-4 overflow-x-auto rounded-3xl border border-white/10 bg-black/10">
+                <table className="workbench-settings-table" data-testid="stock-pool-table">
+                  <thead>
+                    <tr>
+                      <th>
+                        <input
+                          aria-label="全选股票"
+                          checked={allSelected}
+                          onChange={onToggleAll}
+                          type="checkbox"
+                        />
+                      </th>
+                      <th>代码</th>
+                      <th>名称</th>
+                      <th>来源</th>
+                      <th>加入日</th>
+                      <th>诊断评级</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activePool.stocks.map((stock) => (
+                      <tr key={stock.stockCode}>
+                        <td>
+                          <input
+                            aria-label={`选择 ${stock.stockCode}`}
+                            checked={selectedSet.has(stock.stockCode)}
+                            onChange={() => onToggleStock(stock.stockCode)}
+                            type="checkbox"
+                          />
+                        </td>
+                        <td>{stock.stockCode}</td>
+                        <td>
+                          <div className="font-semibold text-[var(--text-primary)]">
+                            {stock.stockName}
+                          </div>
+                          <div className="mt-1 text-xs text-[var(--text-muted)]">
+                            {stock.market}
+                          </div>
+                        </td>
+                        <td>{formatAddReason(stock)}</td>
+                        <td>{stock.addDate}</td>
+                        <td>{formatDiagnosisLabel(stock)}</td>
+                        <td>
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              className="mystic-chip"
+                              disabled={isDiagnosing}
+                              onClick={() => onRunStockDiagnosis(stock.stockCode)}
+                              type="button"
+                            >
+                              诊断
+                            </button>
+                            <button
+                              className="mystic-chip"
+                              disabled={isDiagnosing}
+                              onClick={() => onRemoveStock(stock.stockCode)}
+                              type="button"
+                            >
+                              剔除
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  className="mystic-button-secondary"
+                  disabled={selectedCodes.length === 0 || isDiagnosing}
+                  onClick={onRemoveSelected}
+                  type="button"
+                >
+                  剔除选中
+                </button>
+                <button className="mystic-button-secondary" onClick={onToggleAll} type="button">
+                  {allSelected ? '取消全选' : '全选'}
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="mt-4 rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-[var(--text-secondary)]">
+              当前池还是空的。你可以从策略选股页加入股票，或导入一份已有股票池 JSON。
+            </div>
+          )}
+        </section>
+      </div>
+    </section>
+  );
+}

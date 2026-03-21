@@ -1,110 +1,643 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
+
+import { BatchDiagnosisPanel } from '@/components/BatchDiagnosisPanel';
+import { DiagnosisCompareTable } from '@/components/DiagnosisCompareTable';
+import { ErrorNotice } from '@/components/ErrorNotice';
+import { PoolManagerPanel } from '@/components/PoolManagerPanel';
+import { requestBatchDiagnosis } from '@/lib/client-api';
+import type { ApiError } from '@/lib/contracts/qimen';
+import type {
+  BatchDiagnosisProgress,
+  ComparisonTableData,
+  PoolStockDiagnosis,
+  PoolSnapshot,
+  StockPool,
+} from '@/lib/contracts/strategy';
+import { getDemoStockPools } from '@/lib/demo-fixtures';
+import { isDiagnosisStale } from '@/lib/services/batch-diagnosis';
 import {
-  getDemoComparisonTableData,
-  getDemoStockPools,
-} from '@/lib/demo-fixtures';
+  cleanupExpiredData,
+  createPool,
+  deletePool,
+  exportPool,
+  getActivePool,
+  getAllPools,
+  getSnapshots,
+  importPool,
+  removeFromPool,
+  saveSnapshot,
+  setActivePool,
+  addToPool,
+} from '@/lib/services/stock-pool';
 
 type StockPoolPageClientProps = {
   demoMode?: boolean;
 };
 
+type SnapshotComparison = {
+  added: string[];
+  removed: string[];
+};
+
+function toApiError(error: unknown, fallbackMessage: string): ApiError {
+  if (typeof error === 'object' && error && 'code' in error && 'message' in error) {
+    return error as ApiError;
+  }
+
+  return {
+    code: 'API_ERROR',
+    message: fallbackMessage,
+  };
+}
+
+function downloadFile(filename: string, content: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+function sanitizeFileName(value: string) {
+  return value.replace(/[^\w\u4e00-\u9fa5-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+}
+
+function formatDateLabel(value?: string) {
+  if (!value) {
+    return '--';
+  }
+
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat('zh-CN', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(parsed);
+}
+
+function createComparisonTableData(pool: StockPool | null): ComparisonTableData {
+  const items = (pool?.stocks ?? [])
+    .filter(
+      (
+        stock,
+      ): stock is StockPool['stocks'][number] & {
+        diagnosisResult: NonNullable<StockPool['stocks'][number]['diagnosisResult']>;
+      } => Boolean(stock.diagnosisResult),
+    )
+    .map((stock) => ({
+      stockCode: stock.stockCode,
+      stockName: stock.stockName,
+      rating: stock.diagnosisResult.rating,
+      totalScore: stock.diagnosisResult.totalScore,
+      riskLevel: stock.diagnosisResult.riskLevel,
+      action: stock.diagnosisResult.action,
+      actionLabel: stock.diagnosisResult.actionLabel,
+      successProbability: stock.diagnosisResult.successProbability,
+      summary: stock.diagnosisResult.summary,
+      diagnosisTime: stock.diagnosisResult.diagnosisTime,
+      stale: isDiagnosisStale(stock.diagnosisResult.diagnosisTime),
+    }))
+    .sort((left, right) => right.totalScore - left.totalScore);
+
+  return {
+    generatedAt: pool?.updatedAt ?? new Date().toISOString(),
+    sortBy: 'totalScore',
+    items,
+  };
+}
+
+function createSnapshotComparison(
+  pool: StockPool | null,
+  snapshot: PoolSnapshot | null,
+): SnapshotComparison | null {
+  if (!pool || !snapshot) {
+    return null;
+  }
+
+  const currentCodes = new Set(pool.stocks.map((stock) => stock.stockCode));
+  const snapshotCodes = new Set(snapshot.stocks.map((stock) => stock.stockCode));
+
+  return {
+    added: pool.stocks
+      .filter((stock) => !snapshotCodes.has(stock.stockCode))
+      .map((stock) => `${stock.stockCode} ${stock.stockName}`),
+    removed: snapshot.stocks
+      .filter((stock) => !currentCodes.has(stock.stockCode))
+      .map((stock) => `${stock.stockCode} ${stock.stockName}`),
+  };
+}
+
 export function StockPoolPageClient({
   demoMode = false,
 }: StockPoolPageClientProps) {
-  const pools = getDemoStockPools();
-  const activePool = pools[0];
-  const comparison = getDemoComparisonTableData();
+  const [pools, setPools] = useState<StockPool[]>([]);
+  const [activePool, setActivePoolState] = useState<StockPool | null>(null);
+  const [snapshots, setSnapshots] = useState<PoolSnapshot[]>([]);
+  const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
+  const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>('');
+  const [newPoolName, setNewPoolName] = useState('策略观察池');
+  const [importValue, setImportValue] = useState('');
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
+  const [diagnosisError, setDiagnosisError] = useState<ApiError | null>(null);
+  const [progress, setProgress] = useState<BatchDiagnosisProgress | null>(null);
+  const [isRunningDiagnosis, setIsRunningDiagnosis] = useState(false);
+
+  function syncPoolState(seedDemo = false) {
+    cleanupExpiredData();
+
+    if (seedDemo && getAllPools().length === 0) {
+      for (const pool of getDemoStockPools()) {
+        importPool(JSON.stringify(pool));
+      }
+
+      const seededActivePool = getActivePool();
+
+      if (seededActivePool && getSnapshots(seededActivePool.id).length === 0) {
+        saveSnapshot(seededActivePool.id);
+      }
+    }
+
+    const nextPools = getAllPools();
+    const nextActivePool = getActivePool();
+    const nextSnapshots = nextActivePool
+      ? [...getSnapshots(nextActivePool.id)].sort(
+          (left, right) => Date.parse(right.timestamp) - Date.parse(left.timestamp),
+        )
+      : [];
+
+    setPools(nextPools);
+    setActivePoolState(nextActivePool);
+    setSnapshots(nextSnapshots);
+    setSelectedCodes((current) =>
+      current.filter((stockCode) =>
+        Boolean(nextActivePool?.stocks.some((stock) => stock.stockCode === stockCode)),
+      ),
+    );
+    setSelectedSnapshotId((current) => {
+      if (!nextSnapshots.length) {
+        return '';
+      }
+
+      return nextSnapshots.some((snapshot) => snapshot.snapshotId === current)
+        ? current
+        : nextSnapshots[0]!.snapshotId;
+    });
+  }
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      syncPoolState(demoMode);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [demoMode]);
+
+  useEffect(() => {
+    if (!toastMessage) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setToastMessage(null);
+    }, 2800);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [toastMessage]);
+
+  const comparisonData = useMemo(() => createComparisonTableData(activePool), [activePool]);
+  const staleCount = useMemo(
+    () => comparisonData.items.filter((item) => item.stale).length,
+    [comparisonData.items],
+  );
+  const selectedSnapshot = useMemo(
+    () => snapshots.find((snapshot) => snapshot.snapshotId === selectedSnapshotId) ?? null,
+    [selectedSnapshotId, snapshots],
+  );
+  const snapshotComparison = useMemo(
+    () => createSnapshotComparison(activePool, selectedSnapshot),
+    [activePool, selectedSnapshot],
+  );
+
+  function showToast(message: string) {
+    setToastMessage(message);
+  }
+
+  function withPoolRefresh(action: () => void, successMessage?: string) {
+    try {
+      setError(null);
+      action();
+      syncPoolState();
+
+      if (successMessage) {
+        showToast(successMessage);
+      }
+    } catch (nextError) {
+      setError(toApiError(nextError, '股票池操作失败，请稍后重试。'));
+    }
+  }
+
+  function handleCreatePool() {
+    withPoolRefresh(() => {
+      const pool = createPool(newPoolName, []);
+
+      setNewPoolName(`${pool.name}-扩展池`);
+    }, '已创建新的空股票池。');
+  }
+
+  function handleSelectPool(poolId: string) {
+    withPoolRefresh(() => {
+      setActivePool(poolId);
+    });
+  }
+
+  function handleDeletePool() {
+    if (!activePool) {
+      return;
+    }
+
+    if (!window.confirm(`确认删除股票池“${activePool.name}”吗？`)) {
+      return;
+    }
+
+    withPoolRefresh(() => {
+      deletePool(activePool.id);
+    }, '已删除当前股票池。');
+  }
+
+  function handleExportPool() {
+    if (!activePool) {
+      return;
+    }
+
+    try {
+      setError(null);
+
+      const payload = exportPool(activePool.id);
+      const filename = `${sanitizeFileName(activePool.name) || 'stock-pool'}-${new Date()
+        .toISOString()
+        .slice(0, 10)}.json`;
+
+      downloadFile(filename, payload, 'application/json;charset=utf-8');
+      showToast('已导出当前股票池 JSON。');
+    } catch (nextError) {
+      setError(toApiError(nextError, '导出股票池失败，请稍后重试。'));
+    }
+  }
+
+  function handleImportPool() {
+    if (!importValue.trim()) {
+      setError({
+        code: 'API_ERROR',
+        message: '请先粘贴股票池 JSON，再执行导入。',
+      });
+      return;
+    }
+
+    withPoolRefresh(() => {
+      importPool(importValue);
+      setImportValue('');
+      setIsImportOpen(false);
+    }, '已导入股票池 JSON。');
+  }
+
+  function handleSaveSnapshot() {
+    if (!activePool) {
+      return;
+    }
+
+    withPoolRefresh(() => {
+      saveSnapshot(activePool.id);
+    }, '已保存当前股票池快照。');
+  }
+
+  function handleToggleStock(stockCode: string) {
+    setSelectedCodes((current) =>
+      current.includes(stockCode)
+        ? current.filter((item) => item !== stockCode)
+        : [...current, stockCode],
+    );
+  }
+
+  function handleToggleAll() {
+    if (!activePool?.stocks.length) {
+      setSelectedCodes([]);
+      return;
+    }
+
+    setSelectedCodes((current) =>
+      current.length === activePool.stocks.length
+        ? []
+        : activePool.stocks.map((stock) => stock.stockCode),
+    );
+  }
+
+  function handleRemoveSelected() {
+    if (!activePool || selectedCodes.length === 0) {
+      return;
+    }
+
+    withPoolRefresh(() => {
+      removeFromPool(activePool.id, selectedCodes, 'manual');
+      setSelectedCodes([]);
+    }, `已从股票池移除 ${selectedCodes.length} 只股票。`);
+  }
+
+  function handleRemoveStock(stockCode: string) {
+    if (!activePool) {
+      return;
+    }
+
+    withPoolRefresh(() => {
+      removeFromPool(activePool.id, [stockCode], 'manual');
+    }, `已移除 ${stockCode}。`);
+  }
+
+  async function runDiagnosis(stockCodes: string[]) {
+    if (!activePool || stockCodes.length === 0 || isRunningDiagnosis) {
+      return;
+    }
+
+    const uniqueStockCodes = Array.from(new Set(stockCodes));
+    const nextResults: PoolStockDiagnosis[] = [];
+    let failedCount = 0;
+
+    setDiagnosisError(null);
+    setIsRunningDiagnosis(true);
+    setProgress({
+      total: uniqueStockCodes.length,
+      completed: 0,
+      failed: 0,
+      results: [],
+    });
+
+    for (const [index, stockCode] of uniqueStockCodes.entries()) {
+      setProgress({
+        total: uniqueStockCodes.length,
+        completed: index,
+        failed: failedCount,
+        currentStock: stockCode,
+        results: [...nextResults],
+      });
+
+      try {
+        const response = await requestBatchDiagnosis({
+          stockCodes: [stockCode],
+          poolId: activePool.id,
+        });
+        const result = response[0];
+
+        if (result) {
+          nextResults.push(result);
+        } else {
+          failedCount += 1;
+        }
+      } catch {
+        failedCount += 1;
+      }
+
+      setProgress({
+        total: uniqueStockCodes.length,
+        completed: index + 1,
+        failed: failedCount,
+        currentStock: stockCode,
+        results: [...nextResults],
+      });
+    }
+
+    if (nextResults.length > 0) {
+      const resultMap = new Map(nextResults.map((result) => [result.stockCode, result]));
+      const updatedStocks = activePool.stocks
+        .filter((stock) => resultMap.has(stock.stockCode))
+        .map((stock) => ({
+          ...stock,
+          diagnosisResult: resultMap.get(stock.stockCode),
+        }));
+
+      addToPool(activePool.id, updatedStocks);
+      syncPoolState();
+    }
+
+    if (failedCount > 0) {
+      setDiagnosisError({
+        code: 'API_ERROR',
+        message: `有 ${failedCount} 只股票诊断失败，已保留成功结果。`,
+      });
+    }
+
+    showToast(`批量诊断完成：成功 ${nextResults.length} / ${uniqueStockCodes.length}。`);
+    setIsRunningDiagnosis(false);
+  }
+
+  const removedStocks = activePool?.removedStocks ?? [];
 
   return (
-    <section className="workbench-page" data-testid="stock-pool-foundation-page">
+    <section className="workbench-page" data-testid="stock-pool-page">
       <header className="workbench-page-header">
         <div>
           <p className="mystic-section-label">股票池</p>
-          <h2>本地股票池与批量诊断占位页</h2>
+          <h2>本地股票池、批量诊断与历史快照工作台</h2>
           <p>
-            这一页先固定浏览器本地持久化和诊断对比的契约数据，后续 issue 会把增删改查、
-            导入导出和批量诊断交互补全。
+            股票池以浏览器本地持久化为真源，支持跨页入池、导入导出、快照留痕和串行奇门诊断。
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <span className="mystic-chip">
-            {demoMode ? 'Demo 股票池已加载' : '等待后续 issue 接入'}
-          </span>
+          <span className="mystic-chip">{demoMode ? 'Demo 股票池已就绪' : 'LocalStorage 持久化'}</span>
+          <span className="mystic-chip">批量诊断</span>
+          <span className="mystic-chip">快照对比</span>
         </div>
       </header>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
-        <article className="workbench-card" data-testid="stock-pool-foundation-main">
-          <p className="mystic-section-label">活跃池</p>
-          <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
-            {activePool?.name ?? '暂无股票池'}
-          </h3>
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            <div className="workbench-subcard">
-              <p className="mystic-section-label">池内股票</p>
-              <strong className="text-2xl text-[var(--text-primary)]">
-                {activePool?.stocks.length ?? 0}
-              </strong>
-            </div>
-            <div className="workbench-subcard">
-              <p className="mystic-section-label">已剔除</p>
-              <strong className="text-2xl text-[var(--text-primary)]">
-                {activePool?.removedStocks.length ?? 0}
-              </strong>
-            </div>
-            <div className="workbench-subcard">
-              <p className="mystic-section-label">快照时间</p>
-              <strong className="text-2xl text-[var(--text-primary)]">
-                {comparison.generatedAt}
-              </strong>
-            </div>
-          </div>
+      {error ? (
+        <div className="mt-6">
+          <ErrorNotice error={error} title="股票池操作异常" />
+        </div>
+      ) : null}
 
-          <div className="mt-5 overflow-x-auto rounded-3xl border border-white/10 bg-black/10">
-            <table className="workbench-settings-table">
-              <thead>
-                <tr>
-                  <th>代码</th>
-                  <th>名称</th>
-                  <th>来源</th>
-                  <th>评级</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activePool?.stocks.map((stock) => (
-                  <tr key={stock.stockCode}>
-                    <td>{stock.stockCode}</td>
-                    <td>{stock.stockName}</td>
-                    <td>{stock.addReason}</td>
-                    <td>{stock.diagnosisResult?.rating ?? '未诊断'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </article>
-
-        <article className="workbench-card" data-testid="stock-pool-foundation-side">
-          <p className="mystic-section-label">诊断对比契约</p>
-          <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
-            已准备排序表结构
-          </h3>
-          <p className="mt-3 text-sm text-[var(--text-secondary)]">
-            后续对比表会直接消费这份结构，支持按得分、评级、成功率和风险等级排序。
-          </p>
-          <ul className="mt-5 space-y-3 text-sm text-[var(--text-secondary)]">
-            {comparison.items.map((item) => (
-              <li
-                className="rounded-2xl border border-white/10 bg-black/10 px-4 py-3"
-                key={item.stockCode}
-              >
-                {item.stockCode} / {item.stockName} / {item.rating} / {item.totalScore} 分
-              </li>
-            ))}
-          </ul>
-        </article>
+      <div className="mt-6">
+        <PoolManagerPanel
+          activePool={activePool}
+          importValue={importValue}
+          isDiagnosing={isRunningDiagnosis}
+          isImportOpen={isImportOpen}
+          newPoolName={newPoolName}
+          onCreatePool={handleCreatePool}
+          onDeletePool={handleDeletePool}
+          onExportPool={handleExportPool}
+          onImportPool={handleImportPool}
+          onImportValueChange={setImportValue}
+          onNewPoolNameChange={setNewPoolName}
+          onRemoveSelected={handleRemoveSelected}
+          onRemoveStock={handleRemoveStock}
+          onRunStockDiagnosis={(stockCode) => {
+            void runDiagnosis([stockCode]);
+          }}
+          onSaveSnapshot={handleSaveSnapshot}
+          onSelectPool={handleSelectPool}
+          onToggleAll={handleToggleAll}
+          onToggleImport={() => setIsImportOpen((current) => !current)}
+          onToggleStock={handleToggleStock}
+          pools={pools}
+          selectedCodes={selectedCodes}
+        />
       </div>
+
+      <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
+        <div className="space-y-6">
+          <BatchDiagnosisPanel
+            error={diagnosisError}
+            isRunning={isRunningDiagnosis}
+            onRunAll={() => {
+              void runDiagnosis(activePool?.stocks.map((stock) => stock.stockCode) ?? []);
+            }}
+            onRunSelected={() => {
+              void runDiagnosis(selectedCodes);
+            }}
+            progress={progress}
+            selectedCount={selectedCodes.length}
+            staleCount={staleCount}
+            totalCount={activePool?.stocks.length ?? 0}
+          />
+
+          {comparisonData.items.length > 0 ? (
+            <DiagnosisCompareTable data={comparisonData} />
+          ) : (
+            <section className="workbench-card" data-testid="diagnosis-compare-empty">
+              <p className="mystic-section-label">诊断对比</p>
+              <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+                等待批量诊断结果
+              </h3>
+              <p className="mt-3 text-sm text-[var(--text-secondary)]">
+                先勾选股票并执行诊断，排序对比表会在这里展示得分、风险和成功率。
+              </p>
+            </section>
+          )}
+        </div>
+
+        <aside className="space-y-6">
+          <section className="workbench-card" data-testid="removed-stocks-panel">
+            <p className="mystic-section-label">已剔除股票</p>
+            <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+              {removedStocks.length} 条历史记录
+            </h3>
+            {removedStocks.length > 0 ? (
+              <ul className="mt-5 space-y-3 text-sm text-[var(--text-secondary)]">
+                {removedStocks.slice().reverse().map((stock) => (
+                  <li
+                    className="rounded-2xl border border-white/10 bg-black/10 px-4 py-3"
+                    key={`${stock.stockCode}-${stock.removeDate}`}
+                  >
+                    <div className="font-semibold text-[var(--text-primary)]">
+                      {stock.stockCode} {stock.stockName}
+                    </div>
+                    <div className="mt-1 text-xs text-[var(--text-muted)]">
+                      {stock.removeReason} / {stock.removeDate}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-4 text-sm text-[var(--text-secondary)]">
+                还没有剔除记录，手动移除股票后会在这里留痕。
+              </p>
+            )}
+          </section>
+
+          <section className="workbench-card" data-testid="snapshot-panel">
+            <p className="mystic-section-label">历史快照</p>
+            <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+              {snapshots.length} 份快照可对比
+            </h3>
+
+            {snapshots.length > 0 ? (
+              <>
+                <label className="mt-4 block">
+                  <span className="mb-2 block text-sm text-[var(--text-secondary)]">
+                    选择快照
+                  </span>
+                  <select
+                    className="mystic-select w-full"
+                    onChange={(event) => setSelectedSnapshotId(event.target.value)}
+                    value={selectedSnapshotId}
+                  >
+                    {snapshots.map((snapshot) => (
+                      <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
+                        {formatDateLabel(snapshot.timestamp)} / {snapshot.stockCount} 只
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <div className="workbench-subcard">
+                    <p className="mystic-section-label">当前新增</p>
+                    <strong className="mt-2 block text-2xl text-[var(--text-primary)]">
+                      {snapshotComparison?.added.length ?? 0}
+                    </strong>
+                    <p className="mt-2 text-xs text-[var(--text-muted)]">
+                      相比快照新增的股票
+                    </p>
+                  </div>
+                  <div className="workbench-subcard">
+                    <p className="mystic-section-label">当前缺失</p>
+                    <strong className="mt-2 block text-2xl text-[var(--text-primary)]">
+                      {snapshotComparison?.removed.length ?? 0}
+                    </strong>
+                    <p className="mt-2 text-xs text-[var(--text-muted)]">
+                      快照里有、当前池已无的股票
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-5 space-y-3 text-sm text-[var(--text-secondary)]">
+                  <div className="rounded-2xl border border-white/10 bg-black/10 px-4 py-3">
+                    <div className="font-semibold text-[var(--text-primary)]">新增股票</div>
+                    <div className="mt-2">
+                      {snapshotComparison?.added.length
+                        ? snapshotComparison.added.join('，')
+                        : '与快照一致，无新增。'}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-black/10 px-4 py-3">
+                    <div className="font-semibold text-[var(--text-primary)]">已移除股票</div>
+                    <div className="mt-2">
+                      {snapshotComparison?.removed.length
+                        ? snapshotComparison.removed.join('，')
+                        : '与快照一致，无移除。'}
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <p className="mt-4 text-sm text-[var(--text-secondary)]">
+                还没有历史快照。点击上方“保存快照”即可沉淀一份对比基线。
+              </p>
+            )}
+          </section>
+        </aside>
+      </div>
+
+      {toastMessage ? (
+        <div className="workbench-toast" role="status">
+          {toastMessage}
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -1,6 +1,5 @@
 /** @jest-environment node */
 
-import { ERROR_CODES } from '@/lib/contracts/qimen';
 import {
   filterLimitUpStocks,
   isLimitUp,
@@ -39,7 +38,6 @@ function createHistory(args: {
   const {
     startDate,
     length,
-    stockCode,
     market,
     limitUpIndices = [],
     closeBase = 10,
@@ -112,7 +110,7 @@ describe('limit-up screening', () => {
       createMarketItem('600005', 'ST测试', 'SH'),
     ]);
 
-    mockedGetStockDailyHistory.mockImplementation(async (stockCode, market, options) => {
+    mockedGetStockDailyHistory.mockImplementation(async (stockCode, market) => {
       if (stockCode === '600001') {
         return createHistory({
           startDate: '2025-12-01',
