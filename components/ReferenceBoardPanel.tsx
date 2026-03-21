@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 import { ExpandedPalaceGrid } from '@/components/ExpandedPalaceGrid';
-import { PalaceCard } from '@/components/PalaceCard';
+import { MobilePalaceExplorer } from '@/components/MobilePalaceExplorer';
 import type { Market } from '@/lib/contracts/qimen';
 import { referenceBoards } from '@/lib/reference-boards';
 import {
@@ -26,18 +26,43 @@ export function ReferenceBoardPanel({
     referenceBoards.find(
       (item) => item.key === getReferenceBoardKeyFromMarket(selectedMarket),
     ) ?? referenceBoards[0] ?? null;
-  const [selectedPalaceIndex, setSelectedPalaceIndex] = useState<number | null>(
-    getDefaultPalaceIndex(reference?.qimen.palaces ?? []),
-  );
+  const [mobileSelection, setMobileSelection] = useState<{
+    palaceIndex: number | null;
+    referenceKey: string | null;
+  }>({
+    palaceIndex: getDefaultPalaceIndex(reference?.qimen.palaces ?? []),
+    referenceKey: reference?.key ?? null,
+  });
 
   if (!reference) {
     return null;
   }
 
-  const selectedPalace =
-    reference.qimen.palaces.find((palace) => palace.index === selectedPalaceIndex) ??
-    reference.qimen.palaces[getDefaultPalaceIndex(reference.qimen.palaces)] ??
-    null;
+  const defaultPalaceIndex = getDefaultPalaceIndex(reference.qimen.palaces);
+  const selectedPalaceIndex =
+    mobileSelection.referenceKey === reference.key
+      ? mobileSelection.palaceIndex
+      : defaultPalaceIndex;
+
+  function handleMarketChange(market: Market) {
+    const nextReference =
+      referenceBoards.find(
+        (item) => item.key === getReferenceBoardKeyFromMarket(market),
+      ) ?? null;
+
+    setMobileSelection({
+      palaceIndex: getDefaultPalaceIndex(nextReference?.qimen.palaces ?? []),
+      referenceKey: nextReference?.key ?? null,
+    });
+    onMarketChange(market);
+  }
+
+  function handlePalaceSelect(palaceIndex: number | null) {
+    setMobileSelection({
+      palaceIndex,
+      referenceKey: reference.key,
+    });
+  }
 
   return (
     <aside
@@ -68,7 +93,10 @@ export function ReferenceBoardPanel({
         <span className="mystic-chip">{isMobileExpanded ? '收起' : '展开'}</span>
       </button>
 
-      <div className={`mt-4 ${isMobileExpanded ? 'block' : 'hidden md:block'}`}>
+      <div
+        className={`mt-4 ${isMobileExpanded ? 'block' : 'hidden md:block'}`}
+        data-testid="reference-content-panel"
+      >
         <div aria-label="市场切换" className="mb-4 grid grid-cols-3 gap-2.5" role="tablist">
           {MARKET_OPTIONS.map((option) => {
             const isActive = option.value === selectedMarket;
@@ -82,7 +110,7 @@ export function ReferenceBoardPanel({
                     : 'border-[var(--border-soft)] bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:border-[var(--accent-soft)] hover:text-[var(--text-primary)]'
                 }`}
                 key={option.value}
-                onClick={() => onMarketChange(option.value)}
+                onClick={() => handleMarketChange(option.value)}
                 role="tab"
                 type="button"
               >
@@ -94,75 +122,19 @@ export function ReferenceBoardPanel({
         <div className="md:hidden">
           <span className="mystic-chip">{reference.datetimeLabel}</span>
         </div>
-        <div className="mt-4 space-y-4 sm:hidden" data-testid="reference-mobile-layout">
-          <div
-            className="board-shell relative overflow-hidden rounded-[1.75rem] border border-[var(--border-soft)] p-2"
-            data-testid="reference-mobile-overview"
-          >
-            <div className="pointer-events-none absolute inset-3 rounded-[1.35rem] border border-[var(--border-strong)] opacity-70" />
-            <div className="relative grid grid-cols-3 gap-2 [grid-template-rows:repeat(3,minmax(8.8rem,auto))]">
-              {reference.qimen.palaces.map((palace) => (
-                <PalaceCard
-                  annotation={undefined}
-                  className="min-h-[8.8rem]"
-                  detailMode="compact"
-                  interactive
-                  isFilterSelected={false}
-                  isSelected={selectedPalace?.index === palace.index}
-                  key={`${reference.key}-${palace.index}-${palace.position}-mobile`}
-                  onPatternClick={() => {}}
-                  onSelect={setSelectedPalaceIndex}
-                  onSelectionDragStart={() => {}}
-                  onSelectionEnter={() => {}}
-                  onSelectionToggle={() => {}}
-                  palace={palace}
-                  selectionMode={false}
-                  status="ready"
-                  testId="reference-mobile-palace"
-                />
-              ))}
-            </div>
-          </div>
-
-          <div
-            className="rounded-[1.45rem] border border-[var(--border-soft)] bg-[var(--surface-muted)] px-4 py-4"
-            data-testid="reference-mobile-detail"
-          >
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="mystic-section-label">当前参考宫位</p>
-                <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
-                  {selectedPalace ? `${selectedPalace.name}宫 · 洛书 ${selectedPalace.position}` : '待选宫位'}
-                </h3>
-              </div>
-              <span className="mystic-chip">完整字段</span>
-            </div>
-            <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
-              点击上方九宫概览，可切换下方参考宫位的完整字段信息。
-            </p>
-            {selectedPalace ? (
-              <div className="mt-4">
-                <PalaceCard
-                  annotation={undefined}
-                  className="min-h-0"
-                  detailMode="expanded"
-                  interactive={false}
-                  isFilterSelected={false}
-                  isSelected={false}
-                  onPatternClick={() => {}}
-                  onSelect={() => {}}
-                  onSelectionDragStart={() => {}}
-                  onSelectionEnter={() => {}}
-                  onSelectionToggle={() => {}}
-                  palace={selectedPalace}
-                  selectionMode={false}
-                  status="idle"
-                  testId="reference-mobile-detail-card"
-                />
-              </div>
-            ) : null}
-          </div>
-        </div>
+        <MobilePalaceExplorer
+          className="mt-4"
+          detailCardTestId="reference-mobile-detail-card"
+          detailStatus="idle"
+          detailTestId="reference-mobile-detail"
+          layoutTestId="reference-mobile-layout"
+          onSelectPalace={handlePalaceSelect}
+          overviewTestId="reference-mobile-overview"
+          palaceTestId="reference-mobile-palace"
+          palaces={reference.qimen.palaces}
+          selectedPalaceIndex={selectedPalaceIndex}
+          status="ready"
+        />
 
         <div className="hidden sm:block" data-testid="reference-desktop-layout">
           <ExpandedPalaceGrid

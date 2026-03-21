@@ -18,6 +18,7 @@ import {
 import type { BoardViewState } from '@/lib/ui';
 import { getMarketLabel, getMarketShortLabel } from '@/lib/ui';
 import { ErrorNotice } from '@/components/ErrorNotice';
+import { MobilePalaceExplorer } from '@/components/MobilePalaceExplorer';
 import { PalaceCard } from '@/components/PalaceCard';
 
 type BoardSummary = {
@@ -216,9 +217,6 @@ export function QimenBoard({
       ]),
     );
   }, [patternAnalysis?.palaceAnnotations]);
-  const selectedPalaceAnnotation = selectedPalace
-    ? patternAnnotationMap.get(selectedPalace.position)
-    : undefined;
   const chartMetaItems = result?.qimen.meta
     ? [
         ['旬首', result.qimen.meta.xunHead],
@@ -511,87 +509,28 @@ export function QimenBoard({
           </div>
         ) : null}
 
-        <div className="mt-5 space-y-4 sm:hidden" data-testid="qimen-mobile-layout">
-          <div
-            className="board-shell relative overflow-hidden rounded-[1.75rem] border border-[var(--border-soft)] p-2"
-            data-testid="qimen-mobile-overview"
-            onPointerLeave={() => setDraggingSelection(false)}
-            onPointerUp={() => setDraggingSelection(false)}
-          >
-            <div className="pointer-events-none absolute inset-3 z-0 rounded-[1.35rem] border border-[var(--border-strong)] opacity-80" />
-            <div className="pointer-events-none absolute left-1/2 top-3 z-0 h-[calc(100%-1.5rem)] w-px -translate-x-1/2 bg-[linear-gradient(180deg,transparent,var(--line-strong),transparent)]" />
-            <div className="pointer-events-none absolute top-1/2 left-3 z-0 h-px w-[calc(100%-1.5rem)] -translate-y-1/2 bg-[linear-gradient(90deg,transparent,var(--line-strong),transparent)]" />
-            <div className="pointer-events-none absolute left-1/3 top-3 z-0 h-[calc(100%-1.5rem)] w-px -translate-x-1/2 bg-[linear-gradient(180deg,transparent,var(--line-soft),transparent)]" />
-            <div className="pointer-events-none absolute left-2/3 top-3 z-0 h-[calc(100%-1.5rem)] -translate-x-1/2 w-px bg-[linear-gradient(180deg,transparent,var(--line-soft),transparent)]" />
-            <div className="pointer-events-none absolute top-1/3 left-3 z-0 h-px w-[calc(100%-1.5rem)] -translate-y-1/2 bg-[linear-gradient(90deg,transparent,var(--line-soft),transparent)]" />
-            <div className="pointer-events-none absolute top-2/3 left-3 z-0 h-px w-[calc(100%-1.5rem)] -translate-y-1/2 bg-[linear-gradient(90deg,transparent,var(--line-soft),transparent)]" />
-
-            <div className="relative z-10 grid grid-cols-3 gap-2 [grid-template-rows:repeat(3,minmax(8.8rem,auto))]">
-              {palaces.map((palace) => (
-                <PalaceCard
-                  annotation={patternAnnotationMap.get(palace.position)}
-                  className="min-h-[8.8rem]"
-                  detailMode="compact"
-                  isFilterSelected={selectedFilterPositions.includes(palace.position)}
-                  isSelected={selectedPalace?.index === palace.index}
-                  key={`${palace.index}-${palace.position}-mobile`}
-                  onPatternClick={onApplyPatternFilter}
-                  onSelect={onSelectPalace}
-                  onSelectionDragStart={() => setDraggingSelection(true)}
-                  onSelectionEnter={handleSelectionEnter}
-                  onSelectionToggle={toggleSelection}
-                  palace={palace}
-                  selectionMode={selectionMode}
-                  status={status}
-                  testId="qimen-mobile-palace"
-                />
-              ))}
-            </div>
-          </div>
-
-          <div
-            className="rounded-[1.45rem] border border-[var(--border-soft)] bg-[var(--surface-muted)] px-4 py-4"
-            data-testid="qimen-mobile-detail"
-          >
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="mystic-section-label">当前宫位完整信息</p>
-                <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
-                  {getSelectedPalaceHeadline(selectedPalace)}
-                </h3>
-              </div>
-              <div className="rounded-full border border-[var(--border-strong)] px-3 py-1 text-xs tracking-[0.18em] text-[var(--accent-strong)]">
-                {selectionMode ? '框选模式' : '完整字段'}
-              </div>
-            </div>
-            <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
-              {selectionMode
-                ? '当前处于框选模式，点击上方九宫概览即可加入或移除筛选宫位。'
-                : getSelectedPalaceSummary(selectedPalace)}
-            </p>
-            {selectedPalace ? (
-              <div className="mt-4">
-                <PalaceCard
-                  annotation={selectedPalaceAnnotation}
-                  className="min-h-0"
-                  detailMode="expanded"
-                  interactive={false}
-                  isFilterSelected={selectedFilterPositions.includes(selectedPalace.position)}
-                  isSelected={false}
-                  onPatternClick={onApplyPatternFilter}
-                  onSelect={() => {}}
-                  onSelectionDragStart={() => {}}
-                  onSelectionEnter={() => {}}
-                  onSelectionToggle={() => {}}
-                  palace={selectedPalace}
-                  selectionMode={false}
-                  status={status}
-                  testId="qimen-mobile-detail-card"
-                />
-              </div>
-            ) : null}
-          </div>
-        </div>
+        <MobilePalaceExplorer
+          className="mt-5"
+          detailCardTestId="qimen-mobile-detail-card"
+          detailTestId="qimen-mobile-detail"
+          detailStatus={status}
+          getAnnotation={(palace) => patternAnnotationMap.get(palace.position)}
+          layoutTestId="qimen-mobile-layout"
+          onApplyPatternFilter={onApplyPatternFilter}
+          onOverviewPointerLeave={() => setDraggingSelection(false)}
+          onOverviewPointerUp={() => setDraggingSelection(false)}
+          onSelectPalace={onSelectPalace}
+          onSelectionDragStart={() => setDraggingSelection(true)}
+          onSelectionEnter={handleSelectionEnter}
+          onSelectionToggle={toggleSelection}
+          overviewTestId="qimen-mobile-overview"
+          palaceTestId="qimen-mobile-palace"
+          palaces={palaces}
+          selectedFilterPositions={selectedFilterPositions}
+          selectedPalaceIndex={selectedPalaceIndex}
+          selectionMode={selectionMode}
+          status={status}
+        />
 
         <div className="mt-5 hidden sm:block" data-testid="qimen-desktop-layout">
           <div
