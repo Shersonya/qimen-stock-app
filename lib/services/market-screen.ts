@@ -350,6 +350,13 @@ export async function getMarketStockPool(args: {
         marketPoolCacheExpiresAt = Date.now() + MARKET_CACHE_TTL_MS;
         return items;
       })
+      .catch((error) => {
+        if (marketPoolCache && marketPoolCache.length > 0) {
+          return marketPoolCache;
+        }
+
+        throw error;
+      })
       .finally(() => {
         marketPoolPromise = null;
       });

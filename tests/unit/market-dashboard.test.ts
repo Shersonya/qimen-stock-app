@@ -1,5 +1,7 @@
 /** @jest-environment node */
 
+import { ERROR_CODES } from '@/lib/contracts/qimen';
+import { AppError } from '@/lib/errors';
 import { getMarketDashboard } from '@/lib/services/market-dashboard';
 import { evaluateQimenAuspiciousPatterns } from '@/lib/qimen/auspicious-patterns';
 import { generateQimenChart } from '@/lib/qimen/engine';
@@ -175,5 +177,82 @@ describe('market dashboard service', () => {
       totalScore: 36,
     });
     expect(result.cache.cached).toBe(true);
+  });
+
+  it('degrades gracefully when the market stock pool source is temporarily unavailable', async () => {
+    mockedGetMarketStockPool.mockRejectedValueOnce(
+      new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502),
+    );
+    mockedGetMarketStockPoolCacheMeta.mockReturnValue({
+      cached: false,
+      updatedAt: null,
+      expiresAt: null,
+    });
+    mockedGenerateQimenChart.mockReturnValue({
+      yinYang: '阴',
+      ju: 2,
+      valueStar: '天心星',
+      valueDoor: '开门',
+      palaces: [
+        { index: 0, position: 4, name: '巽', star: '天芮星', door: '休门', god: '太阴', wuxing: '木' },
+      ],
+      meta: {
+        analysisTime: '2026-03-19T10:00:00.000Z',
+        solarTerm: '春分',
+        xunHead: '甲子',
+        xunHeadGan: '戊',
+        yearGanzhi: '丙午',
+        monthGanzhi: '己卯',
+        dayGanzhi: '甲辰',
+        hourGanzhi: '乙巳',
+        rikong: '子丑',
+        shikong: '寅卯',
+        isFuyin: false,
+        isFanyin: false,
+        isWubuyushi: false,
+        valueStarPalace: 9,
+        valueDoorPalace: 3,
+      },
+    });
+    mockedEvaluateQimenAuspiciousPatterns.mockReturnValue({
+      stockId: 'MARKET',
+      stockName: '全市场',
+      marketSignal: {
+        hasBAboveGE: false,
+      },
+      baseScore: 5,
+      totalScore: 5,
+      rating: 'C',
+      activeMatches: [],
+      invalidPalaces: [],
+      counts: {
+        COMPOSITE: 0,
+        A: 0,
+        B: 0,
+        C: 1,
+      },
+      corePatternsLabel: '',
+      energyLabel: '结构机会(等待催化)',
+      summary: '测试摘要',
+      corePalaces: {
+        timeStemPalaceId: 1,
+        valueDoorPalaceId: 9,
+        shengDoorPalaceId: 9,
+        skyWuPalaceId: 2,
+      },
+    });
+
+    const result = await getMarketDashboard();
+
+    expect(result.universeSize).toBe(0);
+    expect(result.patternHeat).toEqual({
+      COMPOSITE: 0,
+      A: 0,
+      B: 0,
+      C: 0,
+    });
+    expect(result.topSectors).toEqual([]);
+    expect(result.topStocks).toEqual([]);
+    expect(result.marketSignal.summary).toContain('当前全市场样本源暂时不可用');
   });
 });

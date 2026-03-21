@@ -55,8 +55,8 @@ function DonutHeatChart({
 }: {
   counts: MarketDashboardResponse['patternHeat'];
 }) {
-  const total =
-    counts.COMPOSITE + counts.A + counts.B + counts.C || 1;
+  const actualTotal = counts.COMPOSITE + counts.A + counts.B + counts.C;
+  const total = actualTotal || 1;
   const segments = [
     { key: 'COMPOSITE', label: '复合', value: counts.COMPOSITE, color: '#d8b35a' },
     { key: 'A', label: 'A', value: counts.A, color: '#75c6a3' },
@@ -76,7 +76,7 @@ function DonutHeatChart({
             A / B / C / 复合分布
           </h3>
         </div>
-        <span className="mystic-chip">总计 {total}</span>
+        <span className="mystic-chip">总计 {actualTotal}</span>
       </div>
       <div className="mt-6 flex flex-wrap items-center gap-6">
         <svg aria-label="全市场吉格热度环形图" className="h-40 w-40" viewBox="0 0 160 160">
@@ -108,7 +108,7 @@ function DonutHeatChart({
             吉格
           </text>
           <text fill="#f5ebd7" fontSize="26" fontWeight="700" textAnchor="middle" x="80" y="104">
-            {total}
+            {actualTotal}
           </text>
         </svg>
         <div className="grid flex-1 gap-3 sm:grid-cols-2">
@@ -146,20 +146,26 @@ function SectorBarChart({
         吉格出现最多的前五行业
       </h3>
       <div className="mt-6 space-y-4">
-        {items.map((item) => (
-          <div key={item.label}>
-            <div className="mb-2 flex items-center justify-between gap-3 text-sm">
-              <span className="text-[var(--text-secondary)]">{item.label}</span>
-              <span className="text-[var(--text-primary)]">{item.count}</span>
+        {items.length > 0 ? (
+          items.map((item) => (
+            <div key={item.label}>
+              <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+                <span className="text-[var(--text-secondary)]">{item.label}</span>
+                <span className="text-[var(--text-primary)]">{item.count}</span>
+              </div>
+              <div className="workbench-bar-track">
+                <div
+                  className="workbench-bar-fill"
+                  style={{ width: `${(item.count / maxValue) * 100}%` }}
+                />
+              </div>
             </div>
-            <div className="workbench-bar-track">
-              <div
-                className="workbench-bar-fill"
-                style={{ width: `${(item.count / maxValue) * 100}%` }}
-              />
-            </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p className="text-sm text-[var(--text-secondary)]">
+            当前样本源暂不可用，热点板块统计已降级为空。
+          </p>
+        )}
       </div>
     </article>
   );
@@ -284,27 +290,33 @@ export function DashboardPageClient() {
                 <span className="mystic-chip">样本 {data.universeSize}</span>
               </div>
               <div className="mt-4 space-y-3">
-                {topStocks.map((item) => (
-                  <div className="workbench-list-row" key={item.code}>
-                    <div>
-                      <p className="font-semibold text-[var(--text-primary)]">
-                        {item.name}
-                      </p>
-                      <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                        {item.code}
-                        {item.sector ? ` · ${item.sector}` : ''}
-                      </p>
+                {topStocks.length > 0 ? (
+                  topStocks.map((item) => (
+                    <div className="workbench-list-row" key={item.code}>
+                      <div>
+                        <p className="font-semibold text-[var(--text-primary)]">
+                          {item.name}
+                        </p>
+                        <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                          {item.code}
+                          {item.sector ? ` · ${item.sector}` : ''}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-[var(--text-primary)]">
+                          {item.rating} / {item.totalScore}
+                        </p>
+                        <Link className="mystic-chip mt-2 inline-flex" href={`/diagnosis/${item.code}`}>
+                          查看诊断
+                        </Link>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-[var(--text-primary)]">
-                        {item.rating} / {item.totalScore}
-                      </p>
-                      <Link className="mystic-chip mt-2 inline-flex" href={`/diagnosis/${item.code}`}>
-                        查看诊断
-                      </Link>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-sm text-[var(--text-secondary)]">
+                    当前没有可展示的高分样本，等全市场样本源恢复后会自动刷新。
+                  </p>
+                )}
               </div>
             </article>
           </div>

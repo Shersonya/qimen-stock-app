@@ -3,6 +3,8 @@ import type {
   MarketDashboardResponse,
   QimenResult,
 } from '@/lib/contracts/qimen';
+import { ERROR_CODES } from '@/lib/contracts/qimen';
+import { AppError } from '@/lib/errors';
 import { evaluateQimenAuspiciousPatterns } from '@/lib/qimen/auspicious-patterns';
 import { generateQimenChart } from '@/lib/qimen/engine';
 import {
@@ -21,6 +23,8 @@ const PALACE_WUXING_MAP: Record<number, string> = {
   8: '土',
   9: '火',
 };
+
+type PatternHeat = MarketDashboardResponse['patternHeat'];
 
 function countEntries(values: string[]) {
   const counts = new Map<string, number>();
@@ -64,46 +68,68 @@ function toPatternInput(qimen: QimenResult) {
   };
 }
 
+function createEmptyPatternHeat(): PatternHeat {
+  return {
+    COMPOSITE: 0,
+    A: 0,
+    B: 0,
+    C: 0,
+  };
+}
+
 export async function getMarketDashboard(
   request: MarketDashboardRequest = {},
 ): Promise<MarketDashboardResponse> {
-  const [items, cacheMeta] = await Promise.all([
-    getMarketStockPool({
-      patternConfigOverride: request.patternConfigOverride,
-      riskConfigOverride: request.riskConfigOverride,
-    }),
-    Promise.resolve(getMarketStockPoolCacheMeta()),
-  ]);
   const currentBoard = generateQimenChart(new Date());
   const currentBoardEvaluation = evaluateQimenAuspiciousPatterns(
     toPatternInput(currentBoard),
     request.patternConfigOverride,
   );
+  let items: Awaited<ReturnType<typeof getMarketStockPool>> = [];
+  let cacheMeta = getMarketStockPoolCacheMeta();
+  let degradedByDataSource = false;
+
+  try {
+    [items, cacheMeta] = await Promise.all([
+      getMarketStockPool({
+        patternConfigOverride: request.patternConfigOverride,
+        riskConfigOverride: request.riskConfigOverride,
+      }),
+      Promise.resolve(getMarketStockPoolCacheMeta()),
+    ]);
+  } catch (error) {
+    if (!(error instanceof AppError) || error.code !== ERROR_CODES.DATA_SOURCE_ERROR) {
+      throw error;
+    }
+
+    degradedByDataSource = true;
+  }
+
   const hasBAboveGE =
     currentBoardEvaluation.counts.COMPOSITE > 0 ||
     currentBoardEvaluation.counts.A > 0 ||
     currentBoardEvaluation.counts.B > 0;
-  const patternHeat = items.reduce(
-    (acc, item) => {
-      acc.COMPOSITE += item.patternSummary.counts.COMPOSITE;
-      acc.A += item.patternSummary.counts.A;
-      acc.B += item.patternSummary.counts.B;
-      acc.C += item.patternSummary.counts.C;
-      return acc;
-    },
-    { COMPOSITE: 0, A: 0, B: 0, C: 0 },
-  );
+  const patternHeat = items.reduce((acc, item) => {
+    acc.COMPOSITE += item.patternSummary.counts.COMPOSITE;
+    acc.A += item.patternSummary.counts.A;
+    acc.B += item.patternSummary.counts.B;
+    acc.C += item.patternSummary.counts.C;
+    return acc;
+  }, createEmptyPatternHeat());
   const topSectors = countEntries(
     items.map((item) => item.stock.sector || item.stock.market),
   ).slice(0, 5);
+  const summary = hasBAboveGE
+    ? `当前市场局评为 ${currentBoardEvaluation.rating} 级，${currentBoardEvaluation.corePatternsLabel || currentBoardEvaluation.summary}`
+    : '当前市场局未见 B 级以上吉格，建议控制仓位并等待更清晰的共振信号。';
 
   return {
     marketSignal: {
       hasBAboveGE,
       statusLabel: hasBAboveGE ? '有吉气' : '建议观望',
-      summary: hasBAboveGE
-        ? `当前市场局评为 ${currentBoardEvaluation.rating} 级，${currentBoardEvaluation.corePatternsLabel || currentBoardEvaluation.summary}`
-        : '当前市场局未见 B 级以上吉格，建议控制仓位并等待更清晰的共振信号。',
+      summary: degradedByDataSource
+        ? `${summary} 当前全市场样本源暂时不可用，板块热度与高分标的已降级为空。`
+        : summary,
       referenceRating: currentBoardEvaluation.rating,
       referencePatterns: currentBoardEvaluation.activeMatches.map((item) => item.name),
     },

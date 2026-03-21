@@ -279,6 +279,38 @@ describe('market-screen service', () => {
     expect(result.items[0]?.patternSummary?.hourPatternNames).toEqual(['青龙返首']);
   });
 
+  it('falls back to the last cached stock pool when refresh fails', async () => {
+    jest.useFakeTimers();
+
+    try {
+      jest.setSystemTime(new Date('2026-03-21T10:00:00.000Z'));
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            diff: [
+              { f12: '000001', f14: '平安银行', f26: '19910403' },
+            ],
+          },
+        }),
+      );
+      mockedAnalyzeStockForMarketScreen.mockImplementation((stock) => createSnapshot(stock));
+      mockedEvaluateQimenAuspiciousPatterns.mockImplementation(() => createPatternEvaluation());
+
+      const first = await getMarketStockPool();
+
+      expect(first).toHaveLength(1);
+
+      jest.setSystemTime(new Date('2026-03-21T10:31:00.000Z'));
+      fetchMock.mockRejectedValueOnce(new Error('upstream down'));
+      const second = await getMarketStockPool();
+
+      expect(second).toHaveLength(1);
+      expect(second[0]?.stock.code).toBe('000001');
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('blocks screening when the market environment is explicitly unfavorable', async () => {
     await expect(
       screenMarketStocks({
