@@ -1,5 +1,6 @@
 /** @jest-environment node */
 
+import { ERROR_CODES } from '@/lib/contracts/qimen';
 import {
   filterLimitUpStocks,
   isLimitUp,
@@ -200,8 +201,8 @@ describe('limit-up screening', () => {
       '600001',
       'SH',
       expect.objectContaining({
-        beg: expect.any(String),
-        end: expect.any(String),
+        beg: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+        end: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
       }),
     );
 
@@ -257,5 +258,24 @@ describe('limit-up screening', () => {
 
     expect(result.items.map((item) => item.stockCode)).toEqual(['600001']);
     expect(mockedIsStStockName).toHaveBeenCalledWith('ST测试');
+  });
+
+  it('throws a data-source error when all history requests fail', async () => {
+    mockedGetMarketStockPool.mockResolvedValue([
+      createMarketItem('600001', '中国测试A', 'SH'),
+      createMarketItem('300001', '中国测试B', 'CYB'),
+    ]);
+    mockedGetStockDailyHistory.mockRejectedValue(new Error('network'));
+
+    await expect(
+      filterLimitUpStocks({
+        lookbackDays: 30,
+        page: 1,
+        pageSize: 10,
+      }),
+    ).rejects.toMatchObject({
+      code: ERROR_CODES.DATA_SOURCE_ERROR,
+      statusCode: 502,
+    });
   });
 });

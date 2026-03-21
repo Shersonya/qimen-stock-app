@@ -1,4 +1,6 @@
+import { ERROR_CODES } from '@/lib/contracts/qimen';
 import type { TdxScanRequest, TdxScanResponse } from '@/lib/contracts/strategy';
+import { AppError } from '@/lib/errors';
 import { calculateTdxIndicators } from '@/lib/tdx/engine';
 import type { ExtendedKLineBar } from '@/lib/tdx/types';
 import { getMarketStockPool } from '@/lib/services/market-screen';
@@ -158,14 +160,14 @@ export async function scanTdxSignals(
       const bars = await loadHistory(item.stock);
 
       if (bars.length < 120) {
-        return null;
+        return { ok: true, item: null } as const;
       }
 
       const indicators = calculateTdxIndicators(bars, item.stock.name);
       const latest = indicators.at(-1);
 
       if (!latest) {
-        return null;
+        return { ok: true, item: null } as const;
       }
 
       const matchesSignal =
@@ -176,55 +178,60 @@ export async function scanTdxSignals(
             : latest.meiZhu > 0 || latest.meiYangYang;
 
       if (!matchesSignal) {
-        return null;
+        return { ok: true, item: null } as const;
       }
 
       if (normalized.requireMaUp && !latest.maUp) {
-        return null;
+        return { ok: true, item: null } as const;
       }
 
       if (normalized.requireFiveLinesBull && !latest.fiveLinesBull) {
-        return null;
+        return { ok: true, item: null } as const;
       }
 
       if (latest.biasRate > normalized.maxBiasRate) {
-        return null;
+        return { ok: true, item: null } as const;
       }
 
       if (latest.X_74 < normalized.minSignalStrength) {
-        return null;
+        return { ok: true, item: null } as const;
       }
 
       const latestBar = bars.at(-1);
       const lastMeiZhuIndex = indicators.findLastIndex((entry) => entry.meiZhu > 0);
 
       if (!latestBar) {
-        return null;
+        return { ok: true, item: null } as const;
       }
 
       return {
-        stockCode: item.stock.code,
-        stockName: item.stock.name,
-        market: item.stock.market,
-        signalDate: latestBar.date,
-        closePrice: latestBar.close,
-        volume: latestBar.volume,
-        meiZhu: latest.meiZhu > 0,
-        meiYangYang: latest.meiYangYang,
-        meiZhuDate: lastMeiZhuIndex >= 0 ? bars[lastMeiZhuIndex]?.date : undefined,
-        signalStrength: latest.X_74,
-        trueCGain: latest.trueCGain,
-        maUp: latest.maUp,
-        fiveLinesBull: latest.fiveLinesBull,
-        biasRate: latest.biasRate,
-        volumeRatio: latest.X_14,
-      };
+        ok: true,
+        item: {
+          stockCode: item.stock.code,
+          stockName: item.stock.name,
+          market: item.stock.market,
+          signalDate: latestBar.date,
+          closePrice: latestBar.close,
+          volume: latestBar.volume,
+          meiZhu: latest.meiZhu > 0,
+          meiYangYang: latest.meiYangYang,
+          meiZhuDate: lastMeiZhuIndex >= 0 ? bars[lastMeiZhuIndex]?.date : undefined,
+          signalStrength: latest.X_74,
+          trueCGain: latest.trueCGain,
+          maUp: latest.maUp,
+          fiveLinesBull: latest.fiveLinesBull,
+          biasRate: latest.biasRate,
+          volumeRatio: latest.X_14,
+        },
+      } as const;
     } catch {
-      return null;
+      return { ok: false } as const;
     }
   });
 
   const items = settled
+    .filter((entry) => entry.ok)
+    .map((entry) => entry.item)
     .filter((item): item is NonNullable<typeof item> => Boolean(item))
     .sort((left, right) => {
       if (right.signalStrength !== left.signalStrength) {
@@ -237,7 +244,16 @@ export async function scanTdxSignals(
 
       return left.stockCode.localeCompare(right.stockCode);
     });
+  const failedCount = settled.filter((entry) => !entry.ok).length;
   const startIndex = (normalized.page - 1) * normalized.pageSize;
+
+  if (failedCount > 0 && failedCount === settled.length) {
+    throw new AppError(
+      ERROR_CODES.DATA_SOURCE_ERROR,
+      502,
+      '策略扫描依赖的历史行情数据源暂时不可用，请稍后重试。',
+    );
+  }
 
   return {
     total: items.length,
