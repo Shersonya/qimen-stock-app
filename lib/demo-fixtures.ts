@@ -4,6 +4,13 @@ import type {
   MarketScreenSuccessResponse,
   QimenApiSuccessResponse,
 } from '@/lib/contracts/qimen';
+import type {
+  ComparisonTableData,
+  LimitUpFilterResponse,
+  PoolStockDiagnosis,
+  StockPool,
+  TdxScanResponse,
+} from '@/lib/contracts/strategy';
 
 const demoPatternAnalysis = {
   totalScore: 25,
@@ -501,6 +508,203 @@ const demoMarketDashboardPayload: MarketDashboardResponse = {
   },
 };
 
+const demoTdxScanPayload: TdxScanResponse = {
+  total: 3,
+  page: 1,
+  pageSize: 50,
+  scanDate: '2026-03-21',
+  items: [
+    {
+      stockCode: '300750',
+      stockName: '宁德时代',
+      market: 'CYB',
+      signalDate: '2026-03-20',
+      closePrice: 228.5,
+      volume: 1285400,
+      meiZhu: false,
+      meiYangYang: true,
+      meiZhuDate: '2026-03-18',
+      signalStrength: 5.2,
+      trueCGain: 4.6,
+      maUp: true,
+      fiveLinesBull: true,
+      biasRate: 8.4,
+      volumeRatio: 2.1,
+    },
+    {
+      stockCode: '002594',
+      stockName: '比亚迪',
+      market: 'SZ',
+      signalDate: '2026-03-20',
+      closePrice: 241.3,
+      volume: 965400,
+      meiZhu: true,
+      meiYangYang: false,
+      signalStrength: 3.8,
+      trueCGain: 3.1,
+      maUp: true,
+      fiveLinesBull: false,
+      biasRate: 7.2,
+      volumeRatio: 1.8,
+    },
+    {
+      stockCode: '600036',
+      stockName: '招商银行',
+      market: 'SH',
+      signalDate: '2026-03-20',
+      closePrice: 42.18,
+      volume: 684500,
+      meiZhu: true,
+      meiYangYang: true,
+      meiZhuDate: '2026-03-19',
+      signalStrength: 4.1,
+      trueCGain: 2.7,
+      maUp: true,
+      fiveLinesBull: true,
+      biasRate: 5.9,
+      volumeRatio: 1.5,
+    },
+  ],
+};
+
+const demoLimitUpPayload: LimitUpFilterResponse = {
+  total: 3,
+  page: 1,
+  pageSize: 50,
+  filterDate: '2026-03-21',
+  lookbackDays: 30,
+  items: [
+    {
+      stockCode: '000625',
+      stockName: '长安汽车',
+      market: 'SZ',
+      limitUpDates: ['2026-03-04', '2026-03-12'],
+      limitUpCount: 2,
+      firstLimitUpDate: '2026-03-04',
+      lastLimitUpDate: '2026-03-12',
+      latestClose: 18.36,
+      latestVolume: 2315400,
+      sector: '汽车整车',
+    },
+    {
+      stockCode: '300418',
+      stockName: '昆仑万维',
+      market: 'CYB',
+      limitUpDates: ['2026-03-07'],
+      limitUpCount: 1,
+      firstLimitUpDate: '2026-03-07',
+      lastLimitUpDate: '2026-03-07',
+      latestClose: 37.24,
+      latestVolume: 1542200,
+      sector: '互联网服务',
+    },
+    {
+      stockCode: '600487',
+      stockName: '亨通光电',
+      market: 'SH',
+      limitUpDates: ['2026-03-03', '2026-03-05', '2026-03-18'],
+      limitUpCount: 3,
+      firstLimitUpDate: '2026-03-03',
+      lastLimitUpDate: '2026-03-18',
+      latestClose: 19.84,
+      latestVolume: 1824300,
+      sector: '通信设备',
+    },
+  ],
+};
+
+const demoBatchDiagnosisResults: PoolStockDiagnosis[] = [
+  {
+    stockCode: '300750',
+    diagnosisTime: '2026-03-21T10:08:00+08:00',
+    rating: 'S',
+    totalScore: 92,
+    riskLevel: '低',
+    action: 'BUY',
+    actionLabel: '强烈看涨 / 可考虑买入',
+    successProbability: 85,
+    summary: '吉格与趋势共振，适合纳入核心观察序列。',
+  },
+  {
+    stockCode: '002594',
+    diagnosisTime: '2026-03-21T10:11:00+08:00',
+    rating: 'A',
+    totalScore: 81,
+    riskLevel: '中',
+    action: 'WATCH',
+    actionLabel: '谨慎看多 / 逢低跟踪',
+    successProbability: 72,
+    summary: '结构偏强，但更适合等待缩量回踩后的确认。',
+  },
+];
+
+const demoStockPools: StockPool[] = [
+  {
+    id: 'pool_20260321_100000',
+    name: '核心观察池',
+    createdAt: '2026-03-21T10:00:00+08:00',
+    updatedAt: '2026-03-21T10:12:00+08:00',
+    stocks: [
+      {
+        stockCode: '300750',
+        stockName: '宁德时代',
+        market: 'CYB',
+        addReason: 'tdx_signal',
+        addDate: '2026-03-21',
+        addSource: '美阳阳扫描',
+        tdxSignalType: 'meiYangYang',
+        diagnosisResult: demoBatchDiagnosisResults[0],
+      },
+      {
+        stockCode: '002594',
+        stockName: '比亚迪',
+        market: 'SZ',
+        addReason: 'tdx_signal',
+        addDate: '2026-03-21',
+        addSource: '美柱扫描',
+        tdxSignalType: 'meiZhu',
+        diagnosisResult: demoBatchDiagnosisResults[1],
+      },
+      {
+        stockCode: '600487',
+        stockName: '亨通光电',
+        market: 'SH',
+        addReason: 'limit_up',
+        addDate: '2026-03-21',
+        addSource: '近30日涨停 3 次',
+        limitUpCount: 3,
+      },
+    ],
+    removedStocks: [
+      {
+        stockCode: '300418',
+        stockName: '昆仑万维',
+        removeDate: '2026-03-21',
+        removeReason: 'manual',
+      },
+    ],
+  },
+];
+
+const demoComparisonTableData: ComparisonTableData = {
+  generatedAt: '2026-03-21',
+  sortBy: 'totalScore',
+  items: demoBatchDiagnosisResults.map((item) => ({
+    stockCode: item.stockCode,
+    stockName: demoStockPools[0]?.stocks.find((stock) => stock.stockCode === item.stockCode)
+      ?.stockName ?? item.stockCode,
+    rating: item.rating,
+    totalScore: item.totalScore,
+    riskLevel: item.riskLevel,
+    action: item.action,
+    actionLabel: item.actionLabel,
+    successProbability: item.successProbability,
+    summary: item.summary,
+    diagnosisTime: item.diagnosisTime,
+    stale: false,
+  })),
+};
+
 export function isDemoMode() {
   if (typeof window === 'undefined') {
     return false;
@@ -533,4 +737,24 @@ export function getDemoBacktestResponse(): BacktestApiSuccessResponse {
 
 export function getDemoMarketDashboardResponse(): MarketDashboardResponse {
   return demoMarketDashboardPayload;
+}
+
+export function getDemoTdxScanResponse(): TdxScanResponse {
+  return demoTdxScanPayload;
+}
+
+export function getDemoLimitUpResponse(): LimitUpFilterResponse {
+  return demoLimitUpPayload;
+}
+
+export function getDemoBatchDiagnosisResults(): PoolStockDiagnosis[] {
+  return demoBatchDiagnosisResults;
+}
+
+export function getDemoStockPools(): StockPool[] {
+  return demoStockPools;
+}
+
+export function getDemoComparisonTableData(): ComparisonTableData {
+  return demoComparisonTableData;
 }

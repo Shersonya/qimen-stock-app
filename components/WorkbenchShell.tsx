@@ -20,6 +20,18 @@ const NAV_ITEMS = [
     matches: ['/screen'],
   },
   {
+    href: '/strategy',
+    label: '策略选股',
+    icon: '🎯',
+    matches: ['/strategy'],
+  },
+  {
+    href: '/stock-pool',
+    label: '股票池',
+    icon: '📋',
+    matches: ['/stock-pool'],
+  },
+  {
     href: '/diagnosis',
     label: '个股诊断',
     icon: '📊',

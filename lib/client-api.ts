@@ -1,8 +1,11 @@
 import {
   getDemoBacktestResponse,
+  getDemoBatchDiagnosisResults,
+  getDemoLimitUpResponse,
   getDemoMarketDashboardResponse,
   getDemoMarketScreenResponse,
   getDemoQimenResponse,
+  getDemoTdxScanResponse,
   isDemoMode,
 } from '@/lib/demo-fixtures';
 import {
@@ -19,6 +22,14 @@ import {
   type QimenApiRequest,
   type QimenApiSuccessResponse,
 } from '@/lib/contracts/qimen';
+import type {
+  BatchDiagnosisRequest,
+  LimitUpFilterRequest,
+  LimitUpFilterResponse,
+  PoolStockDiagnosis,
+  TdxScanRequest,
+  TdxScanResponse,
+} from '@/lib/contracts/strategy';
 
 function createFallbackError(): ApiError {
   return {
@@ -92,4 +103,34 @@ export async function requestMarketDashboard(
   }
 
   return postJson<MarketDashboardResponse>('/api/market-dashboard', request);
+}
+
+export async function requestTdxScan(
+  request: TdxScanRequest,
+): Promise<TdxScanResponse> {
+  if (isDemoMode()) {
+    return getDemoTdxScanResponse();
+  }
+
+  return postJson<TdxScanResponse>('/api/tdx-scan', request);
+}
+
+export async function requestLimitUp(
+  request: LimitUpFilterRequest,
+): Promise<LimitUpFilterResponse> {
+  if (isDemoMode()) {
+    return getDemoLimitUpResponse();
+  }
+
+  return postJson<LimitUpFilterResponse>('/api/limit-up', request);
+}
+
+export async function requestBatchDiagnosis(
+  request: BatchDiagnosisRequest,
+): Promise<PoolStockDiagnosis[]> {
+  if (isDemoMode()) {
+    return getDemoBatchDiagnosisResults();
+  }
+
+  return postJson<PoolStockDiagnosis[]>('/api/batch-diagnosis', request);
 }
