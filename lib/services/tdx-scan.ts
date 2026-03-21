@@ -1,4 +1,7 @@
 import type { TdxScanRequest, TdxScanResponse } from '@/lib/contracts/strategy';
+import { ERROR_CODES } from '@/lib/contracts/qimen';
+import { AppError } from '@/lib/errors';
+import { filterLimitUpStocks } from '@/lib/services/limit-up';
 import { calculateTdxIndicators } from '@/lib/tdx/engine';
 import type { ExtendedKLineBar } from '@/lib/tdx/types';
 import { getMarketStockPool } from '@/lib/services/market-screen';
@@ -11,11 +14,19 @@ const DEFAULT_PAGE_SIZE = 50;
 const MAX_PAGE_SIZE = 200;
 const SCAN_CONCURRENCY = 6;
 const HISTORY_LOOKBACK_BARS = 180;
+const FALLBACK_SCAN_LOOKBACK_DAYS = 5;
+const FALLBACK_SCAN_UNIVERSE_SIZE = 200;
 
 type HistoryCacheEntry = {
   expiresAt: number;
   value?: ExtendedKLineBar[];
   promise?: Promise<ExtendedKLineBar[]>;
+};
+
+type ScanUniverseStock = {
+  code: string;
+  name: string;
+  market: 'SH' | 'SZ' | 'CYB';
 };
 
 let historyCache = new Map<string, HistoryCacheEntry>();
@@ -72,7 +83,42 @@ function buildHistoryRange() {
   };
 }
 
-async function loadHistory(stock: Awaited<ReturnType<typeof getMarketStockPool>>[number]['stock']) {
+async function getScanUniverse(): Promise<ScanUniverseStock[]> {
+  try {
+    const pool = await getMarketStockPool();
+
+    return pool.map((item) => ({
+      code: item.stock.code,
+      name: item.stock.name,
+      market: item.stock.market,
+    }));
+  } catch (error) {
+    if (!(error instanceof AppError) || error.code !== ERROR_CODES.DATA_SOURCE_ERROR) {
+      throw error;
+    }
+
+    console.warn('[TDX Scan] Falling back to recent limit-up universe because market pool is unavailable.');
+    const fallback = await filterLimitUpStocks({
+      lookbackDays: FALLBACK_SCAN_LOOKBACK_DAYS,
+      minLimitUpCount: 1,
+      excludeST: true,
+      excludeKechuang: false,
+      excludeNewStock: true,
+      page: 1,
+      pageSize: FALLBACK_SCAN_UNIVERSE_SIZE,
+      sortBy: 'limitUpCount',
+      sortOrder: 'desc',
+    });
+
+    return fallback.items.map((item) => ({
+      code: item.stockCode,
+      name: item.stockName,
+      market: item.market,
+    }));
+  }
+}
+
+async function loadHistory(stock: ScanUniverseStock) {
   const cacheKey = `${stock.market}:${stock.code}`;
   const cached = historyCache.get(cacheKey);
 
@@ -131,18 +177,18 @@ export async function scanTdxSignals(
   request: TdxScanRequest,
 ): Promise<TdxScanResponse> {
   const normalized = normalizeRequest(request);
-  const pool = await getMarketStockPool();
+  const pool = await getScanUniverse();
   const scanDate = getShanghaiDateString();
 
   const settled = await mapWithConcurrency(pool, SCAN_CONCURRENCY, async (item) => {
     try {
-      const bars = await loadHistory(item.stock);
+      const bars = await loadHistory(item);
 
       if (bars.length < 120) {
         return null;
       }
 
-      const indicators = calculateTdxIndicators(bars, item.stock.name);
+      const indicators = calculateTdxIndicators(bars, item.name);
       const latest = indicators.at(-1);
 
       if (!latest) {
@@ -184,9 +230,9 @@ export async function scanTdxSignals(
       }
 
       return {
-        stockCode: item.stock.code,
-        stockName: item.stock.name,
-        market: item.stock.market,
+        stockCode: item.code,
+        stockName: item.name,
+        market: item.market,
         signalDate: latestBar.date,
         closePrice: latestBar.close,
         volume: latestBar.volume,
@@ -201,7 +247,7 @@ export async function scanTdxSignals(
         volumeRatio: Number(latest.X_14),
       };
     } catch (error) {
-      console.warn(`[TDX Scan] Failed to process ${item.stock.code}:`, error);
+      console.warn(`[TDX Scan] Failed to process ${item.code}:`, error);
       return null;
     }
   });

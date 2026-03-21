@@ -25,6 +25,8 @@ import { isStStockName } from '@/lib/services/stock-data';
 const MARKET_POOL_ENDPOINT =
   'https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=10000&po=1&np=1&fltt=2&invt=2&fid=f12&fs=m:1+t:2,m:0+t:6,m:0+t:80&fields=f12,f14,f26,f100';
 const MARKET_CACHE_TTL_MS = 30 * 60 * 1000;
+const MARKET_POOL_MAX_ATTEMPTS = 3;
+const MARKET_POOL_RETRY_DELAY_MS = 250;
 const DEFAULT_PAGE_SIZE = 50;
 const MAX_PAGE_SIZE = 200;
 
@@ -200,33 +202,56 @@ function parseMarketPoolItem(item: EastMoneyMarketPoolItem): ScreenableStock | n
   };
 }
 
+function wait(delayMs: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, delayMs);
+  });
+}
+
 async function fetchMarketPool(): Promise<EastMoneyMarketPoolItem[]> {
-  let response: Response;
+  for (let attempt = 1; attempt <= MARKET_POOL_MAX_ATTEMPTS; attempt += 1) {
+    let response: Response;
 
-  try {
-    response = await fetch(MARKET_POOL_ENDPOINT, {
-      cache: 'no-store',
-      headers: {
-        accept: 'application/json,text/plain,*/*',
-      },
-    });
-  } catch {
-    throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
+    try {
+      response = await fetch(MARKET_POOL_ENDPOINT, {
+        cache: 'no-store',
+        headers: {
+          accept: 'application/json,text/plain,*/*',
+        },
+      });
+    } catch {
+      if (attempt < MARKET_POOL_MAX_ATTEMPTS) {
+        await wait(MARKET_POOL_RETRY_DELAY_MS * attempt);
+        continue;
+      }
+
+      break;
+    }
+
+    if (!response.ok) {
+      if (attempt < MARKET_POOL_MAX_ATTEMPTS) {
+        await wait(MARKET_POOL_RETRY_DELAY_MS * attempt);
+        continue;
+      }
+
+      break;
+    }
+
+    try {
+      const payload = (await response.json()) as EastMoneyMarketPoolResponse;
+
+      return payload.data?.diff ?? [];
+    } catch {
+      if (attempt < MARKET_POOL_MAX_ATTEMPTS) {
+        await wait(MARKET_POOL_RETRY_DELAY_MS * attempt);
+        continue;
+      }
+
+      break;
+    }
   }
 
-  if (!response.ok) {
-    throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
-  }
-
-  let payload: EastMoneyMarketPoolResponse;
-
-  try {
-    payload = (await response.json()) as EastMoneyMarketPoolResponse;
-  } catch {
-    throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
-  }
-
-  return payload.data?.diff ?? [];
+  throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
 }
 
 function getRatingRank(rating: QimenStockRating) {

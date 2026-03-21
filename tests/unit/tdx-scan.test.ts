@@ -1,6 +1,9 @@
 /** @jest-environment node */
 
 import { scanTdxSignals, resetTdxScanCacheForTests } from '@/lib/services/tdx-scan';
+import { ERROR_CODES } from '@/lib/contracts/qimen';
+import { AppError } from '@/lib/errors';
+import { filterLimitUpStocks } from '@/lib/services/limit-up';
 import { getMarketStockPool } from '@/lib/services/market-screen';
 import { getStockDailyHistory } from '@/lib/services/stock-history';
 import { calculateTdxIndicators } from '@/lib/tdx/engine';
@@ -8,10 +11,12 @@ import { calculateTdxIndicators } from '@/lib/tdx/engine';
 jest.mock('@/lib/services/market-screen');
 jest.mock('@/lib/services/stock-history');
 jest.mock('@/lib/tdx/engine');
+jest.mock('@/lib/services/limit-up');
 
 const mockedGetMarketStockPool = jest.mocked(getMarketStockPool);
 const mockedGetStockDailyHistory = jest.mocked(getStockDailyHistory);
 const mockedCalculateTdxIndicators = jest.mocked(calculateTdxIndicators);
+const mockedFilterLimitUpStocks = jest.mocked(filterLimitUpStocks);
 
 type HistoryPoint = Awaited<ReturnType<typeof getStockDailyHistory>>[number];
 
@@ -91,6 +96,7 @@ describe('tdx scan service', () => {
     mockedGetMarketStockPool.mockReset();
     mockedGetStockDailyHistory.mockReset();
     mockedCalculateTdxIndicators.mockReset();
+    mockedFilterLimitUpStocks.mockReset();
     consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
@@ -209,5 +215,51 @@ describe('tdx scan service', () => {
     });
 
     expect(result.total).toBe(0);
+  });
+
+  it('falls back to recent limit-up stocks when the market pool source is unavailable', async () => {
+    mockedGetMarketStockPool.mockRejectedValueOnce(
+      new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502),
+    );
+    mockedFilterLimitUpStocks.mockResolvedValueOnce({
+      total: 1,
+      page: 1,
+      pageSize: 200,
+      filterDate: '2026-03-20',
+      lookbackDays: 5,
+      items: [
+        {
+          stockCode: '600001',
+          stockName: '样本A',
+          market: 'SH',
+          limitUpDates: ['2026-03-20'],
+          limitUpCount: 1,
+          firstLimitUpDate: '2026-03-20',
+          lastLimitUpDate: '2026-03-20',
+          latestClose: 12.3,
+          latestVolume: 120000,
+          sector: '测试行业',
+        },
+      ],
+    });
+    mockedGetStockDailyHistory.mockResolvedValueOnce(createHistory(180));
+    mockedCalculateTdxIndicators.mockReturnValueOnce(
+      createIndicator({ signalStrength: 4.2, meiZhu: true }),
+    );
+
+    const result = await scanTdxSignals({
+      signalType: 'both',
+      page: 1,
+      pageSize: 10,
+    });
+
+    expect(result.total).toBe(1);
+    expect(result.items[0]?.stockCode).toBe('600001');
+    expect(mockedFilterLimitUpStocks).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lookbackDays: 5,
+        pageSize: 200,
+      }),
+    );
   });
 });
