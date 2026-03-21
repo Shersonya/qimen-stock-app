@@ -1,9 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 import { LimitUpPanel } from '@/components/LimitUpPanel';
 import { TdxScanPanel } from '@/components/TdxScanPanel';
+import type { LimitUpStock, PoolStock } from '@/lib/contracts/strategy';
+import type { TdxScanResult } from '@/lib/tdx/types';
+import { addToPool, createPool, getActivePool } from '@/lib/services/stock-pool';
 
 type StrategyPageClientProps = {
   demoMode?: boolean;
@@ -30,6 +34,71 @@ const STRATEGY_TABS: Array<{
 
 export function StrategyPageClient({ demoMode = false }: StrategyPageClientProps) {
   const [activeTab, setActiveTab] = useState<StrategyTab>('tdx');
+  const [activePool, setActivePool] = useState(() => getActivePool());
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!toastMessage) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setToastMessage(null);
+    }, 2800);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [toastMessage]);
+
+  function ensureActivePool() {
+    return getActivePool() ?? createPool('策略观察池', []);
+  }
+
+  function commitPoolStocks(stocks: PoolStock[]) {
+    const targetPool = ensureActivePool();
+    const updatedPool = addToPool(targetPool.id, stocks) ?? targetPool;
+
+    setActivePool(updatedPool);
+    setToastMessage(`已将 ${stocks.length} 只股票加入 ${updatedPool.name}。`);
+  }
+
+  function mapTdxStockToPool(item: TdxScanResult): PoolStock {
+    const tdxSignalType =
+      item.meiZhu && item.meiYangYang
+        ? 'both'
+        : item.meiYangYang
+          ? 'meiYangYang'
+          : 'meiZhu';
+    const addSource =
+      item.meiZhu && item.meiYangYang
+        ? '美柱 + 美阳阳共振'
+        : item.meiYangYang
+          ? '美阳阳扫描'
+          : '美柱扫描';
+
+    return {
+      stockCode: item.stockCode,
+      stockName: item.stockName,
+      market: item.market,
+      addReason: 'tdx_signal',
+      addDate: item.signalDate,
+      addSource,
+      tdxSignalType,
+    };
+  }
+
+  function mapLimitUpStockToPool(item: LimitUpStock): PoolStock {
+    return {
+      stockCode: item.stockCode,
+      stockName: item.stockName,
+      market: item.market,
+      addReason: 'limit_up',
+      addDate: item.lastLimitUpDate,
+      addSource: `近 30 日涨停 ${item.limitUpCount} 次`,
+      limitUpCount: item.limitUpCount,
+    };
+  }
 
   return (
     <section className="workbench-page" data-testid="strategy-page">
@@ -38,14 +107,16 @@ export function StrategyPageClient({ demoMode = false }: StrategyPageClientProps
           <p className="mystic-section-label">策略选股</p>
           <h2>通达信策略与涨停板筛选的双 Tab 工作台</h2>
           <p>
-            这一页先把策略入口、表单、结果表与分页/排序交互打通，后续 issue 会继续接入股票池联动
-            和批量诊断。
+            现在可以直接把筛选结果加入本地股票池，再切到股票池页继续做批量诊断和快照管理。
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <span className="mystic-chip">{demoMode ? 'Demo 数据已启用' : 'Live API 已就绪'}</span>
           <span className="mystic-chip">双 Tab</span>
           <span className="mystic-chip">表单 + 结果表</span>
+          <Link className="mystic-chip" href="/stock-pool">
+            {activePool ? `${activePool.name} / ${activePool.stocks.length} 只` : '未创建股票池'}
+          </Link>
         </div>
       </header>
 
@@ -83,7 +154,13 @@ export function StrategyPageClient({ demoMode = false }: StrategyPageClientProps
             id="tdx-panel"
             role="tabpanel"
           >
-            <TdxScanPanel demoMode={demoMode} />
+            <TdxScanPanel
+              activePoolName={activePool?.name}
+              demoMode={demoMode}
+              onAddAllStocks={(items) => commitPoolStocks(items.map(mapTdxStockToPool))}
+              onAddStock={(item) => commitPoolStocks([mapTdxStockToPool(item)])}
+              poolStockCodes={activePool?.stocks.map((stock) => stock.stockCode)}
+            />
           </div>
           <div
             aria-labelledby="limitUp-tab"
@@ -91,10 +168,22 @@ export function StrategyPageClient({ demoMode = false }: StrategyPageClientProps
             id="limitUp-panel"
             role="tabpanel"
           >
-            <LimitUpPanel demoMode={demoMode} />
+            <LimitUpPanel
+              activePoolName={activePool?.name}
+              demoMode={demoMode}
+              onAddAllStocks={(items) => commitPoolStocks(items.map(mapLimitUpStockToPool))}
+              onAddStock={(item) => commitPoolStocks([mapLimitUpStockToPool(item)])}
+              poolStockCodes={activePool?.stocks.map((stock) => stock.stockCode)}
+            />
           </div>
         </div>
       </div>
+
+      {toastMessage ? (
+        <div className="workbench-toast" role="status">
+          {toastMessage}
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -129,7 +129,13 @@ export async function requestBatchDiagnosis(
   request: BatchDiagnosisRequest,
 ): Promise<PoolStockDiagnosis[]> {
   if (isDemoMode()) {
-    return getDemoBatchDiagnosisResults();
+    const resultMap = new Map(
+      getDemoBatchDiagnosisResults().map((item) => [item.stockCode, item]),
+    );
+
+    return request.stockCodes
+      .map((stockCode) => resultMap.get(stockCode))
+      .filter((item): item is PoolStockDiagnosis => Boolean(item));
   }
 
   return postJson<PoolStockDiagnosis[]>('/api/batch-diagnosis', request);

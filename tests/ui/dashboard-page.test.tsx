@@ -30,7 +30,7 @@ describe('DashboardPageClient', () => {
     mockedRequestMarketDashboard.mockResolvedValue(getDemoMarketDashboardResponse());
   });
 
-  it('renders the dashboard with four-item navigation and shortcut help', async () => {
+  it('renders the dashboard with six-item navigation and shortcut help', async () => {
     renderInWorkbench(<DashboardPageClient />);
 
     expect(await screen.findByText('有吉气')).toBeInTheDocument();
@@ -38,10 +38,12 @@ describe('DashboardPageClient', () => {
     const nav = screen.getByRole('navigation', { name: '主导航' });
     const navLinks = within(nav).getAllByRole('link');
 
-    expect(navLinks).toHaveLength(4);
+    expect(navLinks).toHaveLength(6);
     expect(navLinks.map((link) => link.textContent)).toEqual([
       '📈市场仪表盘',
       '🔍吉格筛选',
+      '🎯策略选股',
+      '📋股票池',
       '📊个股诊断',
       '⚙️系统设置',
     ]);

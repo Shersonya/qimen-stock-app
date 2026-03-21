@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { StrategyPageClient } from '@/components/StrategyPageClient';
 import { requestLimitUp, requestTdxScan } from '@/lib/client-api';
 import { getDemoLimitUpResponse, getDemoTdxScanResponse } from '@/lib/demo-fixtures';
+import { getActivePool } from '@/lib/services/stock-pool';
 import { renderInWorkbench } from '@/tests/ui/render-workbench';
 
 const mockPathname = jest.fn(() => '/strategy');
@@ -111,6 +112,18 @@ describe('StrategyPageClient', () => {
         pageSize: 2,
       }),
     );
+
+    await user.click(within(screen.getByTestId('tdx-result-table')).getAllByRole('button', { name: '加入股票池' })[0]!);
+
+    expect(await screen.findByRole('status')).toHaveTextContent('已将 1 只股票加入');
+    expect(getActivePool()?.stocks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          stockCode: '002594',
+          addReason: 'tdx_signal',
+        }),
+      ]),
+    );
   });
 
   it('shows limit-up results and error state', async () => {
@@ -150,6 +163,21 @@ describe('StrategyPageClient', () => {
         sortBy: 'limitUpCount',
         sortOrder: 'asc',
       }),
+    );
+
+    const rowButtons = within(screen.getByTestId('limit-up-result-table')).getAllByRole('button', {
+      name: '加入股票池',
+    });
+
+    await user.click(rowButtons[0]!);
+
+    expect(await screen.findByRole('status')).toHaveTextContent('已将 1 只股票加入');
+    expect(getActivePool()?.stocks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          addReason: 'limit_up',
+        }),
+      ]),
     );
   });
 });
