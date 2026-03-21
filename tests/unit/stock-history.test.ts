@@ -4,6 +4,7 @@ import { ERROR_CODES } from '@/lib/contracts/qimen';
 import {
   getStockDailyHistory,
   parseHistoryKlineRow,
+  resetStockHistoryStateForTests,
 } from '@/lib/services/stock-history';
 
 function jsonResponse(body: unknown, status = 200) {
@@ -37,6 +38,10 @@ describe('parseHistoryKlineRow', () => {
 
 describe('getStockDailyHistory', () => {
   const fetchMock = jest.spyOn(global, 'fetch');
+
+  beforeEach(() => {
+    resetStockHistoryStateForTests();
+  });
 
   afterEach(() => {
     fetchMock.mockReset();
@@ -88,11 +93,65 @@ describe('getStockDailyHistory', () => {
   });
 
   it('maps transport failures to DATA_SOURCE_ERROR', async () => {
-    fetchMock.mockRejectedValueOnce(new Error('network down'));
+    fetchMock.mockRejectedValue(new Error('network down'));
 
     await expect(getStockDailyHistory('000001', 'SZ')).rejects.toMatchObject({
       code: ERROR_CODES.DATA_SOURCE_ERROR,
       statusCode: 502,
     });
+  });
+
+  it('falls back to the tencent endpoint after eastmoney transport failures', async () => {
+    fetchMock
+      .mockRejectedValueOnce(new Error('eastmoney-1'))
+      .mockRejectedValueOnce(new Error('eastmoney-2'))
+      .mockRejectedValueOnce(new Error('eastmoney-3'))
+      .mockResolvedValueOnce(
+        jsonResponse({
+          code: 0,
+          data: {
+            sz000001: {
+              qfqday: [
+                ['2026-02-28', '10.10', '10.30', '10.50', '10.00', '120000', {}, '1.5', '2345.67', ''],
+                ['2026-03-02', '10.30', '10.45', '10.60', '10.25', '98000', {}, '1.3', '1880.12', ''],
+              ],
+            },
+          },
+        }),
+      );
+
+    await expect(
+      getStockDailyHistory('000001', 'SZ', {
+        beg: '20260201',
+        end: '20260318',
+      }),
+    ).resolves.toEqual([
+      {
+        tradeDate: '2026-02-28',
+        open: 10.1,
+        close: 10.3,
+        high: 10.5,
+        low: 10,
+        volume: 120000,
+        amount: 23456700,
+      },
+      {
+        tradeDate: '2026-03-02',
+        open: 10.3,
+        close: 10.45,
+        high: 10.6,
+        low: 10.25,
+        volume: 98000,
+        amount: 18801200,
+      },
+    ]);
+
+    const fourthCall = fetchMock.mock.calls[3]?.[0];
+    const requestUrl =
+      typeof fourthCall === 'string' ? fourthCall : fourthCall?.toString() ?? '';
+
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(requestUrl).toContain('web.ifzq.gtimg.cn');
+    expect(requestUrl).toContain('param=sz000001,day,,,800,qfq');
   });
 });
