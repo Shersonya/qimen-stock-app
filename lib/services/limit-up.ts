@@ -3,6 +3,8 @@ import {
   type LimitUpFilterResponse,
   type LimitUpStock,
 } from '@/lib/contracts/strategy';
+import { ERROR_CODES } from '@/lib/contracts/qimen';
+import { AppError } from '@/lib/errors';
 import { getMarketStockPool } from '@/lib/services/market-screen';
 import { isStStockName } from '@/lib/services/stock-data';
 import { getStockDailyHistory } from '@/lib/services/stock-history';
@@ -16,6 +18,14 @@ const CONCURRENCY_LIMIT = 6;
 const MIN_NEW_STOCK_TRADING_DAYS = 60;
 
 type MarketPoolStock = Awaited<ReturnType<typeof getMarketStockPool>>[number];
+type LimitUpCandidate =
+  | {
+      ok: true;
+      item: LimitUpStock | null;
+    }
+  | {
+      ok: false;
+    };
 
 type CachedLimitUpResult = {
   expiresAt: number;
@@ -345,19 +355,33 @@ export async function filterLimitUpStocks(
     CONCURRENCY_LIMIT,
     async (stock) => {
       try {
-        return await buildLimitUpStock(stock, {
-          lookbackDays,
-          excludeST,
-          excludeKechuang,
-          excludeNewStock,
-        });
+        return {
+          ok: true,
+          item: await buildLimitUpStock(stock, {
+            lookbackDays,
+            excludeST,
+            excludeKechuang,
+            excludeNewStock,
+          }),
+        } as const;
       } catch {
-        return null;
+        return { ok: false } as const;
       }
     },
   );
+  const failedCount = items.filter((entry) => !entry.ok).length;
+
+  if (failedCount > 0 && failedCount === items.length) {
+    throw new AppError(
+      ERROR_CODES.DATA_SOURCE_ERROR,
+      502,
+      '涨停筛选依赖的历史行情数据源暂时不可用，请稍后重试。',
+    );
+  }
 
   const filteredItems = items
+    .filter((entry): entry is Extract<LimitUpCandidate, { ok: true }> => entry.ok)
+    .map((entry) => entry.item)
     .filter((item): item is LimitUpStock => Boolean(item))
     .filter((item) => item.limitUpCount >= minLimitUpCount)
     .sort((left, right) => compareLimitUpStocks(left, right, sortBy, sortOrder));

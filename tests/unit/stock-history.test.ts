@@ -66,6 +66,27 @@ describe('getStockDailyHistory', () => {
     ).resolves.toHaveLength(2);
   });
 
+  it('normalizes hyphenated date options before calling eastmoney', async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        data: {
+          klines: [],
+        },
+      }),
+    );
+
+    await getStockDailyHistory('000001', 'SZ', {
+      beg: '2026-02-01',
+      end: '2026-03-18',
+    });
+
+    const [requestUrl] = fetchMock.mock.calls[0] ?? [];
+    const url = typeof requestUrl === 'string' ? requestUrl : requestUrl?.toString() ?? '';
+
+    expect(url).toContain('beg=20260201');
+    expect(url).toContain('end=20260318');
+  });
+
   it('maps transport failures to DATA_SOURCE_ERROR', async () => {
     fetchMock.mockRejectedValueOnce(new Error('network down'));
 

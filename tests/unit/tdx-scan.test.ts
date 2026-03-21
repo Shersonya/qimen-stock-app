@@ -1,6 +1,7 @@
 /** @jest-environment node */
 
 import { scanTdxSignals, resetTdxScanCacheForTests } from '@/lib/services/tdx-scan';
+import { ERROR_CODES } from '@/lib/contracts/qimen';
 import { getMarketStockPool } from '@/lib/services/market-screen';
 import { getStockDailyHistory } from '@/lib/services/stock-history';
 import { calculateTdxIndicators } from '@/lib/tdx/engine';
@@ -159,6 +160,25 @@ describe('tdx scan service', () => {
 
     expect(result.total).toBe(1);
     expect(result.items[0]?.stockCode).toBe('300001');
+  });
+
+  it('throws a data-source error when all stock history requests fail', async () => {
+    mockedGetMarketStockPool.mockResolvedValue([
+      createMarketItem('600001', '样本A', 'SH'),
+      createMarketItem('300001', '样本B', 'CYB'),
+    ]);
+    mockedGetStockDailyHistory.mockRejectedValue(new Error('network'));
+
+    await expect(
+      scanTdxSignals({
+        signalType: 'both',
+        page: 1,
+        pageSize: 10,
+      }),
+    ).rejects.toMatchObject({
+      code: ERROR_CODES.DATA_SOURCE_ERROR,
+      statusCode: 502,
+    });
   });
 
   it('applies signal strength and trend filters', async () => {
