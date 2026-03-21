@@ -137,6 +137,29 @@ describe('StrategyPageClient', () => {
     );
   });
 
+  it('shows scan source and cache notice when the service degrades gracefully', async () => {
+    const user = userEvent.setup();
+
+    mockedRequestTdxScan.mockResolvedValueOnce({
+      ...createTdxResponse(1),
+      meta: {
+        cached: true,
+        universeSource: 'limit_up_fallback',
+        universeSize: 87,
+        notice: '主市场池暂不可用，当前展示的是最近涨停活跃股降级结果，并命中了 10 分钟内缓存。',
+      },
+    });
+
+    renderInWorkbench(<StrategyPageClient demoMode />);
+
+    await user.click(screen.getByRole('button', { name: '开始扫描' }));
+
+    expect(await screen.findByTestId('tdx-scan-notice')).toHaveTextContent('主市场池暂不可用');
+    expect(screen.getByText('扫描宇宙 涨停活跃降级')).toBeInTheDocument();
+    expect(screen.getByText('宇宙样本 87')).toBeInTheDocument();
+    expect(screen.getByText('短期缓存命中')).toBeInTheDocument();
+  });
+
   it('shows limit-up results and error state', async () => {
     const user = userEvent.setup();
 

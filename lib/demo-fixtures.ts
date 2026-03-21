@@ -513,6 +513,11 @@ const demoTdxScanPayload: TdxScanResponse = {
   page: 1,
   pageSize: 50,
   scanDate: '2026-03-21',
+  meta: {
+    cached: false,
+    universeSource: 'market_pool',
+    universeSize: 1324,
+  },
   items: [
     {
       stockCode: '300750',

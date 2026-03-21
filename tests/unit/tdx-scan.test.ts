@@ -152,6 +152,11 @@ describe('tdx scan service', () => {
 
     expect(first.total).toBe(2);
     expect(first.items[0]?.stockCode).toBe('300001');
+    expect(first.meta).toMatchObject({
+      cached: false,
+      universeSource: 'market_pool',
+      universeSize: 3,
+    });
 
     const second = await scanTdxSignals({
       signalType: 'both',
@@ -160,7 +165,13 @@ describe('tdx scan service', () => {
     });
 
     expect(second.items[0]?.stockCode).toBe('600001');
+    expect(second.meta).toMatchObject({
+      cached: true,
+      universeSource: 'market_pool',
+      universeSize: 3,
+    });
     expect(mockedGetStockDailyHistory).toHaveBeenCalledTimes(3);
+    expect(mockedGetMarketStockPool).toHaveBeenCalledTimes(1);
   });
 
   it('keeps the overall scan alive when one stock history request fails', async () => {
@@ -255,6 +266,12 @@ describe('tdx scan service', () => {
 
     expect(result.total).toBe(1);
     expect(result.items[0]?.stockCode).toBe('600001');
+    expect(result.meta).toMatchObject({
+      cached: false,
+      universeSource: 'limit_up_fallback',
+      universeSize: 1,
+    });
+    expect(result.meta.notice).toContain('主市场池暂不可用');
     expect(mockedFilterLimitUpStocks).toHaveBeenCalledWith(
       expect.objectContaining({
         lookbackDays: 5,

@@ -16,12 +16,20 @@ export type TdxScanRequest = {
   pageSize?: number;
 };
 
+export type TdxScanUniverseSource = 'market_pool' | 'limit_up_fallback';
+
 export type TdxScanResponse = {
   total: number;
   page: number;
   pageSize: number;
   scanDate: string;
   items: TdxScanResult[];
+  meta: {
+    cached: boolean;
+    universeSource: TdxScanUniverseSource;
+    universeSize: number;
+    notice?: string;
+  };
 };
 
 export type LimitUpStock = {

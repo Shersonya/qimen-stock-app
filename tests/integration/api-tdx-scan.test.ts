@@ -28,6 +28,11 @@ describe('POST /api/tdx-scan', () => {
       page: 1,
       pageSize: 50,
       scanDate: '2026-03-21',
+      meta: {
+        cached: false,
+        universeSource: 'market_pool',
+        universeSize: 1234,
+      },
       items: [
         {
           stockCode: '300750',
@@ -60,6 +65,11 @@ describe('POST /api/tdx-scan', () => {
 
     expect(response.status).toBe(200);
     expect(body.total).toBe(1);
+    expect(body.meta).toEqual({
+      cached: false,
+      universeSource: 'market_pool',
+      universeSize: 1234,
+    });
     expect(mockedScanTdxSignals).toHaveBeenCalledWith({
       signalType: 'meiYangYang',
       requireMaUp: true,

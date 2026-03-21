@@ -27,6 +27,11 @@ const SORT_LABELS: Record<TdxSortKey, string> = {
   signalDate: '信号日期',
 };
 
+const UNIVERSE_SOURCE_LABELS = {
+  market_pool: '主市场池',
+  limit_up_fallback: '涨停活跃降级',
+} as const;
+
 const DEFAULT_REQUEST: TdxScanRequest = {
   signalType: 'both',
   requireMaUp: false,
@@ -360,9 +365,23 @@ export function TdxScanPanel({
             <div className="flex flex-wrap gap-2">
               <span className="mystic-chip">扫描日 {result.scanDate}</span>
               <span className="mystic-chip">页大小 {result.pageSize}</span>
+              <span className="mystic-chip">
+                扫描宇宙 {UNIVERSE_SOURCE_LABELS[result.meta.universeSource]}
+              </span>
+              <span className="mystic-chip">宇宙样本 {result.meta.universeSize}</span>
+              {result.meta.cached ? <span className="mystic-chip">短期缓存命中</span> : null}
             </div>
           ) : null}
         </div>
+
+        {result?.meta.notice ? (
+          <div
+            className="mt-4 rounded-2xl border border-[rgba(216,179,90,0.35)] bg-[rgba(216,179,90,0.12)] p-4 text-sm text-[var(--text-primary)]"
+            data-testid="tdx-scan-notice"
+          >
+            {result.meta.notice}
+          </div>
+        ) : null}
 
         {result ? (
           <div className="mt-5 overflow-x-auto rounded-[1.2rem] border border-white/10">
