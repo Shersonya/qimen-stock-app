@@ -10,7 +10,13 @@ import {
 
 const EASTMONEY_HISTORY_ENDPOINT =
   'https://push2his.eastmoney.com/api/qt/stock/kline/get';
+const TENCENT_HISTORY_ENDPOINT =
+  'https://web.ifzq.gtimg.cn/appstock/app/newfqkline/get';
 const SINA_HISTORY_ENDPOINT = 'https://quotes.sina.cn/cn/api/jsonp_v2.php';
+const HISTORY_FETCH_RETRY_COUNT = 3;
+const HISTORY_FETCH_RETRY_DELAY_MS = 250;
+const TENCENT_HISTORY_MAX_COUNT = 800;
+const EASTMONEY_FAILURE_COOLDOWN_MS = 5 * 60 * 1000;
 const DEFAULT_SINA_DATA_LENGTH = 480;
 const MAX_SINA_DATA_LENGTH = 1000;
 
@@ -30,6 +36,17 @@ type EastMoneyHistoryResponse = {
   };
 };
 
+type TencentHistoryResponse = {
+  code?: number;
+  data?: Record<
+    string,
+    {
+      qfqday?: unknown[][];
+      day?: unknown[][];
+    }
+  >;
+};
+
 type SinaHistoryRow = {
   day?: string;
   open?: string;
@@ -44,8 +61,54 @@ type HistoryOptions = {
   end?: string;
 };
 
+let eastMoneyDisabledUntil = 0;
+
+export function resetStockHistoryStateForTests() {
+  eastMoneyDisabledUntil = 0;
+}
+
+function normalizeHistoryDateParam(value: string | undefined, fallback: string): string {
+  if (!value) {
+    return fallback;
+  }
+
+  const normalized = value.trim();
+
+  if (/^\d{8}$/.test(normalized)) {
+    return normalized;
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
+    return normalized.replace(/-/g, '');
+  }
+
+  return fallback;
+}
+
+function compactDateToDashed(value: string): string {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
+
+  if (/^\d{8}$/.test(value)) {
+    return `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}`;
+  }
+
+  return value;
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 function getSecIdPrefix(market: Market): '0' | '1' {
   return market === 'SH' ? '1' : '0';
+}
+
+function getTencentSecIdPrefix(market: Market): 'sh' | 'sz' {
+  return market === 'SH' ? 'sh' : 'sz';
 }
 
 function getSinaSymbol(stockCode: string, market: Market) {
@@ -133,6 +196,50 @@ export function parseSinaHistoryKlineRow(row: SinaHistoryRow): StockHistoryPoint
   };
 }
 
+function parseTencentHistoryRow(row: unknown[]): StockHistoryPoint | null {
+  const [
+    tradeDateRaw,
+    openRaw,
+    closeRaw,
+    highRaw,
+    lowRaw,
+    volumeRaw,
+    ,
+    ,
+    amountWanRaw,
+  ] = row;
+  const tradeDate =
+    typeof tradeDateRaw === 'string' ? compactDateToDashed(tradeDateRaw.trim()) : '';
+  const open = normalizeHistoryNumber(String(openRaw ?? ''));
+  const close = normalizeHistoryNumber(String(closeRaw ?? ''));
+  const high = normalizeHistoryNumber(String(highRaw ?? ''));
+  const low = normalizeHistoryNumber(String(lowRaw ?? ''));
+  const volume = normalizeHistoryNumber(String(volumeRaw ?? ''));
+  const amountWan = normalizeHistoryNumber(String(amountWanRaw ?? ''));
+
+  if (
+    !tradeDate ||
+    open === null ||
+    close === null ||
+    high === null ||
+    low === null ||
+    volume === null
+  ) {
+    return null;
+  }
+
+  return {
+    tradeDate,
+    open,
+    close,
+    high,
+    low,
+    volume,
+    amount:
+      amountWan !== null ? amountWan * 10000 : Math.round(close * volume * 100),
+  };
+}
+
 export function parseSinaHistoryJsonp(payload: string): StockHistoryPoint[] | null {
   const sanitized = payload
     .replace(/^\/\*[\s\S]*?\*\/\s*/, '')
@@ -196,22 +303,77 @@ function getSinaDataLength(options: HistoryOptions) {
 }
 
 async function fetchEastMoneyHistory(url: string) {
+  if (Date.now() < eastMoneyDisabledUntil) {
+    throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
+  }
+
+  for (let attempt = 1; attempt <= HISTORY_FETCH_RETRY_COUNT; attempt += 1) {
+    try {
+      const response = await fetch(url, {
+        cache: 'no-store',
+        headers: {
+          accept: 'application/json,text/plain,*/*',
+          'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+          referer: 'https://quote.eastmoney.com/',
+          'user-agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        },
+      });
+
+      if (!response.ok) {
+        throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
+      }
+
+      const payload = (await response.json()) as EastMoneyHistoryResponse;
+
+      eastMoneyDisabledUntil = 0;
+
+      return (payload.data?.klines ?? [])
+        .map(parseHistoryKlineRow)
+        .filter((item): item is StockHistoryPoint => Boolean(item));
+    } catch {
+      if (attempt >= HISTORY_FETCH_RETRY_COUNT) {
+        eastMoneyDisabledUntil = Date.now() + EASTMONEY_FAILURE_COOLDOWN_MS;
+        throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
+      }
+
+      await delay(HISTORY_FETCH_RETRY_DELAY_MS * attempt);
+    }
+  }
+
+  throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
+}
+
+async function fetchTencentHistory(
+  stockCode: string,
+  market: Market,
+  options: Required<HistoryOptions>,
+) {
+  const secid = `${getTencentSecIdPrefix(market)}${stockCode}`;
+  const url = `${TENCENT_HISTORY_ENDPOINT}?param=${secid},day,,,${TENCENT_HISTORY_MAX_COUNT},qfq`;
   const response = await fetch(url, {
     cache: 'no-store',
     headers: {
       accept: 'application/json,text/plain,*/*',
+      'user-agent':
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
     },
   });
 
   if (!response.ok) {
-    throw new Error('eastmoney_history_unavailable');
+    throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
   }
 
-  const payload = (await response.json()) as EastMoneyHistoryResponse;
+  const payload = (await response.json()) as TencentHistoryResponse;
+  const record = payload.data?.[secid];
+  const rows = record?.qfqday ?? record?.day ?? [];
+  const beg = compactDateToDashed(options.beg);
+  const end = compactDateToDashed(options.end);
 
-  return (payload.data?.klines ?? [])
-    .map(parseHistoryKlineRow)
-    .filter((item): item is StockHistoryPoint => Boolean(item));
+  return rows
+    .map((row) => (Array.isArray(row) ? parseTencentHistoryRow(row) : null))
+    .filter((item): item is StockHistoryPoint => Boolean(item))
+    .filter((item) => item.tradeDate >= beg && item.tradeDate <= end);
 }
 
 async function fetchSinaHistory(
@@ -250,6 +412,10 @@ export async function getStockDailyHistory(
   market: Market,
   options: HistoryOptions = {},
 ): Promise<StockHistoryPoint[]> {
+  const normalizedOptions = {
+    beg: normalizeHistoryDateParam(options.beg, '20240101'),
+    end: normalizeHistoryDateParam(options.end, '20500101'),
+  };
   const secid = `${getSecIdPrefix(market)}.${stockCode}`;
   const params = new URLSearchParams({
     secid,
@@ -257,8 +423,8 @@ export async function getStockDailyHistory(
     fields2: 'f51,f52,f53,f54,f55,f56,f57,f58',
     klt: '101',
     fqt: '1',
-    beg: options.beg ?? '20240101',
-    end: options.end ?? '20500101',
+    beg: normalizedOptions.beg,
+    end: normalizedOptions.end,
   });
   const url = `${EASTMONEY_HISTORY_ENDPOINT}?${params.toString()}`;
 
@@ -266,9 +432,13 @@ export async function getStockDailyHistory(
     return await fetchEastMoneyHistory(url);
   } catch {
     try {
-      return await fetchSinaHistory(stockCode, market, options);
+      return await fetchTencentHistory(stockCode, market, normalizedOptions);
     } catch {
-      throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
+      try {
+        return await fetchSinaHistory(stockCode, market, normalizedOptions);
+      } catch {
+        throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
+      }
     }
   }
 }
