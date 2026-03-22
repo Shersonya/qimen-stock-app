@@ -10,6 +10,7 @@ import type {
   LimitUpFilterResponse,
   LimitUpStock,
 } from '@/lib/contracts/strategy';
+import { toApiError } from '@/lib/utils/api-error';
 
 type LimitUpSortKey = 'limitUpCount' | 'lastLimitUpDate' | 'latestClose';
 
@@ -38,17 +39,6 @@ const DEFAULT_REQUEST: LimitUpFilterRequest = {
   page: 1,
   pageSize: 5,
 };
-
-function toApiError(error: unknown): ApiError {
-  if (typeof error === 'object' && error && 'code' in error && 'message' in error) {
-    return error as ApiError;
-  }
-
-  return {
-    code: 'API_ERROR',
-    message: '涨停筛选失败，请稍后重试。',
-  };
-}
 
 function compareValues(left: LimitUpStock, right: LimitUpStock, key: LimitUpSortKey) {
   if (key === 'lastLimitUpDate') {
@@ -107,7 +97,7 @@ export function LimitUpPanel({
         pageSize: payload.pageSize,
       });
     } catch (nextError) {
-      setError(toApiError(nextError));
+      setError(toApiError(nextError, 'API_ERROR', '涨停筛选失败，请稍后重试。'));
     } finally {
       setIsSubmitting(false);
     }

@@ -10,6 +10,7 @@ import type {
   ApiError,
   MarketDashboardResponse,
 } from '@/lib/contracts/qimen';
+import { toApiError } from '@/lib/utils/api-error';
 
 function StatusCard({
   data,
@@ -35,8 +36,8 @@ function StatusCard({
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {data.referencePatterns.length > 0 ? (
-              data.referencePatterns.slice(0, 3).map((pattern) => (
-                <span className="mystic-chip" key={pattern}>
+              data.referencePatterns.slice(0, 3).map((pattern, index) => (
+                <span className="mystic-chip" key={`${pattern}-${index}`}>
                   {pattern}
                 </span>
               ))
@@ -222,7 +223,7 @@ export function DashboardPageClient() {
       } catch (nextError) {
         if (!cancelled) {
           setData(null);
-          setError(nextError as ApiError);
+          setError(toApiError(nextError, 'API_ERROR', '仪表盘加载失败，请稍后重试。'));
         }
       } finally {
         if (!cancelled) {

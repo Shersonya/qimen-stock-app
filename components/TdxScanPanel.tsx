@@ -7,6 +7,7 @@ import { requestTdxScan } from '@/lib/client-api';
 import type { ApiError } from '@/lib/contracts/qimen';
 import type { TdxScanRequest, TdxScanResponse } from '@/lib/contracts/strategy';
 import type { TdxScanResult } from '@/lib/tdx/types';
+import { toApiError } from '@/lib/utils/api-error';
 
 type TdxSortKey = 'signalStrength' | 'trueCGain' | 'biasRate' | 'volumeRatio' | 'closePrice' | 'signalDate';
 
@@ -42,17 +43,6 @@ const DEFAULT_REQUEST: TdxScanRequest = {
   page: 1,
   pageSize: 5,
 };
-
-function toApiError(error: unknown): ApiError {
-  if (typeof error === 'object' && error && 'code' in error && 'message' in error) {
-    return error as ApiError;
-  }
-
-  return {
-    code: 'API_ERROR',
-    message: '策略扫描失败，请稍后重试。',
-  };
-}
 
 function compareValues(left: TdxScanResult, right: TdxScanResult, key: TdxSortKey) {
   if (key === 'signalDate') {
@@ -108,7 +98,7 @@ export function TdxScanPanel({
         pageSize: payload.pageSize,
       });
     } catch (nextError) {
-      setError(toApiError(nextError));
+      setError(toApiError(nextError, 'API_ERROR', '策略扫描失败，请稍后重试。'));
     } finally {
       setIsSubmitting(false);
     }

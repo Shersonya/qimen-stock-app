@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { LimitUpPanel } from '@/components/LimitUpPanel';
 import { TdxScanPanel } from '@/components/TdxScanPanel';
 import type { LimitUpStock, PoolStock } from '@/lib/contracts/strategy';
+import { useToast } from '@/lib/hooks/use-toast';
 import type { TdxScanResult } from '@/lib/tdx/types';
 import { addToPool, createPool, getActivePool } from '@/lib/services/stock-pool';
 import { getShanghaiDateString } from '@/lib/utils/date';
@@ -36,21 +37,7 @@ const STRATEGY_TABS: Array<{
 export function StrategyPageClient({ demoMode = false }: StrategyPageClientProps) {
   const [activeTab, setActiveTab] = useState<StrategyTab>('tdx');
   const [activePool, setActivePool] = useState(() => getActivePool());
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!toastMessage) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      setToastMessage(null);
-    }, 2800);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, [toastMessage]);
+  const [toastMessage, setToastMessage] = useToast();
 
   function ensureActivePool() {
     return getActivePool() ?? createPool('策略观察池', []);
