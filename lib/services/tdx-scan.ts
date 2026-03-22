@@ -14,7 +14,7 @@ import {
 } from '@/lib/services/market-screen';
 import { getStockDailyHistory } from '@/lib/services/stock-history';
 import { mapWithConcurrency } from '@/lib/utils/async';
-import { getShanghaiDateString } from '@/lib/utils/date';
+import { getShanghaiDateString, shiftDateString } from '@/lib/utils/date';
 
 const HISTORY_CACHE_TTL_MS = 30 * 60 * 1000;
 const SCAN_CACHE_TTL_MS = 10 * 60 * 1000;
@@ -58,14 +58,6 @@ type ScanUniverse = {
 let historyCache = new Map<string, HistoryCacheEntry>();
 let scanCache = new Map<string, ScanCacheEntry>();
 
-function formatEastMoneyDate(date: Date) {
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate()).padStart(2, '0');
-
-  return `${year}${month}${day}`;
-}
-
 function normalizePage(value: number | undefined) {
   if (!Number.isFinite(value) || !value || value < 1) {
     return 1;
@@ -101,12 +93,11 @@ function normalizeRequest(request: TdxScanRequest) {
 }
 
 function buildHistoryRange() {
-  const end = new Date();
-  const begin = new Date(end.getTime() - 420 * 24 * 60 * 60 * 1000);
-
+  const end = getShanghaiDateString();
+  const begin = shiftDateString(end, -420);
   return {
-    beg: formatEastMoneyDate(begin),
-    end: formatEastMoneyDate(end),
+    beg: begin.replace(/-/g, ''),
+    end: end.replace(/-/g, ''),
   };
 }
 

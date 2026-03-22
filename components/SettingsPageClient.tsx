@@ -83,12 +83,19 @@ export function SettingsPageClient() {
                     <button
                       className="mystic-chip"
                       onClick={() => {
+                        const allEnabled = groupedPatterns[level].every(
+                          (entry) => settings.patternMap[entry.name].enabled,
+                        );
+                        const newPatternMap = { ...settings.patternMap };
                         groupedPatterns[level].forEach((item) => {
-                          updatePattern(item.name, {
-                            enabled: !groupedPatterns[level].every(
-                              (entry) => settings.patternMap[entry.name].enabled,
-                            ),
-                          });
+                          newPatternMap[item.name] = {
+                            ...newPatternMap[item.name],
+                            enabled: !allEnabled,
+                          };
+                        });
+                        setSettings({
+                          ...settings,
+                          patternMap: newPatternMap,
                         });
                       }}
                       type="button"
@@ -179,12 +186,19 @@ export function SettingsPageClient() {
                     <button
                       className="mystic-chip"
                       onClick={() => {
+                        const allEnabled = groupedPatterns[level].every(
+                          (entry) => settings.patternMap[entry.name].enabled,
+                        );
+                        const newPatternMap = { ...settings.patternMap };
                         groupedPatterns[level].forEach((item) => {
-                          updatePattern(item.name, {
-                            enabled: !groupedPatterns[level].every(
-                              (entry) => settings.patternMap[entry.name].enabled,
-                            ),
-                          });
+                          newPatternMap[item.name] = {
+                            ...newPatternMap[item.name],
+                            enabled: !allEnabled,
+                          };
+                        });
+                        setSettings({
+                          ...settings,
+                          patternMap: newPatternMap,
                         });
                       }}
                       type="button"

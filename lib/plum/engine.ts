@@ -143,8 +143,8 @@ export function generatePlumAnalysisFromOpenPrice(
 
   const original = toStage(toStageCode(upperGua, lowerGua));
 
-  const mutualUpperYao = [yaoList[5], yaoList[0], yaoList[1]];
-  const mutualLowerYao = [yaoList[4], yaoList[5], yaoList[0]];
+  const mutualLowerYao = [yaoList[1], yaoList[2], yaoList[3]];
+  const mutualUpperYao = [yaoList[2], yaoList[3], yaoList[4]];
   const mutualUpperGua = baseYaoToGua(mutualUpperYao);
   const mutualLowerGua = baseYaoToGua(mutualLowerYao);
   const mutual = toStage(toStageCode(mutualUpperGua, mutualLowerGua));

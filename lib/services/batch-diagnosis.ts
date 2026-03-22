@@ -75,8 +75,9 @@ export async function batchDiagnose(
       const result = await diagnoseSingleStock(stockCode);
 
       progress.results.push(result);
-    } catch {
+    } catch (error) {
       progress.failed += 1;
+      console.warn(`[BatchDiagnosis] Failed to diagnose ${stockCode}:`, error instanceof Error ? error.message : error);
     }
 
     progress.completed += 1;

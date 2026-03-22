@@ -549,7 +549,7 @@ function detectMenGongHeYiPattern(
     return null;
   }
 
-  if (!isGenerating(palace.五行, doorElement) && !isGenerating(doorElement, palace.五行)) {
+  if (!isGenerating(palace.五行, doorElement)) {
     return null;
   }
 
@@ -563,7 +563,7 @@ function detectSanQiGuiRenShengDianPattern(
   const matched =
     (palace.天盘干 === '乙' && palace.id === 3) ||
     (palace.天盘干 === '丙' && palace.id === 9) ||
-    (palace.天盘干 === '丁' && palace.id === 7);
+    (palace.天盘干 === '丁' && palace.id === 9);
 
   if (!matched) {
     return null;

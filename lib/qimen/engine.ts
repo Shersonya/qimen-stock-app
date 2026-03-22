@@ -380,10 +380,18 @@ function getValueDoor(
     if (doorPalace < 1) {
       doorPalace = 9;
     }
-  }
 
-  if (doorPalace === 5) {
-    doorPalace = 2;
+    if (doorPalace === 5) {
+      doorPalace += yinYang === '阳' ? 1 : -1;
+
+      if (doorPalace > 9) {
+        doorPalace = 1;
+      }
+
+      if (doorPalace < 1) {
+        doorPalace = 9;
+      }
+    }
   }
 
   return {
@@ -395,16 +403,18 @@ function getValueDoor(
 function arrangeStars(
   valueStar: string,
   valueStarPalace: number,
+  yinYang: YinYang,
 ): Map<number, string> {
   const stars = new Map<number, string>();
   const effectiveStar = valueStar === '天禽' ? '天芮' : valueStar;
   const sequenceIndex = STAR_SEQUENCE.indexOf(
     effectiveStar as (typeof STAR_SEQUENCE)[number],
   );
-  const palaceIndex = PALACE_CLOCKWISE.indexOf(valueStarPalace === 5 ? 2 : valueStarPalace);
+  const sequence = yinYang === '阳' ? PALACE_CLOCKWISE : PALACE_COUNTER_CLOCKWISE;
+  const palaceIndex = sequence.indexOf(valueStarPalace === 5 ? 2 : valueStarPalace);
 
-  for (let index = 0; index < PALACE_CLOCKWISE.length; index += 1) {
-    const palace = PALACE_CLOCKWISE[(palaceIndex + index) % PALACE_CLOCKWISE.length]!;
+  for (let index = 0; index < sequence.length; index += 1) {
+    const palace = sequence[(palaceIndex + index) % sequence.length]!;
     const star = STAR_SEQUENCE[(sequenceIndex + index) % STAR_SEQUENCE.length]!;
     stars.set(palace, star);
   }
@@ -414,15 +424,16 @@ function arrangeStars(
   return stars;
 }
 
-function arrangeDoors(valueDoor: string, valueDoorPalace: number): Map<number, string> {
+function arrangeDoors(valueDoor: string, valueDoorPalace: number, yinYang: YinYang): Map<number, string> {
   const doors = new Map<number, string>();
   const sequenceIndex = GATE_SEQUENCE.indexOf(
     valueDoor as (typeof GATE_SEQUENCE)[number],
   );
-  const palaceIndex = PALACE_CLOCKWISE.indexOf(valueDoorPalace === 5 ? 2 : valueDoorPalace);
+  const sequence = yinYang === '阳' ? PALACE_CLOCKWISE : PALACE_COUNTER_CLOCKWISE;
+  const palaceIndex = sequence.indexOf(valueDoorPalace === 5 ? 2 : valueDoorPalace);
 
-  for (let index = 0; index < PALACE_CLOCKWISE.length; index += 1) {
-    const palace = PALACE_CLOCKWISE[(palaceIndex + index) % PALACE_CLOCKWISE.length]!;
+  for (let index = 0; index < sequence.length; index += 1) {
+    const palace = sequence[(palaceIndex + index) % sequence.length]!;
     const door = GATE_SEQUENCE[(sequenceIndex + index) % GATE_SEQUENCE.length]!;
     doors.set(palace, door);
   }
@@ -523,8 +534,8 @@ export function generateQimenChart(datetime: Date): QimenResult {
   );
   const valueStarPalace = getValueStarPalace(hourGanzhi, xunShou, earthPlate);
   const { valueDoor, doorPalace } = getValueDoor(hourGanzhi, originPalace, yinYang);
-  const stars = arrangeStars(valueStar, valueStarPalace);
-  const doors = arrangeDoors(valueDoor, doorPalace);
+  const stars = arrangeStars(valueStar, valueStarPalace, yinYang);
+  const doors = arrangeDoors(valueDoor, doorPalace, yinYang);
   const gods = arrangeGods(valueStarPalace, yinYang);
   const palaces = buildPalaces(stars, doors, gods);
   const rikong = lunar.getDayXunKongExact();

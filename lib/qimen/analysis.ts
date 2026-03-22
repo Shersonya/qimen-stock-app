@@ -149,7 +149,7 @@ function buildPatternInput(
       全局时间: {
         日干支: ganzhi.dayGanzhi,
         时干支: ganzhi.hourGanzhi,
-        是否伏吟: false,
+        是否伏吟: qimen.meta?.isFuyin ?? false,
       },
     },
   };

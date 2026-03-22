@@ -75,7 +75,7 @@ export function WorkbenchShell({
   const pathname = usePathname();
   const { settings } = useWorkspaceSettings();
   const [isShortcutHelpOpen, setIsShortcutHelpOpen] = useState(false);
-  const isMobileViewport = useIsMobileViewport();
+  const isMobileViewport = useIsMobileViewport(1024);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {

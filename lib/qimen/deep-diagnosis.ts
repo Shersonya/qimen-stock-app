@@ -334,7 +334,7 @@ function buildDecision(
   dayStemPalace: QimenPalace,
 ) {
   const shengRelation = getRelationToDayStemPalace(
-    hourStemPalace.wuxing ?? '',
+    dayStemPalace.wuxing ?? '',
     shengDoorPalace.wuxing ?? '',
   );
   const shengScore =
@@ -408,7 +408,7 @@ function buildDecision(
     bullishProbability <= 40 ||
     shengScore <= 0 ||
     shengControlsHour ||
-    Boolean(shengDoorPalace.emptyMarkers?.length)
+    (shengDoorPalace.emptyMarkers?.includes('日空') ?? false)
   ) {
     action = 'SELL';
     actionLabel = '不宜操作 / 可考虑卖出';

@@ -200,6 +200,7 @@ export function calculateTdxIndicators(
   const trueCGainHistory: number[] = [];
   const meiZhuHistory: boolean[] = [];
   const shadowPressureHistory: number[] = [];
+  const x22History: boolean[] = [];
 
   for (let index = 0; index < bars.length; index += 1) {
     const previousClose = refNumber(close, index, 1, close[index] ?? 0);
@@ -359,7 +360,8 @@ export function calculateTdxIndicators(
       high[index] >= previousClose * 1.05 &&
       trueCGain >= 5;
     const x56 = x54 || x55;
-    const limitUpCountHistory = COUNT(results.map((item) => Boolean(item.X_22)), 13);
+    x22History.push(x22);
+    const limitUpCountHistory = COUNT(x22History, 13);
     const x57 = (
       (limitUpCountHistory[index] > 0 ? x16 > 1 : x16 > 2.68) &&
       volume[index] > refNumber(volume, index, 1) * 1.5 &&
@@ -536,7 +538,7 @@ export function calculateTdxIndicators(
       close[index] < open[index] &&
       volume[index] > refNumber(volume, index, 1);
     const meiYangYang =
-      (x99 || stage2.final || stage3.final || stage4.final) && !x148;
+      x99 || stage2.final || stage3.final || (stage4.final && !x148);
 
     const result = {} as TdxIndicatorResult;
     result.X_1 = 1;

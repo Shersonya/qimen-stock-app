@@ -18,7 +18,7 @@ describe('generatePlumAnalysisFromOpenPrice', () => {
       lowerTrigram: '坎',
     });
     expect(result.original.name).toBe('天水讼');
-    expect(result.mutual.name).toBe('风火家人');
+    expect(result.mutual.name).toBe('火泽睽');
     expect(result.changed.name).toBe('火水未济');
   });
 
