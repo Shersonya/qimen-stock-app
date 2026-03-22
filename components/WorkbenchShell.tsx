@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 import { useWorkspaceSettings } from '@/components/providers/WorkspaceSettingsProvider';
+import { useIsMobileViewport } from '@/components/useIsMobileViewport';
 
 const NAV_ITEMS = [
   {
@@ -74,6 +75,7 @@ export function WorkbenchShell({
   const pathname = usePathname();
   const { settings } = useWorkspaceSettings();
   const [isShortcutHelpOpen, setIsShortcutHelpOpen] = useState(false);
+  const isMobileViewport = useIsMobileViewport();
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -123,14 +125,47 @@ export function WorkbenchShell({
 
   return (
     <div className="workbench-shell" style={shellStyle}>
-      <aside className="workbench-sidebar">
-        <div className="workbench-brand">
-          <p className="mystic-section-label">奇门量化分析系统</p>
-          <h1>奇门量化工作台</h1>
-          <p>聚焦吉格筛选与个股深度诊断的垂直分析界面。</p>
-        </div>
+      {!isMobileViewport ? (
+        <aside className="workbench-sidebar">
+          <div className="workbench-brand">
+            <p className="mystic-section-label">奇门量化分析系统</p>
+            <h1>奇门量化工作台</h1>
+            <p>聚焦吉格筛选与个股深度诊断的垂直分析界面。</p>
+          </div>
 
-        <nav aria-label="主导航" className="workbench-nav">
+          <nav aria-label="主导航" className="workbench-nav">
+            {NAV_ITEMS.map((item) => {
+              const isActive = item.matches.some((match) =>
+                match === '/'
+                  ? pathname === '/' || pathname === '/dashboard'
+                  : pathname.startsWith(match),
+              );
+
+              return (
+                <Link
+                  className={`workbench-nav-link ${isActive ? 'is-active' : ''}`}
+                  href={item.href}
+                  key={item.href}
+                >
+                  <span aria-hidden="true">{item.icon}</span>
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          <button
+            className="workbench-shortcut-button"
+            onClick={() => setIsShortcutHelpOpen(true)}
+            type="button"
+          >
+            快捷键帮助
+          </button>
+        </aside>
+      ) : null}
+
+      {isMobileViewport ? (
+        <div className="workbench-mobile-nav">
           {NAV_ITEMS.map((item) => {
             const isActive = item.matches.some((match) =>
               match === '/'
@@ -140,7 +175,7 @@ export function WorkbenchShell({
 
             return (
               <Link
-                className={`workbench-nav-link ${isActive ? 'is-active' : ''}`}
+                className={`workbench-mobile-link ${isActive ? 'is-active' : ''}`}
                 href={item.href}
                 key={item.href}
               >
@@ -149,37 +184,8 @@ export function WorkbenchShell({
               </Link>
             );
           })}
-        </nav>
-
-        <button
-          className="workbench-shortcut-button"
-          onClick={() => setIsShortcutHelpOpen(true)}
-          type="button"
-        >
-          快捷键帮助
-        </button>
-      </aside>
-
-      <div className="workbench-mobile-nav">
-        {NAV_ITEMS.map((item) => {
-          const isActive = item.matches.some((match) =>
-            match === '/'
-              ? pathname === '/' || pathname === '/dashboard'
-              : pathname.startsWith(match),
-          );
-
-          return (
-            <Link
-              className={`workbench-mobile-link ${isActive ? 'is-active' : ''}`}
-              href={item.href}
-              key={item.href}
-            >
-              <span aria-hidden="true">{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-      </div>
+        </div>
+      ) : null}
 
       <main className="workbench-content">{children}</main>
 
@@ -203,8 +209,8 @@ export function WorkbenchShell({
               </button>
             </div>
             <div className="mt-5 space-y-3">
-              {SHORTCUT_ITEMS.map(([hotkey, description]) => (
-                <div className="workbench-shortcut-row" key={hotkey}>
+              {SHORTCUT_ITEMS.map(([hotkey, description], index) => (
+                <div className="workbench-shortcut-row" key={`${hotkey}-${index}`}>
                   <span className="workbench-shortcut-key">{hotkey}</span>
                   <span>{description}</span>
                 </div>

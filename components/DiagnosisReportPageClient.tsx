@@ -7,6 +7,7 @@ import { ExpandedPalaceGrid } from '@/components/ExpandedPalaceGrid';
 import { PlumResult } from '@/components/PlumResult';
 import { ReferenceBoardPanel } from '@/components/ReferenceBoardPanel';
 import { useWorkspaceSettings } from '@/components/providers/WorkspaceSettingsProvider';
+import { MobilePalaceExplorer } from '@/components/MobilePalaceExplorer';
 import { requestQimenAnalysis } from '@/lib/client-api';
 import type {
   ApiError,
@@ -20,20 +21,51 @@ import {
   readRecentStockCodes,
   writeRecentStockCodes,
 } from '@/lib/recent-stocks';
+import { useIsMobileViewport } from '@/components/useIsMobileViewport';
 
 function downloadPrintDocument(title: string, html: string) {
-  const popup = window.open('', '_blank', 'noopener,noreferrer,width=1280,height=900');
+  const frame = document.createElement('iframe');
 
-  if (!popup) {
+  frame.setAttribute('data-testid', 'diagnosis-print-frame');
+  frame.setAttribute('title', title);
+  frame.setAttribute('aria-hidden', 'true');
+  frame.style.position = 'fixed';
+  frame.style.right = '0';
+  frame.style.bottom = '0';
+  frame.style.width = '0';
+  frame.style.height = '0';
+  frame.style.border = '0';
+  frame.style.visibility = 'hidden';
+
+  const cleanup = () => {
+    window.setTimeout(() => {
+      frame.remove();
+    }, 1000);
+  };
+
+  document.body.appendChild(frame);
+  frame.srcdoc = html;
+
+  if (navigator.userAgent.includes('jsdom')) {
     return;
   }
 
-  popup.document.open();
-  popup.document.write(html);
-  popup.document.close();
-  popup.document.title = title;
-  popup.focus();
-  popup.print();
+  frame.addEventListener('load', () => {
+    const printWindow = frame.contentWindow;
+
+    if (!printWindow) {
+      cleanup();
+      return;
+    }
+
+    try {
+      printWindow.focus();
+      printWindow.print();
+    } catch {
+      // Some browsers or popup-blocking environments may not allow printing.
+    }
+    cleanup();
+  });
 }
 
 function StepCard({
@@ -51,7 +83,9 @@ function StepCard({
         <span className="workbench-step-index">{index}</span>
         <div>
           <p className="mystic-section-label">第{index}步</p>
-          <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">{title}</h3>
+          <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)] sm:text-2xl">
+            {title}
+          </h3>
         </div>
       </div>
       <div className="mt-5">{children}</div>
@@ -71,6 +105,7 @@ export function DiagnosisReportPageClient({
   const [selectedPalaceIndex, setSelectedPalaceIndex] = useState<number | null>(null);
   const [auxiliaryTab, setAuxiliaryTab] = useState<'report' | 'auxiliary'>('report');
   const [selectedMarket, setSelectedMarket] = useState<Market>('SH');
+  const isMobileViewport = useIsMobileViewport();
 
   useEffect(() => {
     let cancelled = false;
@@ -176,12 +211,12 @@ export function DiagnosisReportPageClient({
             </div>
           </header>
 
-          <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_360px]">
-            <section className="workbench-card">
+          {isMobileViewport ? (
+            <section className="mt-6 workbench-card" data-testid="diagnosis-mobile-board">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="mystic-section-label">交互式排盘图</p>
-                  <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+                  <p className="mystic-section-label">移动排盘图</p>
+                  <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
                     {result.qimen.yinYang}遁 {result.qimen.ju}局
                   </h3>
                 </div>
@@ -190,57 +225,92 @@ export function DiagnosisReportPageClient({
                   <span className="mystic-chip">值使 {result.qimen.valueDoor}</span>
                 </div>
               </div>
-              <ExpandedPalaceGrid
+              <MobilePalaceExplorer
                 className="mt-5"
+                detailCardTestId="diagnosis-mobile-detail-card"
+                detailStatus="ready"
+                detailTestId="diagnosis-mobile-detail"
                 getAnnotation={(palace) =>
                   result.patternAnalysis.palaceAnnotations.find(
                     (item) => item.palacePosition === palace.position,
                   )
                 }
-                onSelect={setSelectedPalaceIndex}
+                layoutTestId="diagnosis-mobile-layout"
+                onSelectPalace={setSelectedPalaceIndex}
+                overviewTestId="diagnosis-mobile-overview"
+                palaceTestId="diagnosis-mobile-palace"
                 palaces={result.qimen.palaces}
                 selectedPalaceIndex={selectedPalace?.index ?? null}
                 status="ready"
-                testId="diagnosis-palace-grid"
               />
             </section>
+          ) : (
+            <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_360px]">
+              <section className="workbench-card">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <p className="mystic-section-label">交互式排盘图</p>
+                    <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+                      {result.qimen.yinYang}遁 {result.qimen.ju}局
+                    </h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="mystic-chip">值符 {result.qimen.valueStar}</span>
+                    <span className="mystic-chip">值使 {result.qimen.valueDoor}</span>
+                  </div>
+                </div>
+                <ExpandedPalaceGrid
+                  className="mt-5"
+                  getAnnotation={(palace) =>
+                    result.patternAnalysis.palaceAnnotations.find(
+                      (item) => item.palacePosition === palace.position,
+                    )
+                  }
+                  onSelect={setSelectedPalaceIndex}
+                  palaces={result.qimen.palaces}
+                  selectedPalaceIndex={selectedPalace?.index ?? null}
+                  status="ready"
+                  testId="diagnosis-palace-grid"
+                />
+              </section>
 
-            <aside className="workbench-card">
-              <p className="mystic-section-label">宫位 Inspector</p>
-              <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
-                {selectedPalace
-                  ? `${selectedPalace.name}宫 · 洛书 ${selectedPalace.position}`
-                  : '等待选中宫位'}
-              </h3>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {selectedPalace ? (
-                  <>
-                    <span className="mystic-chip">星 {selectedPalace.star}</span>
-                    <span className="mystic-chip">门 {selectedPalace.door}</span>
-                    <span className="mystic-chip">神 {selectedPalace.god}</span>
-                  </>
-                ) : null}
-              </div>
-              <div className="mt-5 space-y-3 text-sm leading-7 text-[var(--text-secondary)]">
-                {selectedReading ? (
-                  <>
-                    <p>{selectedReading.summary}</p>
-                    <p>
-                      生克关系:
-                      {' '}
-                      {selectedReading.relationToDayStemPalace}
-                    </p>
-                    <p>天时: {selectedReading.tianShi}</p>
-                    <p>地利: {selectedReading.diLi}</p>
-                    <p>人和: {selectedReading.renHe}</p>
-                    <p>神助: {selectedReading.shenZhu}</p>
-                  </>
-                ) : (
-                  <p>点击上方宫位后，这里会展示完整符号信息和与日干宫的关系。</p>
-                )}
-              </div>
-            </aside>
-          </div>
+              <aside className="workbench-card">
+                <p className="mystic-section-label">宫位 Inspector</p>
+                <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+                  {selectedPalace
+                    ? `${selectedPalace.name}宫 · 洛书 ${selectedPalace.position}`
+                    : '等待选中宫位'}
+                </h3>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {selectedPalace ? (
+                    <>
+                      <span className="mystic-chip">星 {selectedPalace.star}</span>
+                      <span className="mystic-chip">门 {selectedPalace.door}</span>
+                      <span className="mystic-chip">神 {selectedPalace.god}</span>
+                    </>
+                  ) : null}
+                </div>
+                <div className="mt-5 space-y-3 text-sm leading-7 text-[var(--text-secondary)]">
+                  {selectedReading ? (
+                    <>
+                      <p>{selectedReading.summary}</p>
+                      <p>
+                        生克关系:
+                        {' '}
+                        {selectedReading.relationToDayStemPalace}
+                      </p>
+                      <p>天时: {selectedReading.tianShi}</p>
+                      <p>地利: {selectedReading.diLi}</p>
+                      <p>人和: {selectedReading.renHe}</p>
+                      <p>神助: {selectedReading.shenZhu}</p>
+                    </>
+                  ) : (
+                    <p>点击上方宫位后，这里会展示完整符号信息和与日干宫的关系。</p>
+                  )}
+                </div>
+              </aside>
+            </div>
+          )}
 
           <div className="mt-6 flex flex-wrap gap-2" role="tablist" aria-label="诊断标签">
             <button
@@ -294,8 +364,8 @@ export function DiagnosisReportPageClient({
 
               <StepCard index={2} title="用神定位">
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  {result.deepDiagnosis?.useShen.map((item) => (
-                    <article className="workbench-stat-tile" key={`${item.kind}-${item.palacePosition}`}>
+                  {result.deepDiagnosis?.useShen.map((item, index) => (
+                    <article className="workbench-stat-tile" key={`${item.kind}-${item.palacePosition}-${index}`}>
                       <p className="mystic-section-label">{item.label}</p>
                       <h4 className="mt-3 text-xl font-semibold text-[var(--text-primary)]">
                         {item.value}
@@ -313,8 +383,8 @@ export function DiagnosisReportPageClient({
 
               <StepCard index={3} title="三宫深度解析">
                 <div className="grid gap-4 xl:grid-cols-3">
-                  {result.deepDiagnosis?.palaceReadings.map((item) => (
-                    <article className="workbench-card workbench-subcard" key={`${item.title}-${item.palacePosition}`}>
+                  {result.deepDiagnosis?.palaceReadings.map((item, index) => (
+                    <article className="workbench-card workbench-subcard" key={`${item.title}-${item.palacePosition}-${index}`}>
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <p className="mystic-section-label">{item.role}</p>
@@ -354,8 +424,8 @@ export function DiagnosisReportPageClient({
                       </span>
                     </div>
                     <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--text-secondary)]">
-                      {result.deepDiagnosis?.decisionRationale.map((item) => (
-                        <p key={item}>{item}</p>
+                      {result.deepDiagnosis?.decisionRationale.map((item, index) => (
+                        <p key={`${index}-${item}`}>{item}</p>
                       ))}
                     </div>
                   </article>
@@ -363,8 +433,8 @@ export function DiagnosisReportPageClient({
                   <article className="workbench-card workbench-subcard">
                     <p className="mystic-section-label">走势推演时间线</p>
                     <div className="mt-4 space-y-4">
-                      {result.deepDiagnosis?.outlooks.map((item) => (
-                        <div className="workbench-timeline-row" key={item.horizon}>
+                      {result.deepDiagnosis?.outlooks.map((item, index) => (
+                        <div className="workbench-timeline-row" key={`${item.horizon}-${index}`}>
                           <div className="workbench-timeline-dot" />
                           <div className="workbench-timeline-card">
                             <div className="flex items-center justify-between gap-3">
@@ -387,8 +457,8 @@ export function DiagnosisReportPageClient({
                   <article className="workbench-card workbench-subcard">
                     <p className="mystic-section-label">行动指南</p>
                     <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--text-secondary)]">
-                      {result.deepDiagnosis?.actionGuide.map((item) => (
-                        <p key={item}>{item}</p>
+                      {result.deepDiagnosis?.actionGuide.map((item, index) => (
+                        <p key={`${index}-${item}`}>{item}</p>
                       ))}
                     </div>
                   </article>
@@ -396,8 +466,8 @@ export function DiagnosisReportPageClient({
                   <article className="workbench-card workbench-subcard">
                     <p className="mystic-section-label">关键应期提示</p>
                     <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--text-secondary)]">
-                      {result.deepDiagnosis?.keyTimingHints.map((item) => (
-                        <p key={item}>{item}</p>
+                      {result.deepDiagnosis?.keyTimingHints.map((item, index) => (
+                        <p key={`${index}-${item}`}>{item}</p>
                       ))}
                     </div>
                     <p className="mt-4 text-xs leading-6 text-[var(--text-muted)]">
