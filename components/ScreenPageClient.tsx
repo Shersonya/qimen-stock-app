@@ -9,6 +9,7 @@ import { MobilePalaceExplorer } from '@/components/MobilePalaceExplorer';
 import { PalaceCard } from '@/components/PalaceCard';
 import { useWorkspaceSettings } from '@/components/providers/WorkspaceSettingsProvider';
 import { requestMarketDashboard, requestMarketScreen, requestQimenAnalysis } from '@/lib/client-api';
+import { useToast } from '@/lib/hooks/use-toast';
 import type {
   ApiError,
   MarketScreenFilters,
@@ -18,6 +19,7 @@ import type {
 } from '@/lib/contracts/qimen';
 import { QIMEN_PATTERN_LIBRARY } from '@/lib/contracts/qimen';
 import { getMarketLabel } from '@/lib/ui';
+import { toApiError } from '@/lib/utils/api-error';
 
 type PreviewState = {
   stockCode: string;
@@ -67,7 +69,7 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
   const [error, setError] = useState<ApiError | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useToast();
   const [pageSize, setPageSize] = useState(50);
   const [preview, setPreview] = useState<PreviewState | null>(null);
   const [previewPayload, setPreviewPayload] = useState<QimenApiSuccessResponse | null>(null);
@@ -189,20 +191,6 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
     };
   }, []);
 
-  useEffect(() => {
-    if (!toastMessage) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      setToastMessage(null);
-    }, 2800);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, [toastMessage]);
-
   function updatePatternSetting(
     name: (typeof QIMEN_PATTERN_LIBRARY)[number]['name'],
     patch: Partial<(typeof settings.patternMap)[typeof name]>,
@@ -278,7 +266,7 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
       setSelectedRows([]);
     } catch (nextError) {
       setResult(null);
-      setError(nextError as ApiError);
+      setError(toApiError(nextError, 'API_ERROR', '筛选失败，请稍后重试。'));
       setProgress(100);
     } finally {
       if (progressTimerRef.current) {
@@ -300,6 +288,7 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
     pageSize,
     patternConfigOverride,
     riskConfigOverride,
+    setToastMessage,
   ]);
 
   useEffect(() => {
@@ -331,7 +320,7 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
       setPreviewPayload(payload);
     } catch (nextError) {
       setPreviewPayload(null);
-      setPreviewError(nextError as ApiError);
+      setPreviewError(toApiError(nextError, 'API_ERROR', '排盘预览失败，请稍后重试。'));
     } finally {
       setIsPreviewLoading(false);
     }

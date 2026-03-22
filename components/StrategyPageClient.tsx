@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { LimitUpPanel } from '@/components/LimitUpPanel';
 import { TdxScanPanel } from '@/components/TdxScanPanel';

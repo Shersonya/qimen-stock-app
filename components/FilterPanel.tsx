@@ -645,8 +645,8 @@ export function FilterPanel({
               </p>
               <div className="flex flex-wrap gap-2">
                 {activeFilterSummary.length > 0 ? (
-                  activeFilterSummary.map((item) => (
-                    <span className="mystic-chip" key={item}>
+                  activeFilterSummary.map((item, index) => (
+                    <span className="mystic-chip" key={`${item}-${index}`}>
                       {item}
                     </span>
                   ))

@@ -16,6 +16,7 @@ import type {
 } from '@/lib/contracts/qimen';
 import { createDiagnosisReportPrintHtml } from '@/lib/diagnosis-report';
 import { getDefaultPalaceIndex } from '@/lib/ui';
+import { toApiError } from '@/lib/utils/api-error';
 import {
   prependRecentStockCode,
   readRecentStockCodes,
@@ -136,7 +137,7 @@ export function DiagnosisReportPageClient({
       } catch (nextError) {
         if (!cancelled) {
           setResult(null);
-          setError(nextError as ApiError);
+          setError(toApiError(nextError, 'API_ERROR', '诊断加载失败，请稍后重试。'));
         }
       } finally {
         if (!cancelled) {

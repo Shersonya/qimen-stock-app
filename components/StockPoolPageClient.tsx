@@ -8,6 +8,7 @@ import { ErrorNotice } from '@/components/ErrorNotice';
 import { PoolManagerPanel } from '@/components/PoolManagerPanel';
 import { useIsMobileViewport } from '@/components/useIsMobileViewport';
 import { requestBatchDiagnosis } from '@/lib/client-api';
+import { useToast } from '@/lib/hooks/use-toast';
 import type { ApiError } from '@/lib/contracts/qimen';
 import type {
   BatchDiagnosisProgress,
@@ -32,6 +33,7 @@ import {
   setActivePool,
   addToPool,
 } from '@/lib/services/stock-pool';
+import { toApiError } from '@/lib/utils/api-error';
 
 type StockPoolPageClientProps = {
   demoMode?: boolean;
@@ -41,17 +43,6 @@ type SnapshotComparison = {
   added: string[];
   removed: string[];
 };
-
-function toApiError(error: unknown, fallbackMessage: string): ApiError {
-  if (typeof error === 'object' && error && 'code' in error && 'message' in error) {
-    return error as ApiError;
-  }
-
-  return {
-    code: 'API_ERROR',
-    message: fallbackMessage,
-  };
-}
 
 function downloadFile(filename: string, content: string, mimeType: string) {
   const blob = new Blob([content], { type: mimeType });
@@ -150,7 +141,7 @@ export function StockPoolPageClient({
   const [newPoolName, setNewPoolName] = useState('策略观察池');
   const [importValue, setImportValue] = useState('');
   const [isImportOpen, setIsImportOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useToast();
   const [error, setError] = useState<ApiError | null>(null);
   const [diagnosisError, setDiagnosisError] = useState<ApiError | null>(null);
   const [progress, setProgress] = useState<BatchDiagnosisProgress | null>(null);
@@ -212,20 +203,6 @@ export function StockPoolPageClient({
     };
   }, [demoMode]);
 
-  useEffect(() => {
-    if (!toastMessage) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      setToastMessage(null);
-    }, 2800);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, [toastMessage]);
-
   const comparisonData = useMemo(() => createComparisonTableData(activePool), [activePool]);
   const staleCount = useMemo(
     () => comparisonData.items.filter((item) => item.stale).length,
@@ -254,7 +231,7 @@ export function StockPoolPageClient({
         showToast(successMessage);
       }
     } catch (nextError) {
-      setError(toApiError(nextError, '股票池操作失败，请稍后重试。'));
+      setError(toApiError(nextError, 'API_ERROR', '股票池操作失败，请稍后重试。'));
     }
   }
 
@@ -302,7 +279,7 @@ export function StockPoolPageClient({
       downloadFile(filename, payload, 'application/json;charset=utf-8');
       showToast('已导出当前股票池 JSON。');
     } catch (nextError) {
-      setError(toApiError(nextError, '导出股票池失败，请稍后重试。'));
+      setError(toApiError(nextError, 'API_ERROR', '导出股票池失败，请稍后重试。'));
     }
   }
 
