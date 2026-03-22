@@ -3,6 +3,7 @@ import {
   type LimitUpFilterResponse,
   type LimitUpStock,
 } from '@/lib/contracts/strategy';
+import { getBundledLimitUpSnapshot } from '@/lib/fallback-data/limit-up';
 import { isStStockName } from '@/lib/services/stock-data';
 import { getStockDailyHistory } from '@/lib/services/stock-history';
 import { mapWithConcurrency } from '@/lib/utils/async';
@@ -51,7 +52,7 @@ type AggregatedLimitUpCandidate = {
 
 type CachedLimitUpResult = {
   expiresAt: number;
-  response: Pick<LimitUpFilterResponse, 'total' | 'filterDate' | 'lookbackDays'> & {
+  response: Pick<LimitUpFilterResponse, 'total' | 'filterDate' | 'lookbackDays' | 'meta'> & {
     items: LimitUpStock[];
   };
 };
@@ -241,7 +242,71 @@ function buildPagedResponse(
     filterDate: response.filterDate,
     lookbackDays: response.lookbackDays,
     items: response.items.slice(startIndex, startIndex + pageSize),
+    meta: response.meta,
   };
+}
+
+function buildBundledLimitUpResponse(args: {
+  lookbackDays: number;
+  minLimitUpCount: number;
+  excludeST: boolean;
+  excludeKechuang: boolean;
+  excludeNewStock: boolean;
+  sortBy: NonNullable<LimitUpFilterRequest['sortBy']>;
+  sortOrder: NonNullable<LimitUpFilterRequest['sortOrder']>;
+  page: number;
+  pageSize: number;
+}): LimitUpFilterResponse {
+  const bundled = getBundledLimitUpSnapshot();
+  const effectiveLookbackDays = Math.min(args.lookbackDays, bundled.tradingDates.length);
+  const activeTradingDates = new Set(bundled.tradingDates.slice(-effectiveLookbackDays));
+  const filteredItems = bundled.items
+    .map((item) => {
+      const limitUpDates = item.limitUpDates.filter((tradeDate) => activeTradingDates.has(tradeDate));
+
+      if (!limitUpDates.length) {
+        return null;
+      }
+
+      if (args.excludeST && isStStockName(item.stockName)) {
+        return null;
+      }
+
+      if (args.excludeKechuang && /^688/.test(item.stockCode)) {
+        return null;
+      }
+
+      if (args.excludeNewStock && item.isNewStockCandidate) {
+        return null;
+      }
+
+      return {
+        ...item,
+        limitUpDates,
+        limitUpCount: limitUpDates.length,
+        firstLimitUpDate: limitUpDates[0]!,
+        lastLimitUpDate: limitUpDates[limitUpDates.length - 1]!,
+      };
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item))
+    .filter((item) => item.limitUpCount >= args.minLimitUpCount)
+    .sort((left, right) => compareLimitUpStocks(left, right, args.sortBy, args.sortOrder));
+
+  return buildPagedResponse(
+    {
+      total: filteredItems.length,
+      filterDate: bundled.filterDate,
+      lookbackDays: effectiveLookbackDays,
+      items: filteredItems,
+      meta: {
+        source: 'bundled_snapshot',
+        generatedAt: bundled.generatedAt,
+        notice: '实时涨停池暂不可用，当前结果来自内置 30 日涨停快照。',
+      },
+    },
+    args.page,
+    args.pageSize,
+  );
 }
 
 function resolveMarket(stockCode: string, marketFlag: number | undefined): LimitUpStock['market'] {
@@ -500,43 +565,60 @@ export async function filterLimitUpStocks(
   }
 
   const historyWindow = getHistoryWindow(lookbackDays);
-  const tradingDates = await getRecentTradingDates(lookbackDays);
-  const poolsByDate = await mapWithConcurrency(
-    tradingDates,
-    LIMIT_UP_POOL_CONCURRENCY,
-    async (tradeDate) => ({
-      tradeDate,
-      items: await fetchLimitUpPoolByDate(tradeDate),
-    }),
-  );
-  const candidates = aggregateLimitUpCandidates(poolsByDate, {
-    excludeST,
-    excludeKechuang,
-  });
-  const items = await mapWithConcurrency(
-    candidates,
-    CONCURRENCY_LIMIT,
-    async (candidate) => {
-      return finalizeLimitUpCandidate(candidate, {
-        excludeNewStock,
-        historyWindow,
-      });
-    },
-  );
+  try {
+    const tradingDates = await getRecentTradingDates(lookbackDays);
+    const poolsByDate = await mapWithConcurrency(
+      tradingDates,
+      LIMIT_UP_POOL_CONCURRENCY,
+      async (tradeDate) => ({
+        tradeDate,
+        items: await fetchLimitUpPoolByDate(tradeDate),
+      }),
+    );
+    const candidates = aggregateLimitUpCandidates(poolsByDate, {
+      excludeST,
+      excludeKechuang,
+    });
+    const items = await mapWithConcurrency(
+      candidates,
+      CONCURRENCY_LIMIT,
+      async (candidate) => {
+        return finalizeLimitUpCandidate(candidate, {
+          excludeNewStock,
+          historyWindow,
+        });
+      },
+    );
 
-  const filteredItems = items
-    .filter((item): item is LimitUpStock => Boolean(item))
-    .filter((item) => item.limitUpCount >= minLimitUpCount)
-    .sort((left, right) => compareLimitUpStocks(left, right, sortBy, sortOrder));
+    const filteredItems = items
+      .filter((item): item is LimitUpStock => Boolean(item))
+      .filter((item) => item.limitUpCount >= minLimitUpCount)
+      .sort((left, right) => compareLimitUpStocks(left, right, sortBy, sortOrder));
 
-  const response: CachedLimitUpResult['response'] = {
-    total: filteredItems.length,
-    filterDate: tradingDates.at(-1) ?? historyWindow.end,
-    lookbackDays,
-    items: filteredItems,
-  };
+    const response: CachedLimitUpResult['response'] = {
+      total: filteredItems.length,
+      filterDate: tradingDates.at(-1) ?? historyWindow.end,
+      lookbackDays,
+      items: filteredItems,
+      meta: {
+        source: 'live',
+      },
+    };
 
-  setCachedResponse(requestKey, response);
+    setCachedResponse(requestKey, response);
 
-  return buildPagedResponse(response, page, pageSize);
+    return buildPagedResponse(response, page, pageSize);
+  } catch {
+    return buildBundledLimitUpResponse({
+      lookbackDays,
+      minLimitUpCount,
+      excludeST,
+      excludeKechuang,
+      excludeNewStock,
+      sortBy,
+      sortOrder,
+      page,
+      pageSize,
+    });
+  }
 }

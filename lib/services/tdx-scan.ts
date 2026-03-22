@@ -8,7 +8,10 @@ import { AppError } from '@/lib/errors';
 import { filterLimitUpStocks } from '@/lib/services/limit-up';
 import { calculateTdxIndicators } from '@/lib/tdx/engine';
 import type { ExtendedKLineBar } from '@/lib/tdx/types';
-import { getMarketStockPool } from '@/lib/services/market-screen';
+import {
+  getMarketStockPool,
+  getMarketStockPoolCacheMeta,
+} from '@/lib/services/market-screen';
 import { getStockDailyHistory } from '@/lib/services/stock-history';
 import { mapWithConcurrency } from '@/lib/utils/async';
 import { getShanghaiDateString } from '@/lib/utils/date';
@@ -110,9 +113,13 @@ function buildHistoryRange() {
 async function getScanUniverse(): Promise<ScanUniverse> {
   try {
     const pool = await getMarketStockPool();
+    const cacheMeta = getMarketStockPoolCacheMeta();
 
     return {
-      source: 'market_pool',
+      source:
+        cacheMeta?.source === 'bundled_limit_up_snapshot'
+          ? 'bundled_market_fallback'
+          : 'market_pool',
       items: pool.map((item) => ({
         code: item.stock.code,
         name: item.stock.name,
@@ -169,6 +176,10 @@ function buildResponseMeta(
     notice = cached
       ? '主市场池暂不可用，当前展示的是最近涨停活跃股降级结果，并命中了 10 分钟内缓存。'
       : '主市场池暂不可用，已自动切换到最近涨停活跃股宇宙继续扫描。';
+  } else if (snapshot.universeSource === 'bundled_market_fallback') {
+    notice = cached
+      ? '实时主市场池暂不可用，当前展示的是内置活跃股样本，并命中了 10 分钟内缓存。'
+      : '实时主市场池暂不可用，已切换到内置活跃股样本继续扫描。';
   } else if (cached) {
     notice = '当前展示的是 10 分钟内缓存结果，适合重复翻页和短时间复查。';
   }

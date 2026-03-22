@@ -1,0 +1,7833 @@
+{
+  "generatedAt": "2026-03-21T09:50:18.298Z",
+  "filterDate": "2026-03-20",
+  "lookbackDays": 30,
+  "tradingDates": [
+    "2026-03-02",
+    "2026-03-03",
+    "2026-03-04",
+    "2026-03-05",
+    "2026-03-06",
+    "2026-03-09",
+    "2026-03-10",
+    "2026-03-11",
+    "2026-03-12",
+    "2026-03-13",
+    "2026-03-16",
+    "2026-03-17",
+    "2026-03-18",
+    "2026-03-19",
+    "2026-03-20"
+  ],
+  "items": [
+    {
+      "stockCode": "600396",
+      "stockName": "华电辽能",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-16",
+        "2026-03-17",
+        "2026-03-18",
+        "2026-03-19",
+        "2026-03-20"
+      ],
+      "limitUpCount": 6,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 6.26,
+      "latestVolume": 393730382,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "600726",
+      "stockName": "华电能源",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10",
+        "2026-03-11",
+        "2026-03-12",
+        "2026-03-13",
+        "2026-03-19",
+        "2026-03-20"
+      ],
+      "limitUpCount": 6,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 5.52,
+      "latestVolume": 550095225,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "603778",
+      "stockName": "国晟科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03",
+        "2026-03-06",
+        "2026-03-11",
+        "2026-03-16",
+        "2026-03-17",
+        "2026-03-20"
+      ],
+      "limitUpCount": 6,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 24.21,
+      "latestVolume": 150573712,
+      "sector": "光伏设备"
+    },
+    {
+      "stockCode": "002445",
+      "stockName": "中南文化",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-09",
+        "2026-03-10",
+        "2026-03-11",
+        "2026-03-12",
+        "2026-03-13",
+        "2026-03-18"
+      ],
+      "limitUpCount": 6,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 3.92,
+      "latestVolume": 392665535,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "000533",
+      "stockName": "顺钠股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04",
+        "2026-03-05",
+        "2026-03-06",
+        "2026-03-09",
+        "2026-03-16",
+        "2026-03-17"
+      ],
+      "limitUpCount": 6,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 16.75,
+      "latestVolume": 197154792,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "000890",
+      "stockName": "法尔胜",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-04",
+        "2026-03-12",
+        "2026-03-13",
+        "2026-03-16",
+        "2026-03-17"
+      ],
+      "limitUpCount": 6,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 13.13,
+      "latestVolume": 88392686,
+      "sector": "环保设备"
+    },
+    {
+      "stockCode": "600227",
+      "stockName": "赤天化",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-06",
+        "2026-03-09",
+        "2026-03-13",
+        "2026-03-16",
+        "2026-03-17"
+      ],
+      "limitUpCount": 6,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 4.26,
+      "latestVolume": 308974348,
+      "sector": "农化制品"
+    },
+    {
+      "stockCode": "600722",
+      "stockName": "金牛化工",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-06",
+        "2026-03-11",
+        "2026-03-12",
+        "2026-03-13"
+      ],
+      "limitUpCount": 6,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 16.14,
+      "latestVolume": 105974602,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "600108",
+      "stockName": "亚盛集团",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-04",
+        "2026-03-06",
+        "2026-03-10",
+        "2026-03-11"
+      ],
+      "limitUpCount": 6,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 5.08,
+      "latestVolume": 150286834,
+      "sector": "种植业"
+    },
+    {
+      "stockCode": "000020",
+      "stockName": "深华发Ａ",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-16",
+        "2026-03-17",
+        "2026-03-18",
+        "2026-03-19",
+        "2026-03-20"
+      ],
+      "limitUpCount": 5,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 23.33,
+      "latestVolume": 5264059,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "000601",
+      "stockName": "韶能股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-09",
+        "2026-03-18",
+        "2026-03-19",
+        "2026-03-20"
+      ],
+      "limitUpCount": 5,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 8.14,
+      "latestVolume": 125423668,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "000815",
+      "stockName": "美利云",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05",
+        "2026-03-06",
+        "2026-03-09",
+        "2026-03-18",
+        "2026-03-19"
+      ],
+      "limitUpCount": 5,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 18.95,
+      "latestVolume": 279651577,
+      "sector": "IT服务Ⅱ"
+    },
+    {
+      "stockCode": "600370",
+      "stockName": "三房巷",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12",
+        "2026-03-13",
+        "2026-03-16",
+        "2026-03-17",
+        "2026-03-18"
+      ],
+      "limitUpCount": 5,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 2.96,
+      "latestVolume": 383241679,
+      "sector": "化学纤维"
+    },
+    {
+      "stockCode": "600545",
+      "stockName": "卓郎智能",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-04",
+        "2026-03-05",
+        "2026-03-06",
+        "2026-03-16",
+        "2026-03-17"
+      ],
+      "limitUpCount": 5,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 3.79,
+      "latestVolume": 210896220,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "605268",
+      "stockName": "王力安防",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-04",
+        "2026-03-05",
+        "2026-03-06",
+        "2026-03-09",
+        "2026-03-10"
+      ],
+      "limitUpCount": 5,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 12.2,
+      "latestVolume": 17780689,
+      "sector": "家居用品"
+    },
+    {
+      "stockCode": "002150",
+      "stockName": "正泰电源",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-11",
+        "2026-03-12",
+        "2026-03-17",
+        "2026-03-20"
+      ],
+      "limitUpCount": 4,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 34.88,
+      "latestVolume": 30003467,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "600683",
+      "stockName": "京投发展",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13",
+        "2026-03-16",
+        "2026-03-17",
+        "2026-03-20"
+      ],
+      "limitUpCount": 4,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 10.86,
+      "latestVolume": 49520562,
+      "sector": "房地产开"
+    },
+    {
+      "stockCode": "002432",
+      "stockName": "九安医疗",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-11",
+        "2026-03-18",
+        "2026-03-19"
+      ],
+      "limitUpCount": 4,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 62.36,
+      "latestVolume": 72538762,
+      "sector": "医疗器械"
+    },
+    {
+      "stockCode": "001400",
+      "stockName": "江顺科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-06",
+        "2026-03-10",
+        "2026-03-18"
+      ],
+      "limitUpCount": 4,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 144.28,
+      "latestVolume": 3387821,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "002667",
+      "stockName": "威领股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-06",
+        "2026-03-11",
+        "2026-03-18"
+      ],
+      "limitUpCount": 4,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 28.12,
+      "latestVolume": 26130313,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "603803",
+      "stockName": "瑞斯康达",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10",
+        "2026-03-11",
+        "2026-03-13",
+        "2026-03-18"
+      ],
+      "limitUpCount": 4,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 13.28,
+      "latestVolume": 122910124,
+      "sector": "通信设备"
+    },
+    {
+      "stockCode": "002498",
+      "stockName": "汉缆股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04",
+        "2026-03-05",
+        "2026-03-06",
+        "2026-03-12"
+      ],
+      "limitUpCount": 4,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 8.34,
+      "latestVolume": 242815047,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "600821",
+      "stockName": "金开新能",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-04",
+        "2026-03-06",
+        "2026-03-09",
+        "2026-03-12"
+      ],
+      "limitUpCount": 4,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 10.71,
+      "latestVolume": 674811787,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "601789",
+      "stockName": "宁波建工",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-09",
+        "2026-03-10",
+        "2026-03-11"
+      ],
+      "limitUpCount": 4,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 5.92,
+      "latestVolume": 215722751,
+      "sector": "房屋建设"
+    },
+    {
+      "stockCode": "000509",
+      "stockName": "华塑控股",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05",
+        "2026-03-06",
+        "2026-03-20"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 4.54,
+      "latestVolume": 78970988,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "000677",
+      "stockName": "恒天海龙",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-13",
+        "2026-03-20"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 4.98,
+      "latestVolume": 58733602,
+      "sector": "化学纤维"
+    },
+    {
+      "stockCode": "000862",
+      "stockName": "银星能源",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04",
+        "2026-03-09",
+        "2026-03-20"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 8.44,
+      "latestVolume": 140627478,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "002310",
+      "stockName": "东方新能",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-16",
+        "2026-03-19",
+        "2026-03-20"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 3.48,
+      "latestVolume": 767693256,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "600617",
+      "stockName": "国新能源",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03",
+        "2026-03-19",
+        "2026-03-20"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 3.99,
+      "latestVolume": 177234674,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "603687",
+      "stockName": "大胜达",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18",
+        "2026-03-19",
+        "2026-03-20"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 13.39,
+      "latestVolume": 4640218,
+      "sector": "包装印刷"
+    },
+    {
+      "stockCode": "000968",
+      "stockName": "蓝焰控股",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-19"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 10.3,
+      "latestVolume": 145479802,
+      "sector": "油气开采"
+    },
+    {
+      "stockCode": "002109",
+      "stockName": "兴化股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-13",
+        "2026-03-19"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 4.75,
+      "latestVolume": 128175830,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "600666",
+      "stockName": "奥瑞德",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05",
+        "2026-03-18",
+        "2026-03-19"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 4.39,
+      "latestVolume": 642727434,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "601015",
+      "stockName": "陕西黑猫",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03",
+        "2026-03-12",
+        "2026-03-19"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 5.4,
+      "latestVolume": 335638845,
+      "sector": "焦炭Ⅱ"
+    },
+    {
+      "stockCode": "603629",
+      "stockName": "利通电子",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-11",
+        "2026-03-19"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 61.26,
+      "latestVolume": 44387745,
+      "sector": "消费电子"
+    },
+    {
+      "stockCode": "002323",
+      "stockName": "雅博股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-13",
+        "2026-03-17",
+        "2026-03-18"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 2.55,
+      "latestVolume": 485628037,
+      "sector": "专业工程"
+    },
+    {
+      "stockCode": "002339",
+      "stockName": "积成电子",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04",
+        "2026-03-05",
+        "2026-03-18"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 11.61,
+      "latestVolume": 41221183,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "002913",
+      "stockName": "奥士康",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05",
+        "2026-03-06",
+        "2026-03-18"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 48.25,
+      "latestVolume": 10134193,
+      "sector": "元件"
+    },
+    {
+      "stockCode": "600307",
+      "stockName": "酒钢宏兴",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13",
+        "2026-03-17",
+        "2026-03-18"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 2.13,
+      "latestVolume": 471008752,
+      "sector": "普钢"
+    },
+    {
+      "stockCode": "600590",
+      "stockName": "泰豪科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05",
+        "2026-03-06",
+        "2026-03-18"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 14.46,
+      "latestVolume": 88284722,
+      "sector": "军工电子"
+    },
+    {
+      "stockCode": "603115",
+      "stockName": "海星股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-10",
+        "2026-03-18"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 31.85,
+      "latestVolume": 9853000,
+      "sector": "元件"
+    },
+    {
+      "stockCode": "603316",
+      "stockName": "诚邦股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-04",
+        "2026-03-06",
+        "2026-03-18"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 15.79,
+      "latestVolume": 24421800,
+      "sector": "基础建设"
+    },
+    {
+      "stockCode": "002470",
+      "stockName": "金正大",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-13",
+        "2026-03-17"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 3.02,
+      "latestVolume": 569650618,
+      "sector": "农化制品"
+    },
+    {
+      "stockCode": "002506",
+      "stockName": "协鑫集成",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-03",
+        "2026-03-06",
+        "2026-03-17"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 5.37,
+      "latestVolume": 1151947428,
+      "sector": "光伏设备"
+    },
+    {
+      "stockCode": "002629",
+      "stockName": "仁智股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-17"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 6.39,
+      "latestVolume": 34404600,
+      "sector": "油服工程"
+    },
+    {
+      "stockCode": "600691",
+      "stockName": "潞化科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12",
+        "2026-03-13",
+        "2026-03-17"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 3.85,
+      "latestVolume": 172296212,
+      "sector": "农化制品"
+    },
+    {
+      "stockCode": "601016",
+      "stockName": "节能风电",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-11",
+        "2026-03-12",
+        "2026-03-17"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 4.45,
+      "latestVolume": 700320389,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "603248",
+      "stockName": "锡华科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13",
+        "2026-03-16",
+        "2026-03-17"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 28.8,
+      "latestVolume": 32926893,
+      "sector": "风电设备"
+    },
+    {
+      "stockCode": "603929",
+      "stockName": "亚翔集成",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13",
+        "2026-03-16",
+        "2026-03-17"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 184.92,
+      "latestVolume": 7804873,
+      "sector": "专业工程"
+    },
+    {
+      "stockCode": "002980",
+      "stockName": "华盛昌",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-16"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 37.22,
+      "latestVolume": 16124988,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "601975",
+      "stockName": "招商南油",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-16"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 4.52,
+      "latestVolume": 287044123,
+      "sector": "航运港口"
+    },
+    {
+      "stockCode": "603421",
+      "stockName": "鼎信通讯",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10",
+        "2026-03-11",
+        "2026-03-16"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 10,
+      "latestVolume": 78974061,
+      "sector": "通信设备"
+    },
+    {
+      "stockCode": "002903",
+      "stockName": "宇环数控",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-09",
+        "2026-03-10",
+        "2026-03-13"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 27.13,
+      "latestVolume": 9895168,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "000537",
+      "stockName": "绿发电力",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10",
+        "2026-03-11",
+        "2026-03-12"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 11.1,
+      "latestVolume": 145353929,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "002015",
+      "stockName": "协鑫能科",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-09",
+        "2026-03-12"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 20.8,
+      "latestVolume": 383244678,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "600714",
+      "stockName": "金瑞矿业",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-12"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 19.84,
+      "latestVolume": 30156315,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "601868",
+      "stockName": "中国能建",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-11",
+        "2026-03-12"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 3.17,
+      "latestVolume": 1994310267,
+      "sector": "基础建设"
+    },
+    {
+      "stockCode": "603353",
+      "stockName": "和顺石油",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-11"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 40.19,
+      "latestVolume": 12564240,
+      "sector": "炼化及贸"
+    },
+    {
+      "stockCode": "001267",
+      "stockName": "汇绿生态",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-05",
+        "2026-03-10"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 42.7,
+      "latestVolume": 81451652,
+      "sector": "基础建设"
+    },
+    {
+      "stockCode": "002207",
+      "stockName": "准油股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-04"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 10.12,
+      "latestVolume": 41350506,
+      "sector": "油服工程"
+    },
+    {
+      "stockCode": "002490",
+      "stockName": "山东墨龙",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-04"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 10.6,
+      "latestVolume": 95054561,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "600759",
+      "stockName": "洲际油气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-04"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 6.69,
+      "latestVolume": 487048317,
+      "sector": "油气开采"
+    },
+    {
+      "stockCode": "600871",
+      "stockName": "石化油服",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-04"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 2.98,
+      "latestVolume": 290980239,
+      "sector": "油服工程"
+    },
+    {
+      "stockCode": "603318",
+      "stockName": "水发燃气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-04"
+      ],
+      "limitUpCount": 3,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 7.92,
+      "latestVolume": 52318120,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "002256",
+      "stockName": "兆新股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-17",
+        "2026-03-20"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-17",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 4.49,
+      "latestVolume": 277064616,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "301658",
+      "stockName": "首航新能",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-11",
+        "2026-03-20"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 60.35,
+      "latestVolume": 23114502,
+      "sector": "光伏设备"
+    },
+    {
+      "stockCode": "603165",
+      "stockName": "荣晟环保",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-09",
+        "2026-03-20"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 14.96,
+      "latestVolume": 30413796,
+      "sector": "造纸"
+    },
+    {
+      "stockCode": "603538",
+      "stockName": "美诺华",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13",
+        "2026-03-20"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 27.84,
+      "latestVolume": 30742919,
+      "sector": "化学制药"
+    },
+    {
+      "stockCode": "605299",
+      "stockName": "舒华体育",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-16",
+        "2026-03-20"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 15.29,
+      "latestVolume": 36838805,
+      "sector": "文娱用品"
+    },
+    {
+      "stockCode": "000539",
+      "stockName": "粤电力Ａ",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-18",
+        "2026-03-19"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 6.66,
+      "latestVolume": 350996655,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "000617",
+      "stockName": "中油资本",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-16",
+        "2026-03-19"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 9.92,
+      "latestVolume": 531637563,
+      "sector": "多元金融"
+    },
+    {
+      "stockCode": "001258",
+      "stockName": "立新能源",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-09",
+        "2026-03-19"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 9.65,
+      "latestVolume": 111104100,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "300332",
+      "stockName": "天壕能源",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-03",
+        "2026-03-19"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 6.79,
+      "latestVolume": 209506411,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "300895",
+      "stockName": "铜牛信息",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-05",
+        "2026-03-19"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 72.36,
+      "latestVolume": 34889634,
+      "sector": "IT服务Ⅱ"
+    },
+    {
+      "stockCode": "601218",
+      "stockName": "吉鑫科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13",
+        "2026-03-19"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 7.03,
+      "latestVolume": 307399921,
+      "sector": "风电设备"
+    },
+    {
+      "stockCode": "603366",
+      "stockName": "日出东方",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13",
+        "2026-03-19"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 10.63,
+      "latestVolume": 120134479,
+      "sector": "厨卫电器"
+    },
+    {
+      "stockCode": "605169",
+      "stockName": "洪通燃气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03",
+        "2026-03-19"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 14.31,
+      "latestVolume": 21213974,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "000990",
+      "stockName": "诚志股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-12",
+        "2026-03-18"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 9.3,
+      "latestVolume": 111336643,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "001389",
+      "stockName": "广合科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10",
+        "2026-03-18"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 110.03,
+      "latestVolume": 11069286,
+      "sector": "元件"
+    },
+    {
+      "stockCode": "002565",
+      "stockName": "顺灏股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-17",
+        "2026-03-18"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-17",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 15.44,
+      "latestVolume": 256693937,
+      "sector": "包装印刷"
+    },
+    {
+      "stockCode": "300042",
+      "stockName": "朗科科技",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-16",
+        "2026-03-18"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 52.08,
+      "latestVolume": 38687508,
+      "sector": "计算机设"
+    },
+    {
+      "stockCode": "600468",
+      "stockName": "百利电气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05",
+        "2026-03-18"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 8.65,
+      "latestVolume": 103706974,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "600602",
+      "stockName": "云赛智联",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-09",
+        "2026-03-18"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 21.72,
+      "latestVolume": 80242424,
+      "sector": "软件开发"
+    },
+    {
+      "stockCode": "603052",
+      "stockName": "可川科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-16",
+        "2026-03-18"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 61.21,
+      "latestVolume": 13438710,
+      "sector": "消费电子"
+    },
+    {
+      "stockCode": "603387",
+      "stockName": "基蛋生物",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-17",
+        "2026-03-18"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-17",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 9.65,
+      "latestVolume": 84478777,
+      "sector": "医疗器械"
+    },
+    {
+      "stockCode": "603618",
+      "stockName": "杭电股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-04",
+        "2026-03-18"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 20.08,
+      "latestVolume": 99961000,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "603757",
+      "stockName": "大元泵业",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-11",
+        "2026-03-18"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 47.15,
+      "latestVolume": 16098827,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "603897",
+      "stockName": "长城科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-18"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 32.01,
+      "latestVolume": 14685559,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "605286",
+      "stockName": "同力天启",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-18"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 48,
+      "latestVolume": 8568641,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "001369",
+      "stockName": "双欣材料",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-11",
+        "2026-03-17"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 16.32,
+      "latestVolume": 49010624,
+      "sector": "化学纤维"
+    },
+    {
+      "stockCode": "301667",
+      "stockName": "纳百川",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-12",
+        "2026-03-17"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 95.53,
+      "latestVolume": 10790809,
+      "sector": "汽车零部"
+    },
+    {
+      "stockCode": "600408",
+      "stockName": "安泰集团",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13",
+        "2026-03-17"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 4.23,
+      "latestVolume": 184541893,
+      "sector": "焦炭Ⅱ"
+    },
+    {
+      "stockCode": "603693",
+      "stockName": "江苏新能",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12",
+        "2026-03-17"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 16.56,
+      "latestVolume": 46374665,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "603992",
+      "stockName": "松霖科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12",
+        "2026-03-17"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 33.23,
+      "latestVolume": 11254055,
+      "sector": "家居用品"
+    },
+    {
+      "stockCode": "688295",
+      "stockName": "中复神鹰",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12",
+        "2026-03-17"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 53.92,
+      "latestVolume": 31033413,
+      "sector": "化学纤维"
+    },
+    {
+      "stockCode": "002235",
+      "stockName": "安妮股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05",
+        "2026-03-16"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 10.54,
+      "latestVolume": 43191959,
+      "sector": "造纸"
+    },
+    {
+      "stockCode": "002467",
+      "stockName": "二六三",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10",
+        "2026-03-16"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 6.91,
+      "latestVolume": 141474364,
+      "sector": "通信服务"
+    },
+    {
+      "stockCode": "002636",
+      "stockName": "金安国纪",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10",
+        "2026-03-16"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 31.3,
+      "latestVolume": 53103533,
+      "sector": "元件"
+    },
+    {
+      "stockCode": "002831",
+      "stockName": "裕同科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-11",
+        "2026-03-16"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 34.48,
+      "latestVolume": 14595241,
+      "sector": "包装印刷"
+    },
+    {
+      "stockCode": "600313",
+      "stockName": "农发种业",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-04",
+        "2026-03-16"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 7.91,
+      "latestVolume": 91271841,
+      "sector": "种植业"
+    },
+    {
+      "stockCode": "603175",
+      "stockName": "超颖电子",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-04",
+        "2026-03-16"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 87.21,
+      "latestVolume": 8080366,
+      "sector": "元件"
+    },
+    {
+      "stockCode": "603738",
+      "stockName": "泰晶科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-16"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 23.08,
+      "latestVolume": 36692990,
+      "sector": "元件"
+    },
+    {
+      "stockCode": "000010",
+      "stockName": "美丽生态",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04",
+        "2026-03-13"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 4.61,
+      "latestVolume": 58153523,
+      "sector": "基础建设"
+    },
+    {
+      "stockCode": "002165",
+      "stockName": "红 宝 丽",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-13"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 10.01,
+      "latestVolume": 131842759,
+      "sector": "化学制品"
+    },
+    {
+      "stockCode": "002429",
+      "stockName": "兆驰股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05",
+        "2026-03-13"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 10.01,
+      "latestVolume": 161644205,
+      "sector": "黑色家电"
+    },
+    {
+      "stockCode": "002487",
+      "stockName": "大金重工",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-12",
+        "2026-03-13"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 72.74,
+      "latestVolume": 35632610,
+      "sector": "风电设备"
+    },
+    {
+      "stockCode": "002637",
+      "stockName": "赞宇科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-13"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 11.82,
+      "latestVolume": 41685146,
+      "sector": "化学制品"
+    },
+    {
+      "stockCode": "002969",
+      "stockName": "嘉美包装",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10",
+        "2026-03-13"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 27.46,
+      "latestVolume": 67216344,
+      "sector": "包装印刷"
+    },
+    {
+      "stockCode": "600121",
+      "stockName": "郑州煤电",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12",
+        "2026-03-13"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 5.09,
+      "latestVolume": 208648664,
+      "sector": "煤炭开采"
+    },
+    {
+      "stockCode": "301396",
+      "stockName": "宏景科技",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-09",
+        "2026-03-12"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 157.11,
+      "latestVolume": 21466411,
+      "sector": "IT服务Ⅱ"
+    },
+    {
+      "stockCode": "600703",
+      "stockName": "三安光电",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05",
+        "2026-03-12"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 16.54,
+      "latestVolume": 234744080,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "600844",
+      "stockName": "金煤科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05",
+        "2026-03-12"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 3.66,
+      "latestVolume": 111546700,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "601330",
+      "stockName": "绿色动力",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-11",
+        "2026-03-12"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 9.8,
+      "latestVolume": 76242898,
+      "sector": "环境治理"
+    },
+    {
+      "stockCode": "601969",
+      "stockName": "海南矿业",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-09",
+        "2026-03-12"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 11.63,
+      "latestVolume": 51094032,
+      "sector": "冶钢原料"
+    },
+    {
+      "stockCode": "000545",
+      "stockName": "金浦钛业",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-11"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 3.29,
+      "latestVolume": 110521850,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "000833",
+      "stockName": "粤桂股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-11"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 24.77,
+      "latestVolume": 49685937,
+      "sector": "综合Ⅱ"
+    },
+    {
+      "stockCode": "000839",
+      "stockName": "国安股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10",
+        "2026-03-11"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 3.43,
+      "latestVolume": 182165243,
+      "sector": "通信服务"
+    },
+    {
+      "stockCode": "002733",
+      "stockName": "雄韬股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05",
+        "2026-03-11"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 25.36,
+      "latestVolume": 38400366,
+      "sector": "电池"
+    },
+    {
+      "stockCode": "600075",
+      "stockName": "新疆天业",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-11"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 6.69,
+      "latestVolume": 42991115,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "600172",
+      "stockName": "黄河旋风",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10",
+        "2026-03-11"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 8.09,
+      "latestVolume": 116637914,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "600769",
+      "stockName": "祥龙电业",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10",
+        "2026-03-11"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 13.28,
+      "latestVolume": 13136571,
+      "sector": "环境治理"
+    },
+    {
+      "stockCode": "600989",
+      "stockName": "宝丰能源",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-11"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 31.87,
+      "latestVolume": 167850764,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "603158",
+      "stockName": "腾龙股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-11"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 11.62,
+      "latestVolume": 33926278,
+      "sector": "汽车零部"
+    },
+    {
+      "stockCode": "603773",
+      "stockName": "沃格光电",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05",
+        "2026-03-11"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 36.88,
+      "latestVolume": 12319370,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "605117",
+      "stockName": "德业股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-11"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 140.7,
+      "latestVolume": 33869972,
+      "sector": "光伏设备"
+    },
+    {
+      "stockCode": "002350",
+      "stockName": "北京科锐",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-03",
+        "2026-03-10"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 13.72,
+      "latestVolume": 46282635,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "002536",
+      "stockName": "飞龙股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-10"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 31.33,
+      "latestVolume": 37217127,
+      "sector": "汽车零部"
+    },
+    {
+      "stockCode": "002575",
+      "stockName": "群兴玩具",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-09",
+        "2026-03-10"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 8,
+      "latestVolume": 83408900,
+      "sector": "文娱用品"
+    },
+    {
+      "stockCode": "600135",
+      "stockName": "乐凯胶片",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-09",
+        "2026-03-10"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 10.71,
+      "latestVolume": 35413677,
+      "sector": "塑料"
+    },
+    {
+      "stockCode": "600498",
+      "stockName": "烽火通信",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-10"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 44.26,
+      "latestVolume": 80515610,
+      "sector": "通信设备"
+    },
+    {
+      "stockCode": "603269",
+      "stockName": "海鸥股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-10"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 14.5,
+      "latestVolume": 16247202,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "000534",
+      "stockName": "万泽股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-09"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 41.43,
+      "latestVolume": 18267957,
+      "sector": "生物制品"
+    },
+    {
+      "stockCode": "002261",
+      "stockName": "拓维信息",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-09"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 35.57,
+      "latestVolume": 147346569,
+      "sector": "软件开发"
+    },
+    {
+      "stockCode": "601567",
+      "stockName": "三星医疗",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06",
+        "2026-03-09"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 27.99,
+      "latestVolume": 28909199,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "002843",
+      "stockName": "泰嘉股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-06"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 22.46,
+      "latestVolume": 27713832,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "688176",
+      "stockName": "亚虹医药-U",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-04",
+        "2026-03-06"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 13.68,
+      "latestVolume": 16815411,
+      "sector": "化学制药"
+    },
+    {
+      "stockCode": "002877",
+      "stockName": "智能自控",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04",
+        "2026-03-05"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 8.91,
+      "latestVolume": 18705947,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "002952",
+      "stockName": "亚世光电",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-03",
+        "2026-03-05"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 25.39,
+      "latestVolume": 8953700,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "300265",
+      "stockName": "通光线缆",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-04",
+        "2026-03-05"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 16.62,
+      "latestVolume": 38787142,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "002389",
+      "stockName": "航天彩虹",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-04"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 22.28,
+      "latestVolume": 41045260,
+      "sector": "航空装备"
+    },
+    {
+      "stockCode": "600236",
+      "stockName": "桂冠电力",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-04"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 9.32,
+      "latestVolume": 25028214,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "000096",
+      "stockName": "广聚能源",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 10.16,
+      "latestVolume": 13914700,
+      "sector": "炼化及贸"
+    },
+    {
+      "stockCode": "000554",
+      "stockName": "泰山石油",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 8.59,
+      "latestVolume": 49703486,
+      "sector": "炼化及贸"
+    },
+    {
+      "stockCode": "002040",
+      "stockName": "南 京 港",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 10.28,
+      "latestVolume": 13675543,
+      "sector": "航运港口"
+    },
+    {
+      "stockCode": "002554",
+      "stockName": "惠博普",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 3.62,
+      "latestVolume": 71779100,
+      "sector": "油服工程"
+    },
+    {
+      "stockCode": "002828",
+      "stockName": "贝肯能源",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 12.37,
+      "latestVolume": 30580490,
+      "sector": "油服工程"
+    },
+    {
+      "stockCode": "300157",
+      "stockName": "新锦动力",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 6.85,
+      "latestVolume": 118483201,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "300164",
+      "stockName": "通源石油",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 19.26,
+      "latestVolume": 146154892,
+      "sector": "油服工程"
+    },
+    {
+      "stockCode": "300191",
+      "stockName": "潜能恒信",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 38.78,
+      "latestVolume": 31246105,
+      "sector": "油服工程"
+    },
+    {
+      "stockCode": "301158",
+      "stockName": "德石股份",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 24.98,
+      "latestVolume": 14816857,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "301302",
+      "stockName": "华如科技",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 28.64,
+      "latestVolume": 18455817,
+      "sector": "军工电子"
+    },
+    {
+      "stockCode": "600026",
+      "stockName": "中远海能",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 23.46,
+      "latestVolume": 95483297,
+      "sector": "航运港口"
+    },
+    {
+      "stockCode": "600256",
+      "stockName": "广汇能源",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 7.12,
+      "latestVolume": 363049417,
+      "sector": "炼化及贸"
+    },
+    {
+      "stockCode": "600339",
+      "stockName": "中油工程",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 4.01,
+      "latestVolume": 109774570,
+      "sector": "油服工程"
+    },
+    {
+      "stockCode": "600367",
+      "stockName": "红星发展",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 23.72,
+      "latestVolume": 41660020,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "600583",
+      "stockName": "海油工程",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 6.72,
+      "latestVolume": 104906764,
+      "sector": "油服工程"
+    },
+    {
+      "stockCode": "600688",
+      "stockName": "上海石化",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 2.96,
+      "latestVolume": 95667946,
+      "sector": "炼化及贸"
+    },
+    {
+      "stockCode": "600938",
+      "stockName": "中国海油",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 41.91,
+      "latestVolume": 92530627,
+      "sector": "油气开采"
+    },
+    {
+      "stockCode": "600968",
+      "stockName": "海油发展",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 4.53,
+      "latestVolume": 85865831,
+      "sector": "油服工程"
+    },
+    {
+      "stockCode": "601808",
+      "stockName": "中海油服",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 16.81,
+      "latestVolume": 33418475,
+      "sector": "油服工程"
+    },
+    {
+      "stockCode": "601857",
+      "stockName": "中国石油",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 12.24,
+      "latestVolume": 306407816,
+      "sector": "炼化及贸"
+    },
+    {
+      "stockCode": "601872",
+      "stockName": "招商轮船",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 16.78,
+      "latestVolume": 187448692,
+      "sector": "航运港口"
+    },
+    {
+      "stockCode": "603619",
+      "stockName": "中曼石油",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 34.08,
+      "latestVolume": 32409940,
+      "sector": "油服工程"
+    },
+    {
+      "stockCode": "603727",
+      "stockName": "博迈科",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 17.95,
+      "latestVolume": 13878405,
+      "sector": "油服工程"
+    },
+    {
+      "stockCode": "920088",
+      "stockName": "科力股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02",
+        "2026-03-03"
+      ],
+      "limitUpCount": 2,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 89.18,
+      "latestVolume": 100303.02,
+      "sector": "油服工程"
+    },
+    {
+      "stockCode": "001283",
+      "stockName": "豪鹏科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-20"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-20",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 67.21,
+      "latestVolume": 10864443,
+      "sector": "电池"
+    },
+    {
+      "stockCode": "002309",
+      "stockName": "中利集团",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-20"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-20",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 3.81,
+      "latestVolume": 211921967,
+      "sector": "光伏设备"
+    },
+    {
+      "stockCode": "002428",
+      "stockName": "云南锗业",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-20"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-20",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 43.46,
+      "latestVolume": 19341747,
+      "sector": "小金属"
+    },
+    {
+      "stockCode": "300827",
+      "stockName": "上能电气",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-20"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-20",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 44.93,
+      "latestVolume": 134183948,
+      "sector": "光伏设备"
+    },
+    {
+      "stockCode": "600310",
+      "stockName": "广西能源",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-20"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-20",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 4.88,
+      "latestVolume": 232030816,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "600604",
+      "stockName": "市北高新",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-20"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-20",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 5.7,
+      "latestVolume": 76500589,
+      "sector": "房地产开"
+    },
+    {
+      "stockCode": "603026",
+      "stockName": "石大胜华",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-20"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-20",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 75.41,
+      "latestVolume": 18831679,
+      "sector": "电池"
+    },
+    {
+      "stockCode": "603381",
+      "stockName": "永臻股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-20"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-20",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 28.22,
+      "latestVolume": 23035018,
+      "sector": "光伏设备"
+    },
+    {
+      "stockCode": "605050",
+      "stockName": "福然德",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-20"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-20",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 14.43,
+      "latestVolume": 52702800,
+      "sector": "物流"
+    },
+    {
+      "stockCode": "605099",
+      "stockName": "共创草坪",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-20"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-20",
+      "lastLimitUpDate": "2026-03-20",
+      "latestClose": 42.47,
+      "latestVolume": 6876151,
+      "sector": "家居用品"
+    },
+    {
+      "stockCode": "002902",
+      "stockName": "铭普光磁",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-19"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-19",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 24.55,
+      "latestVolume": 86432444,
+      "sector": "通信设备"
+    },
+    {
+      "stockCode": "600186",
+      "stockName": "莲花控股",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-19"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-19",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 6.55,
+      "latestVolume": 341717880,
+      "sector": "调味发酵"
+    },
+    {
+      "stockCode": "600979",
+      "stockName": "广安爱众",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-19"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-19",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 5.41,
+      "latestVolume": 197279067,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "600996",
+      "stockName": "贵广网络",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-19"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-19",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 9.31,
+      "latestVolume": 86797529,
+      "sector": "电视广播"
+    },
+    {
+      "stockCode": "603130",
+      "stockName": "云中马",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-19"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-19",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 43.21,
+      "latestVolume": 5237052,
+      "sector": "纺织制造"
+    },
+    {
+      "stockCode": "605389",
+      "stockName": "长龄液压",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-19"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-19",
+      "lastLimitUpDate": "2026-03-19",
+      "latestClose": 77.81,
+      "latestVolume": 3912524,
+      "sector": "工程机械"
+    },
+    {
+      "stockCode": "000037",
+      "stockName": "深南电A",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 10.4,
+      "latestVolume": 63247023,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "000048",
+      "stockName": "京基智农",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 20.41,
+      "latestVolume": 18896996,
+      "sector": "养殖业"
+    },
+    {
+      "stockCode": "001287",
+      "stockName": "中电港",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 25.01,
+      "latestVolume": 83798429,
+      "sector": "其他电子"
+    },
+    {
+      "stockCode": "003018",
+      "stockName": "金富科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 25.22,
+      "latestVolume": 8286500,
+      "sector": "包装印刷"
+    },
+    {
+      "stockCode": "300302",
+      "stockName": "同有科技",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 24.68,
+      "latestVolume": 85973874,
+      "sector": "计算机设"
+    },
+    {
+      "stockCode": "300571",
+      "stockName": "平治信息",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 32.89,
+      "latestVolume": 20900200,
+      "sector": "通信服务"
+    },
+    {
+      "stockCode": "301128",
+      "stockName": "强瑞技术",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 132.6,
+      "latestVolume": 12334653,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "301191",
+      "stockName": "菲菱科思",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 122.74,
+      "latestVolume": 6167802,
+      "sector": "通信设备"
+    },
+    {
+      "stockCode": "301306",
+      "stockName": "西测测试",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 131.77,
+      "latestVolume": 11959448,
+      "sector": "军工电子"
+    },
+    {
+      "stockCode": "301428",
+      "stockName": "世纪恒通",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 36.7,
+      "latestVolume": 11309028,
+      "sector": "通信服务"
+    },
+    {
+      "stockCode": "600513",
+      "stockName": "联环药业",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 22.44,
+      "latestVolume": 12610651,
+      "sector": "化学制药"
+    },
+    {
+      "stockCode": "603016",
+      "stockName": "新宏泰",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 35.07,
+      "latestVolume": 5259181,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "603088",
+      "stockName": "宁波精达",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 12.68,
+      "latestVolume": 33294031,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "603098",
+      "stockName": "森特股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 17.27,
+      "latestVolume": 22120636,
+      "sector": "专业工程"
+    },
+    {
+      "stockCode": "603168",
+      "stockName": "莎普爱思",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 6.88,
+      "latestVolume": 28837337,
+      "sector": "化学制药"
+    },
+    {
+      "stockCode": "603189",
+      "stockName": "网达软件",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 20.21,
+      "latestVolume": 23056130,
+      "sector": "软件开发"
+    },
+    {
+      "stockCode": "603220",
+      "stockName": "中贝通信",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 25.84,
+      "latestVolume": 39774123,
+      "sector": "通信服务"
+    },
+    {
+      "stockCode": "603311",
+      "stockName": "金海高科",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 16.35,
+      "latestVolume": 7518900,
+      "sector": "家电零部"
+    },
+    {
+      "stockCode": "603489",
+      "stockName": "八方股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 32.93,
+      "latestVolume": 10962174,
+      "sector": "电机Ⅱ"
+    },
+    {
+      "stockCode": "603601",
+      "stockName": "再升科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 11.22,
+      "latestVolume": 135755139,
+      "sector": "专业工程"
+    },
+    {
+      "stockCode": "603615",
+      "stockName": "茶花股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 21.02,
+      "latestVolume": 7994173,
+      "sector": "家居用品"
+    },
+    {
+      "stockCode": "603881",
+      "stockName": "数据港",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 37.01,
+      "latestVolume": 78546711,
+      "sector": "通信服务"
+    },
+    {
+      "stockCode": "603912",
+      "stockName": "佳力图",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 10.06,
+      "latestVolume": 49246110,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "605058",
+      "stockName": "澳弘电子",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 33.33,
+      "latestVolume": 8742270,
+      "sector": "元件"
+    },
+    {
+      "stockCode": "688328",
+      "stockName": "深科达",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-18"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-18",
+      "lastLimitUpDate": "2026-03-18",
+      "latestClose": 38.75,
+      "latestVolume": 14015391,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "000042",
+      "stockName": "中洲控股",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-17"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-17",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 8.93,
+      "latestVolume": 9468050,
+      "sector": "房地产开"
+    },
+    {
+      "stockCode": "000572",
+      "stockName": "海马汽车",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-17"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-17",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 5.93,
+      "latestVolume": 122710384,
+      "sector": "乘用车"
+    },
+    {
+      "stockCode": "002285",
+      "stockName": "世联行",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-17"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-17",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 3.25,
+      "latestVolume": 126706417,
+      "sector": "房地产服"
+    },
+    {
+      "stockCode": "301226",
+      "stockName": "祥明智能",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-17"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-17",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 35.78,
+      "latestVolume": 7731849,
+      "sector": "电机Ⅱ"
+    },
+    {
+      "stockCode": "301680",
+      "stockName": "固德电材",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-17"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-17",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 119.8,
+      "latestVolume": 7563423,
+      "sector": "汽车零部"
+    },
+    {
+      "stockCode": "600569",
+      "stockName": "安阳钢铁",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-17"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-17",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 2.33,
+      "latestVolume": 103000993,
+      "sector": "普钢"
+    },
+    {
+      "stockCode": "600643",
+      "stockName": "爱建集团",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-17"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-17",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 5.08,
+      "latestVolume": 82813933,
+      "sector": "多元金融"
+    },
+    {
+      "stockCode": "600791",
+      "stockName": "京能置业",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-17"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-17",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 9.09,
+      "latestVolume": 22390200,
+      "sector": "房地产开"
+    },
+    {
+      "stockCode": "603685",
+      "stockName": "晨丰科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-17"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-17",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 27.07,
+      "latestVolume": 3868694,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "605167",
+      "stockName": "利柏特",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-17"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-17",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 17.43,
+      "latestVolume": 13706178,
+      "sector": "专业工程"
+    },
+    {
+      "stockCode": "605277",
+      "stockName": "新亚电子",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-17"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-17",
+      "lastLimitUpDate": "2026-03-17",
+      "latestClose": 22.65,
+      "latestVolume": 18104584,
+      "sector": "消费电子"
+    },
+    {
+      "stockCode": "000620",
+      "stockName": "盈新发展",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 2.93,
+      "latestVolume": 220799430,
+      "sector": "房地产开"
+    },
+    {
+      "stockCode": "000639",
+      "stockName": "西王食品",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 2.81,
+      "latestVolume": 73420797,
+      "sector": "食品加工"
+    },
+    {
+      "stockCode": "001278",
+      "stockName": "一彬科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 20.78,
+      "latestVolume": 4695200,
+      "sector": "汽车零部"
+    },
+    {
+      "stockCode": "002086",
+      "stockName": "东方海洋",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 2.21,
+      "latestVolume": 116194966,
+      "sector": "医疗器械"
+    },
+    {
+      "stockCode": "002278",
+      "stockName": "神开股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 11.68,
+      "latestVolume": 27908000,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "002426",
+      "stockName": "胜利精密",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 3.96,
+      "latestVolume": 324330639,
+      "sector": "消费电子"
+    },
+    {
+      "stockCode": "002427",
+      "stockName": "尤夫股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 6.71,
+      "latestVolume": 52877449,
+      "sector": "化学纤维"
+    },
+    {
+      "stockCode": "002724",
+      "stockName": "海洋王",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 7.19,
+      "latestVolume": 32778920,
+      "sector": "照明设备"
+    },
+    {
+      "stockCode": "002990",
+      "stockName": "盛视科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 29.1,
+      "latestVolume": 11448429,
+      "sector": "计算机设"
+    },
+    {
+      "stockCode": "002995",
+      "stockName": "天地在线",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 26.1,
+      "latestVolume": 24919631,
+      "sector": "广告营销"
+    },
+    {
+      "stockCode": "300051",
+      "stockName": "琏升科技",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 11.13,
+      "latestVolume": 66765667,
+      "sector": "光伏设备"
+    },
+    {
+      "stockCode": "300606",
+      "stockName": "金太阳",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 36.31,
+      "latestVolume": 18713450,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "600152",
+      "stockName": "维科技术",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 9.08,
+      "latestVolume": 107093400,
+      "sector": "电池"
+    },
+    {
+      "stockCode": "600302",
+      "stockName": "标准股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 11.83,
+      "latestVolume": 15007100,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "600667",
+      "stockName": "太极实业",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 10.68,
+      "latestVolume": 202018288,
+      "sector": "工程咨询"
+    },
+    {
+      "stockCode": "600751",
+      "stockName": "海航科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 3.88,
+      "latestVolume": 75814795,
+      "sector": "航运港口"
+    },
+    {
+      "stockCode": "603986",
+      "stockName": "兆易创新",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 290.2,
+      "latestVolume": 31253644,
+      "sector": "半导体"
+    },
+    {
+      "stockCode": "605366",
+      "stockName": "宏柏新材",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-16"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-16",
+      "lastLimitUpDate": "2026-03-16",
+      "latestClose": 10.25,
+      "latestVolume": 29796282,
+      "sector": "化学制品"
+    },
+    {
+      "stockCode": "001366",
+      "stockName": "播恩集团",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 13.36,
+      "latestVolume": 8407000,
+      "sector": "饲料"
+    },
+    {
+      "stockCode": "002056",
+      "stockName": "横店东磁",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 22.26,
+      "latestVolume": 59161740,
+      "sector": "光伏设备"
+    },
+    {
+      "stockCode": "002084",
+      "stockName": "海鸥住工",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 3.83,
+      "latestVolume": 30832117,
+      "sector": "家居用品"
+    },
+    {
+      "stockCode": "002382",
+      "stockName": "蓝帆医疗",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 7.8,
+      "latestVolume": 80901905,
+      "sector": "医疗器械"
+    },
+    {
+      "stockCode": "002438",
+      "stockName": "江苏神通",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 16.6,
+      "latestVolume": 22197547,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "002531",
+      "stockName": "天顺风能",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 11.19,
+      "latestVolume": 90973995,
+      "sector": "风电设备"
+    },
+    {
+      "stockCode": "002543",
+      "stockName": "万和电气",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 9.27,
+      "latestVolume": 22446600,
+      "sector": "厨卫电器"
+    },
+    {
+      "stockCode": "002669",
+      "stockName": "康达新材",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 12.76,
+      "latestVolume": 14320087,
+      "sector": "化学制品"
+    },
+    {
+      "stockCode": "002931",
+      "stockName": "锋龙股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 66.32,
+      "latestVolume": 11648501,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "002950",
+      "stockName": "奥美医疗",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 11.66,
+      "latestVolume": 23599287,
+      "sector": "医疗器械"
+    },
+    {
+      "stockCode": "003027",
+      "stockName": "同兴科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 20.56,
+      "latestVolume": 4754400,
+      "sector": "环境治理"
+    },
+    {
+      "stockCode": "003041",
+      "stockName": "真爱美家",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 53.27,
+      "latestVolume": 3574960,
+      "sector": "服装家纺"
+    },
+    {
+      "stockCode": "300185",
+      "stockName": "通裕重工",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 4,
+      "latestVolume": 616678980,
+      "sector": "风电设备"
+    },
+    {
+      "stockCode": "300981",
+      "stockName": "中红医疗",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 14.8,
+      "latestVolume": 22394167,
+      "sector": "医疗器械"
+    },
+    {
+      "stockCode": "600226",
+      "stockName": "亨通股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 4.77,
+      "latestVolume": 64900169,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "600232",
+      "stockName": "金鹰股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 7.58,
+      "latestVolume": 11881822,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "600234",
+      "stockName": "科新发展",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 13.87,
+      "latestVolume": 5015209,
+      "sector": "装修装饰"
+    },
+    {
+      "stockCode": "600336",
+      "stockName": "澳柯玛",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 7.29,
+      "latestVolume": 12923900,
+      "sector": "白色家电"
+    },
+    {
+      "stockCode": "600746",
+      "stockName": "江苏索普",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 8.12,
+      "latestVolume": 41027629,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "600756",
+      "stockName": "浪潮软件",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 17.08,
+      "latestVolume": 28390962,
+      "sector": "IT服务Ⅱ"
+    },
+    {
+      "stockCode": "600847",
+      "stockName": "万里股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 13.64,
+      "latestVolume": 6871898,
+      "sector": "电池"
+    },
+    {
+      "stockCode": "601611",
+      "stockName": "中国核建",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 14.75,
+      "latestVolume": 85215856,
+      "sector": "基础建设"
+    },
+    {
+      "stockCode": "601669",
+      "stockName": "中国电建",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 5.85,
+      "latestVolume": 536674604,
+      "sector": "基础建设"
+    },
+    {
+      "stockCode": "603029",
+      "stockName": "天鹅股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 18.51,
+      "latestVolume": 5265240,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "603062",
+      "stockName": "麦加芯彩",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 49.18,
+      "latestVolume": 2526097,
+      "sector": "化学制品"
+    },
+    {
+      "stockCode": "603169",
+      "stockName": "兰石重装",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 11.26,
+      "latestVolume": 66392474,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "603280",
+      "stockName": "南方路机",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 35.55,
+      "latestVolume": 2073200,
+      "sector": "工程机械"
+    },
+    {
+      "stockCode": "603558",
+      "stockName": "健盛集团",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 13.81,
+      "latestVolume": 14928625,
+      "sector": "纺织制造"
+    },
+    {
+      "stockCode": "603607",
+      "stockName": "京华激光",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 22.91,
+      "latestVolume": 5784953,
+      "sector": "包装印刷"
+    },
+    {
+      "stockCode": "603659",
+      "stockName": "璞泰来",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 31.6,
+      "latestVolume": 120463171,
+      "sector": "电池"
+    },
+    {
+      "stockCode": "605222",
+      "stockName": "起帆电缆",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-13"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-13",
+      "lastLimitUpDate": "2026-03-13",
+      "latestClose": 20.11,
+      "latestVolume": 14016449,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "000420",
+      "stockName": "吉林化纤",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 4.46,
+      "latestVolume": 249086098,
+      "sector": "化学纤维"
+    },
+    {
+      "stockCode": "000553",
+      "stockName": "安道麦A",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 5.73,
+      "latestVolume": 18615010,
+      "sector": "农化制品"
+    },
+    {
+      "stockCode": "000593",
+      "stockName": "德龙汇能",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 13.6,
+      "latestVolume": 23200317,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "000600",
+      "stockName": "建投能源",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 9.69,
+      "latestVolume": 59629703,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "001260",
+      "stockName": "坤泰股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 20.58,
+      "latestVolume": 4022303,
+      "sector": "汽车零部"
+    },
+    {
+      "stockCode": "002254",
+      "stockName": "泰和新材",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 10.89,
+      "latestVolume": 25893019,
+      "sector": "化学纤维"
+    },
+    {
+      "stockCode": "002652",
+      "stockName": "扬子新材",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 4.63,
+      "latestVolume": 57122660,
+      "sector": "装修建材"
+    },
+    {
+      "stockCode": "002869",
+      "stockName": "金溢科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 23.03,
+      "latestVolume": 7139873,
+      "sector": "计算机设"
+    },
+    {
+      "stockCode": "002951",
+      "stockName": "金时科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 15.35,
+      "latestVolume": 11085800,
+      "sector": "其他电源"
+    },
+    {
+      "stockCode": "300690",
+      "stockName": "双一科技",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 36.66,
+      "latestVolume": 22726266,
+      "sector": "风电设备"
+    },
+    {
+      "stockCode": "301068",
+      "stockName": "大地海洋",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 33.76,
+      "latestVolume": 4455816,
+      "sector": "环境治理"
+    },
+    {
+      "stockCode": "600188",
+      "stockName": "兖矿能源",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 21.06,
+      "latestVolume": 87942288,
+      "sector": "煤炭开采"
+    },
+    {
+      "stockCode": "600868",
+      "stockName": "梅雁吉祥",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 3.65,
+      "latestVolume": 141126319,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "600935",
+      "stockName": "华塑股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 2.78,
+      "latestVolume": 72589999,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "600956",
+      "stockName": "新天绿能",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 9.53,
+      "latestVolume": 59815238,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "601038",
+      "stockName": "一拖股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 13.17,
+      "latestVolume": 10828804,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "601991",
+      "stockName": "大唐发电",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 4.2,
+      "latestVolume": 329538541,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "603077",
+      "stockName": "和邦生物",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 2.77,
+      "latestVolume": 274243330,
+      "sector": "农化制品"
+    },
+    {
+      "stockCode": "603092",
+      "stockName": "德力佳",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 71.11,
+      "latestVolume": 3996516,
+      "sector": "风电设备"
+    },
+    {
+      "stockCode": "603281",
+      "stockName": "江瀚新材",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 30.12,
+      "latestVolume": 2680080,
+      "sector": "化学制品"
+    },
+    {
+      "stockCode": "603507",
+      "stockName": "振江股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 38,
+      "latestVolume": 19516603,
+      "sector": "风电设备"
+    },
+    {
+      "stockCode": "603527",
+      "stockName": "众源新材",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 10.45,
+      "latestVolume": 36810784,
+      "sector": "工业金属"
+    },
+    {
+      "stockCode": "603626",
+      "stockName": "科森科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 21.28,
+      "latestVolume": 25056453,
+      "sector": "消费电子"
+    },
+    {
+      "stockCode": "603978",
+      "stockName": "深圳新星",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 22.28,
+      "latestVolume": 8760414,
+      "sector": "金属新材"
+    },
+    {
+      "stockCode": "605305",
+      "stockName": "中际联合",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-12"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-12",
+      "lastLimitUpDate": "2026-03-12",
+      "latestClose": 40.23,
+      "latestVolume": 8190523,
+      "sector": "工程机械"
+    },
+    {
+      "stockCode": "000062",
+      "stockName": "深圳华强",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 25.73,
+      "latestVolume": 33573811,
+      "sector": "其他电子"
+    },
+    {
+      "stockCode": "000626",
+      "stockName": "远大控股",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 7.94,
+      "latestVolume": 19455504,
+      "sector": "物流"
+    },
+    {
+      "stockCode": "000899",
+      "stockName": "赣能股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 13.54,
+      "latestVolume": 53946629,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "001207",
+      "stockName": "联科科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 28.38,
+      "latestVolume": 8076797,
+      "sector": "橡胶"
+    },
+    {
+      "stockCode": "002092",
+      "stockName": "中泰化学",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 7.13,
+      "latestVolume": 139708474,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "002175",
+      "stockName": "东方智造",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 3.29,
+      "latestVolume": 87956208,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "002177",
+      "stockName": "御银股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 7.75,
+      "latestVolume": 116670657,
+      "sector": "计算机设"
+    },
+    {
+      "stockCode": "002248",
+      "stockName": "华东数控",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 12.38,
+      "latestVolume": 15477000,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "002455",
+      "stockName": "百川股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 12.09,
+      "latestVolume": 116734497,
+      "sector": "化学制品"
+    },
+    {
+      "stockCode": "002782",
+      "stockName": "可立克",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 22.75,
+      "latestVolume": 12975240,
+      "sector": "其他电子"
+    },
+    {
+      "stockCode": "300246",
+      "stockName": "宝莱特",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 13.67,
+      "latestVolume": 20855850,
+      "sector": "医疗器械"
+    },
+    {
+      "stockCode": "300504",
+      "stockName": "天邑股份",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 15.7,
+      "latestVolume": 19468300,
+      "sector": "通信设备"
+    },
+    {
+      "stockCode": "600299",
+      "stockName": "安迪苏",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 13.83,
+      "latestVolume": 32335024,
+      "sector": "化学制品"
+    },
+    {
+      "stockCode": "600328",
+      "stockName": "中盐化工",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 10.11,
+      "latestVolume": 52531167,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "600409",
+      "stockName": "三友化工",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 7.02,
+      "latestVolume": 45924679,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "600433",
+      "stockName": "冠豪高新",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 3.49,
+      "latestVolume": 66176680,
+      "sector": "造纸"
+    },
+    {
+      "stockCode": "600873",
+      "stockName": "梅花生物",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 11.46,
+      "latestVolume": 68983120,
+      "sector": "化学制品"
+    },
+    {
+      "stockCode": "601700",
+      "stockName": "风范股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 5.58,
+      "latestVolume": 31468931,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "601858",
+      "stockName": "中国科传",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 23.5,
+      "latestVolume": 21787806,
+      "sector": "出版"
+    },
+    {
+      "stockCode": "603936",
+      "stockName": "博敏电子",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 13.48,
+      "latestVolume": 42483035,
+      "sector": "元件"
+    },
+    {
+      "stockCode": "603938",
+      "stockName": "三孚股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-11"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-11",
+      "lastLimitUpDate": "2026-03-11",
+      "latestClose": 23.23,
+      "latestVolume": 8225081,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "000014",
+      "stockName": "沙河股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 14.56,
+      "latestVolume": 14153600,
+      "sector": "房地产开"
+    },
+    {
+      "stockCode": "000949",
+      "stockName": "新乡化纤",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 6.96,
+      "latestVolume": 79607438,
+      "sector": "化学纤维"
+    },
+    {
+      "stockCode": "001332",
+      "stockName": "锡装股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 53.84,
+      "latestVolume": 2024183,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "002025",
+      "stockName": "航天电器",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 63.44,
+      "latestVolume": 48507486,
+      "sector": "军工电子"
+    },
+    {
+      "stockCode": "002281",
+      "stockName": "光迅科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 83.08,
+      "latestVolume": 59241887,
+      "sector": "通信设备"
+    },
+    {
+      "stockCode": "002290",
+      "stockName": "禾盛新材",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 60.93,
+      "latestVolume": 4383200,
+      "sector": "家电零部"
+    },
+    {
+      "stockCode": "002294",
+      "stockName": "信立泰",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 58.1,
+      "latestVolume": 6904078,
+      "sector": "化学制药"
+    },
+    {
+      "stockCode": "002298",
+      "stockName": "中电鑫龙",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 11.83,
+      "latestVolume": 114407142,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "002335",
+      "stockName": "科华数据",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 62.95,
+      "latestVolume": 35936039,
+      "sector": "其他电源"
+    },
+    {
+      "stockCode": "002384",
+      "stockName": "东山精密",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 116.06,
+      "latestVolume": 92861610,
+      "sector": "元件"
+    },
+    {
+      "stockCode": "002632",
+      "stockName": "道明光学",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 12.96,
+      "latestVolume": 34681255,
+      "sector": "塑料"
+    },
+    {
+      "stockCode": "002729",
+      "stockName": "好利科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 18.27,
+      "latestVolume": 12480071,
+      "sector": "其他电子"
+    },
+    {
+      "stockCode": "002760",
+      "stockName": "凤形股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 21.7,
+      "latestVolume": 4292800,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "002993",
+      "stockName": "奥海科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 48.42,
+      "latestVolume": 7108557,
+      "sector": "消费电子"
+    },
+    {
+      "stockCode": "003021",
+      "stockName": "兆威机电",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 103.53,
+      "latestVolume": 3408672,
+      "sector": "电机Ⅱ"
+    },
+    {
+      "stockCode": "300257",
+      "stockName": "开山股份",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 30.92,
+      "latestVolume": 17811633,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "300629",
+      "stockName": "新劲刚",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 23.65,
+      "latestVolume": 12951761,
+      "sector": "军工电子"
+    },
+    {
+      "stockCode": "300936",
+      "stockName": "中英科技",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 61.86,
+      "latestVolume": 10040777,
+      "sector": "元件"
+    },
+    {
+      "stockCode": "600330",
+      "stockName": "天通股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 16.44,
+      "latestVolume": 170186739,
+      "sector": "电子化学"
+    },
+    {
+      "stockCode": "600345",
+      "stockName": "长江通信",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 36.9,
+      "latestVolume": 16063144,
+      "sector": "通信设备"
+    },
+    {
+      "stockCode": "600376",
+      "stockName": "首开股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 5.34,
+      "latestVolume": 126188700,
+      "sector": "房地产开"
+    },
+    {
+      "stockCode": "601778",
+      "stockName": "晶科科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 5.34,
+      "latestVolume": 356688604,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "601869",
+      "stockName": "长飞光纤",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 216.88,
+      "latestVolume": 20501490,
+      "sector": "通信设备"
+    },
+    {
+      "stockCode": "603017",
+      "stockName": "中衡设计",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 13.49,
+      "latestVolume": 20903800,
+      "sector": "工程咨询"
+    },
+    {
+      "stockCode": "603949",
+      "stockName": "雪龙集团",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 21.78,
+      "latestVolume": 6090900,
+      "sector": "汽车零部"
+    },
+    {
+      "stockCode": "605287",
+      "stockName": "德才股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 42.93,
+      "latestVolume": 4669880,
+      "sector": "装修装饰"
+    },
+    {
+      "stockCode": "605318",
+      "stockName": "法狮龙",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 72.19,
+      "latestVolume": 2610400,
+      "sector": "装修建材"
+    },
+    {
+      "stockCode": "688048",
+      "stockName": "长光华芯",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 203.14,
+      "latestVolume": 26488386,
+      "sector": "半导体"
+    },
+    {
+      "stockCode": "688300",
+      "stockName": "联瑞新材",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 80.54,
+      "latestVolume": 7117561,
+      "sector": "非金属材"
+    },
+    {
+      "stockCode": "688655",
+      "stockName": "迅捷兴",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 28,
+      "latestVolume": 16981399,
+      "sector": "元件"
+    },
+    {
+      "stockCode": "920036",
+      "stockName": "觅睿科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-10"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-10",
+      "lastLimitUpDate": "2026-03-10",
+      "latestClose": 53.69,
+      "latestVolume": 88195.33,
+      "sector": "计算机设"
+    },
+    {
+      "stockCode": "000066",
+      "stockName": "中国长城",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 15.66,
+      "latestVolume": 96242938,
+      "sector": "计算机设"
+    },
+    {
+      "stockCode": "000973",
+      "stockName": "佛塑科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 15.73,
+      "latestVolume": 87052193,
+      "sector": "塑料"
+    },
+    {
+      "stockCode": "001339",
+      "stockName": "智微智能",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 66.02,
+      "latestVolume": 11133700,
+      "sector": "计算机设"
+    },
+    {
+      "stockCode": "002068",
+      "stockName": "黑猫股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 8.78,
+      "latestVolume": 31185523,
+      "sector": "橡胶"
+    },
+    {
+      "stockCode": "002082",
+      "stockName": "万邦德",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 18.76,
+      "latestVolume": 15283601,
+      "sector": "化学制药"
+    },
+    {
+      "stockCode": "002112",
+      "stockName": "三变科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 22.66,
+      "latestVolume": 29815068,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "002229",
+      "stockName": "鸿博股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 17.22,
+      "latestVolume": 51506011,
+      "sector": "包装印刷"
+    },
+    {
+      "stockCode": "002300",
+      "stockName": "太阳电缆",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 9.49,
+      "latestVolume": 36254606,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "002730",
+      "stockName": "电光科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 22.96,
+      "latestVolume": 36110644,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "002930",
+      "stockName": "宏川智慧",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 13.11,
+      "latestVolume": 14005740,
+      "sector": "物流"
+    },
+    {
+      "stockCode": "003035",
+      "stockName": "南网能源",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 8.65,
+      "latestVolume": 169884360,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "300113",
+      "stockName": "顺网科技",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 27.61,
+      "latestVolume": 59365845,
+      "sector": "游戏Ⅱ"
+    },
+    {
+      "stockCode": "301179",
+      "stockName": "泽宇智能",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 23.66,
+      "latestVolume": 28132348,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "301606",
+      "stockName": "绿联科技",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 68.04,
+      "latestVolume": 5711990,
+      "sector": "消费电子"
+    },
+    {
+      "stockCode": "600268",
+      "stockName": "国电南自",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 13.82,
+      "latestVolume": 32640745,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "600851",
+      "stockName": "海欣股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 7.94,
+      "latestVolume": 11835900,
+      "sector": "化学制药"
+    },
+    {
+      "stockCode": "601877",
+      "stockName": "正泰电器",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 35.05,
+      "latestVolume": 59293279,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "603138",
+      "stockName": "海量数据",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 19.82,
+      "latestVolume": 19056079,
+      "sector": "IT服务Ⅱ"
+    },
+    {
+      "stockCode": "688158",
+      "stockName": "优刻得-W",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 45,
+      "latestVolume": 65251003,
+      "sector": "IT服务Ⅱ"
+    },
+    {
+      "stockCode": "688229",
+      "stockName": "博睿数据",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 90.3,
+      "latestVolume": 3055182,
+      "sector": "IT服务Ⅱ"
+    },
+    {
+      "stockCode": "688316",
+      "stockName": "青云科技-U",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-09"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-09",
+      "lastLimitUpDate": "2026-03-09",
+      "latestClose": 77.69,
+      "latestVolume": 6463057,
+      "sector": "IT服务Ⅱ"
+    },
+    {
+      "stockCode": "000516",
+      "stockName": "国际医学",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 4.86,
+      "latestVolume": 51004200,
+      "sector": "医疗服务"
+    },
+    {
+      "stockCode": "000720",
+      "stockName": "新能泰山",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 3.93,
+      "latestVolume": 66084360,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "000818",
+      "stockName": "航锦科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 22.51,
+      "latestVolume": 40914866,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "001216",
+      "stockName": "华瓷股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 18.24,
+      "latestVolume": 8119000,
+      "sector": "家居用品"
+    },
+    {
+      "stockCode": "001326",
+      "stockName": "联域股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 55.29,
+      "latestVolume": 1638118,
+      "sector": "照明设备"
+    },
+    {
+      "stockCode": "001696",
+      "stockName": "宗申动力",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 20.05,
+      "latestVolume": 37917211,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "001896",
+      "stockName": "豫能控股",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 15.22,
+      "latestVolume": 212949669,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "002063",
+      "stockName": "远光软件",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 7.03,
+      "latestVolume": 128783332,
+      "sector": "软件开发"
+    },
+    {
+      "stockCode": "002227",
+      "stockName": "奥 特 迅",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 9.17,
+      "latestVolume": 6282301,
+      "sector": "其他电源"
+    },
+    {
+      "stockCode": "002448",
+      "stockName": "中原内配",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 14.2,
+      "latestVolume": 19289802,
+      "sector": "汽车零部"
+    },
+    {
+      "stockCode": "002478",
+      "stockName": "常宝股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 10.69,
+      "latestVolume": 35452558,
+      "sector": "特钢Ⅱ"
+    },
+    {
+      "stockCode": "002648",
+      "stockName": "卫星化学",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 25.65,
+      "latestVolume": 64527106,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "002809",
+      "stockName": "红墙股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 11.24,
+      "latestVolume": 21958271,
+      "sector": "化学制品"
+    },
+    {
+      "stockCode": "002849",
+      "stockName": "威星智能",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 16.19,
+      "latestVolume": 6641399,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "002961",
+      "stockName": "瑞达期货",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 27.02,
+      "latestVolume": 23217970,
+      "sector": "多元金融"
+    },
+    {
+      "stockCode": "003023",
+      "stockName": "彩虹集团",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 21.98,
+      "latestVolume": 3320700,
+      "sector": "小家电"
+    },
+    {
+      "stockCode": "301032",
+      "stockName": "新柴股份",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 12.57,
+      "latestVolume": 7134862,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "301205",
+      "stockName": "联特科技",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 219.99,
+      "latestVolume": 13280090,
+      "sector": "通信设备"
+    },
+    {
+      "stockCode": "301218",
+      "stockName": "华是科技",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 34,
+      "latestVolume": 3997550,
+      "sector": "IT服务Ⅱ"
+    },
+    {
+      "stockCode": "301265",
+      "stockName": "华新环保",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 21.24,
+      "latestVolume": 12742163,
+      "sector": "环境治理"
+    },
+    {
+      "stockCode": "301638",
+      "stockName": "南网数字",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 29.27,
+      "latestVolume": 47002084,
+      "sector": "IT服务Ⅱ"
+    },
+    {
+      "stockCode": "600319",
+      "stockName": "亚星化学",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 7.46,
+      "latestVolume": 9442893,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "600354",
+      "stockName": "敦煌种业",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 6.85,
+      "latestVolume": 39553438,
+      "sector": "种植业"
+    },
+    {
+      "stockCode": "600397",
+      "stockName": "江钨装备",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 15.51,
+      "latestVolume": 66742502,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "600470",
+      "stockName": "六国化工",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 6.8,
+      "latestVolume": 73938491,
+      "sector": "农化制品"
+    },
+    {
+      "stockCode": "600482",
+      "stockName": "中国动力",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 31.02,
+      "latestVolume": 45493799,
+      "sector": "其他电源"
+    },
+    {
+      "stockCode": "600645",
+      "stockName": "中源协和",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 29.98,
+      "latestVolume": 16900574,
+      "sector": "生物制品"
+    },
+    {
+      "stockCode": "600676",
+      "stockName": "交运股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 7.45,
+      "latestVolume": 13004910,
+      "sector": "汽车服务"
+    },
+    {
+      "stockCode": "600761",
+      "stockName": "安徽合力",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 18.56,
+      "latestVolume": 16056293,
+      "sector": "工程机械"
+    },
+    {
+      "stockCode": "600825",
+      "stockName": "新华传媒",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 5.78,
+      "latestVolume": 11947155,
+      "sector": "出版"
+    },
+    {
+      "stockCode": "601616",
+      "stockName": "广电电气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 5,
+      "latestVolume": 69446520,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "603063",
+      "stockName": "禾望电气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 32.89,
+      "latestVolume": 40569276,
+      "sector": "风电设备"
+    },
+    {
+      "stockCode": "603097",
+      "stockName": "江苏华辰",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 33.9,
+      "latestVolume": 3096700,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "603285",
+      "stockName": "键邦股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 31.33,
+      "latestVolume": 1855907,
+      "sector": "化学制品"
+    },
+    {
+      "stockCode": "603716",
+      "stockName": "塞力医疗",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 21.1,
+      "latestVolume": 11477845,
+      "sector": "医药商业"
+    },
+    {
+      "stockCode": "603880",
+      "stockName": "南卫股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 6.99,
+      "latestVolume": 10655436,
+      "sector": "医疗器械"
+    },
+    {
+      "stockCode": "605399",
+      "stockName": "晨光新材",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-06"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-06",
+      "lastLimitUpDate": "2026-03-06",
+      "latestClose": 14.02,
+      "latestVolume": 6703390,
+      "sector": "化学制品"
+    },
+    {
+      "stockCode": "000045",
+      "stockName": "深纺织Ａ",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 13.6,
+      "latestVolume": 33974100,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "000536",
+      "stockName": "华映科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 4.46,
+      "latestVolume": 52885913,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "000555",
+      "stockName": "神州信息",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 17.66,
+      "latestVolume": 95925967,
+      "sector": "IT服务Ⅱ"
+    },
+    {
+      "stockCode": "000703",
+      "stockName": "恒逸石化",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 10.76,
+      "latestVolume": 56583143,
+      "sector": "炼化及贸"
+    },
+    {
+      "stockCode": "000727",
+      "stockName": "冠捷科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 2.7,
+      "latestVolume": 140895202,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "000920",
+      "stockName": "沃顿科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 12.53,
+      "latestVolume": 9187000,
+      "sector": "塑料"
+    },
+    {
+      "stockCode": "002195",
+      "stockName": "岩山科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 9.35,
+      "latestVolume": 262989382,
+      "sector": "IT服务Ⅱ"
+    },
+    {
+      "stockCode": "002355",
+      "stockName": "兴民智通",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 6.99,
+      "latestVolume": 57152492,
+      "sector": "汽车零部"
+    },
+    {
+      "stockCode": "002449",
+      "stockName": "国星光电",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 8.33,
+      "latestVolume": 33586986,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "002456",
+      "stockName": "欧菲光",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 9.03,
+      "latestVolume": 85666638,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "002471",
+      "stockName": "中超控股",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 7.81,
+      "latestVolume": 97861881,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "002520",
+      "stockName": "日发精机",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 5.96,
+      "latestVolume": 32367024,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "002559",
+      "stockName": "亚威股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 10.03,
+      "latestVolume": 22393385,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "002587",
+      "stockName": "奥拓电子",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 6.93,
+      "latestVolume": 23109837,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "002796",
+      "stockName": "世嘉科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 55.18,
+      "latestVolume": 20479643,
+      "sector": "通信设备"
+    },
+    {
+      "stockCode": "002800",
+      "stockName": "天顺股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 23.93,
+      "latestVolume": 8917440,
+      "sector": "物流"
+    },
+    {
+      "stockCode": "002845",
+      "stockName": "同兴达",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 14.46,
+      "latestVolume": 9382775,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "002857",
+      "stockName": "三晖电气",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 22.9,
+      "latestVolume": 6327165,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "002983",
+      "stockName": "芯瑞达",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 23.95,
+      "latestVolume": 3222941,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "002986",
+      "stockName": "宇新股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 14.61,
+      "latestVolume": 10541960,
+      "sector": "炼化及贸"
+    },
+    {
+      "stockCode": "003036",
+      "stockName": "泰坦股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 20.3,
+      "latestVolume": 12537989,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "300072",
+      "stockName": "海新能科",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 5.22,
+      "latestVolume": 147068528,
+      "sector": "化学制品"
+    },
+    {
+      "stockCode": "300162",
+      "stockName": "雷曼光电",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 9.14,
+      "latestVolume": 35725646,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "300241",
+      "stockName": "瑞丰光电",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 7.16,
+      "latestVolume": 89051621,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "300269",
+      "stockName": "联建光电",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 8.34,
+      "latestVolume": 86995410,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "300303",
+      "stockName": "聚飞光电",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 9.39,
+      "latestVolume": 193014071,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "300323",
+      "stockName": "华灿光电",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 10.96,
+      "latestVolume": 193839419,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "300389",
+      "stockName": "艾比森",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 20.14,
+      "latestVolume": 20669341,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "300708",
+      "stockName": "聚灿光电",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 10.26,
+      "latestVolume": 62183601,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "600516",
+      "stockName": "方大炭素",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 5.82,
+      "latestVolume": 88490198,
+      "sector": "冶钢原料"
+    },
+    {
+      "stockCode": "600744",
+      "stockName": "华银电力",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 8.3,
+      "latestVolume": 212690516,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "600800",
+      "stockName": "渤海化学",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 4.18,
+      "latestVolume": 45193000,
+      "sector": "炼化及贸"
+    },
+    {
+      "stockCode": "600828",
+      "stockName": "茂业商业",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 5.53,
+      "latestVolume": 25650723,
+      "sector": "一般零售"
+    },
+    {
+      "stockCode": "600875",
+      "stockName": "东方电气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 36.9,
+      "latestVolume": 147161810,
+      "sector": "其他电源"
+    },
+    {
+      "stockCode": "601179",
+      "stockName": "中国西电",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 16.3,
+      "latestVolume": 251230052,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "601727",
+      "stockName": "上海电气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 8.33,
+      "latestVolume": 155118985,
+      "sector": "其他电源"
+    },
+    {
+      "stockCode": "603001",
+      "stockName": "奥康国际",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 8.54,
+      "latestVolume": 6143300,
+      "sector": "服装家纺"
+    },
+    {
+      "stockCode": "603058",
+      "stockName": "永吉股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 12.12,
+      "latestVolume": 6447500,
+      "sector": "包装印刷"
+    },
+    {
+      "stockCode": "603067",
+      "stockName": "振华股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 32.17,
+      "latestVolume": 28044375,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "603337",
+      "stockName": "杰克科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 42.24,
+      "latestVolume": 3644981,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "603688",
+      "stockName": "石英股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 43.71,
+      "latestVolume": 14564011,
+      "sector": "非金属材"
+    },
+    {
+      "stockCode": "605098",
+      "stockName": "行动教育",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 51.77,
+      "latestVolume": 1299430,
+      "sector": "教育"
+    },
+    {
+      "stockCode": "605298",
+      "stockName": "必得科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 44.75,
+      "latestVolume": 1301440,
+      "sector": "轨交设备"
+    },
+    {
+      "stockCode": "688031",
+      "stockName": "星环科技-U",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 150.89,
+      "latestVolume": 9780758,
+      "sector": "软件开发"
+    },
+    {
+      "stockCode": "688055",
+      "stockName": "龙腾光电",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 4.16,
+      "latestVolume": 26631786,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "688079",
+      "stockName": "美迪凯",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 12.93,
+      "latestVolume": 18411022,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "920001",
+      "stockName": "纬达光电",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-05"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-05",
+      "lastLimitUpDate": "2026-03-05",
+      "latestClose": 21.33,
+      "latestVolume": 102137.9,
+      "sector": "光学光电"
+    },
+    {
+      "stockCode": "000525",
+      "stockName": "红太阳",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 6.24,
+      "latestVolume": 41985055,
+      "sector": "农化制品"
+    },
+    {
+      "stockCode": "001282",
+      "stockName": "三联锻造",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 20.46,
+      "latestVolume": 3949400,
+      "sector": "汽车零部"
+    },
+    {
+      "stockCode": "001309",
+      "stockName": "德明利",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 331.52,
+      "latestVolume": 15879966,
+      "sector": "半导体"
+    },
+    {
+      "stockCode": "001396",
+      "stockName": "誉帆科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 44.62,
+      "latestVolume": 1721333,
+      "sector": "基础建设"
+    },
+    {
+      "stockCode": "002162",
+      "stockName": "悦心健康",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 4.63,
+      "latestVolume": 21190150,
+      "sector": "家居用品"
+    },
+    {
+      "stockCode": "002167",
+      "stockName": "东方锆业",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 12.52,
+      "latestVolume": 27212302,
+      "sector": "小金属"
+    },
+    {
+      "stockCode": "002178",
+      "stockName": "延华智能",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 6.21,
+      "latestVolume": 29449900,
+      "sector": "软件开发"
+    },
+    {
+      "stockCode": "002272",
+      "stockName": "川润股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 17.36,
+      "latestVolume": 85636804,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "002357",
+      "stockName": "富临运业",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 14.5,
+      "latestVolume": 8334290,
+      "sector": "铁路公路"
+    },
+    {
+      "stockCode": "002885",
+      "stockName": "京泉华",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 25.14,
+      "latestVolume": 14419417,
+      "sector": "其他电子"
+    },
+    {
+      "stockCode": "300617",
+      "stockName": "安靠智电",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 57.47,
+      "latestVolume": 11769560,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "300880",
+      "stockName": "迦南智能",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 24.73,
+      "latestVolume": 22055428,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "301129",
+      "stockName": "瑞纳智能",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 25.13,
+      "latestVolume": 3376463,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "301373",
+      "stockName": "凌玮科技",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 63.87,
+      "latestVolume": 7621388,
+      "sector": "化学制品"
+    },
+    {
+      "stockCode": "600149",
+      "stockName": "廊坊发展",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 5.78,
+      "latestVolume": 25687200,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "601096",
+      "stockName": "宏盛华源",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 5.88,
+      "latestVolume": 43128478,
+      "sector": "专业工程"
+    },
+    {
+      "stockCode": "603045",
+      "stockName": "福达合金",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 29.95,
+      "latestVolume": 4318280,
+      "sector": "金属新材"
+    },
+    {
+      "stockCode": "603530",
+      "stockName": "神马电力",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 59.72,
+      "latestVolume": 4399200,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "605196",
+      "stockName": "华通线缆",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 42.38,
+      "latestVolume": 15554002,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "688525",
+      "stockName": "佰维存储",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-04"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-04",
+      "lastLimitUpDate": "2026-03-04",
+      "latestClose": 238.88,
+      "latestVolume": 38831649,
+      "sector": "半导体"
+    },
+    {
+      "stockCode": "000301",
+      "stockName": "东方盛虹",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 10.65,
+      "latestVolume": 23769154,
+      "sector": "炼化及贸"
+    },
+    {
+      "stockCode": "000407",
+      "stockName": "胜利股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 5.01,
+      "latestVolume": 60703700,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "000421",
+      "stockName": "南京公用",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 6.71,
+      "latestVolume": 13257000,
+      "sector": "综合Ⅱ"
+    },
+    {
+      "stockCode": "001269",
+      "stockName": "欧晶科技",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 24.58,
+      "latestVolume": 7607326,
+      "sector": "光伏设备"
+    },
+    {
+      "stockCode": "001299",
+      "stockName": "美能能源",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 13.38,
+      "latestVolume": 7205390,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "002267",
+      "stockName": "陕天然气",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 8.06,
+      "latestVolume": 29975834,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "002491",
+      "stockName": "通鼎互联",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 9.93,
+      "latestVolume": 102855769,
+      "sector": "通信设备"
+    },
+    {
+      "stockCode": "002682",
+      "stockName": "龙洲股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 5.73,
+      "latestVolume": 27392450,
+      "sector": "物流"
+    },
+    {
+      "stockCode": "002700",
+      "stockName": "万憬能源",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 6.74,
+      "latestVolume": 10275700,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "002911",
+      "stockName": "佛燃能源",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 14.74,
+      "latestVolume": 9185030,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "002957",
+      "stockName": "科瑞技术",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 25.82,
+      "latestVolume": 22645464,
+      "sector": "自动化设"
+    },
+    {
+      "stockCode": "300483",
+      "stockName": "首华燃气",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 23.22,
+      "latestVolume": 66933774,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "300839",
+      "stockName": "博汇股份",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 12.68,
+      "latestVolume": 14036750,
+      "sector": "炼化及贸"
+    },
+    {
+      "stockCode": "600028",
+      "stockName": "中国石化",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 6.08,
+      "latestVolume": 289769841,
+      "sector": "炼化及贸"
+    },
+    {
+      "stockCode": "600333",
+      "stockName": "长春燃气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 5.59,
+      "latestVolume": 22190201,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "600403",
+      "stockName": "大有能源",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 6.21,
+      "latestVolume": 39988829,
+      "sector": "煤炭开采"
+    },
+    {
+      "stockCode": "600635",
+      "stockName": "大众公用",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 5.88,
+      "latestVolume": 80570726,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "600681",
+      "stockName": "百川能源",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 4.57,
+      "latestVolume": 99904822,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "600798",
+      "stockName": "宁波海运",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 3.73,
+      "latestVolume": 31742183,
+      "sector": "航运港口"
+    },
+    {
+      "stockCode": "600903",
+      "stockName": "贵州燃气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 6.7,
+      "latestVolume": 26088120,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "600917",
+      "stockName": "重庆燃气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 5.64,
+      "latestVolume": 25554335,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "601022",
+      "stockName": "宁波远洋",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 9.05,
+      "latestVolume": 9641940,
+      "sector": "航运港口"
+    },
+    {
+      "stockCode": "601083",
+      "stockName": "锦江航运",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 11.9,
+      "latestVolume": 12402100,
+      "sector": "航运港口"
+    },
+    {
+      "stockCode": "601139",
+      "stockName": "深圳燃气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 7.88,
+      "latestVolume": 122287703,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "601866",
+      "stockName": "中远海发",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 2.68,
+      "latestVolume": 140885786,
+      "sector": "航运港口"
+    },
+    {
+      "stockCode": "603053",
+      "stockName": "成都燃气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 10.25,
+      "latestVolume": 9203500,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "603080",
+      "stockName": "新疆火炬",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 22.74,
+      "latestVolume": 5481400,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "603139",
+      "stockName": "康惠股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 26.36,
+      "latestVolume": 3833800,
+      "sector": "中药Ⅱ"
+    },
+    {
+      "stockCode": "603616",
+      "stockName": "韩建河山",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 6.59,
+      "latestVolume": 18386000,
+      "sector": "水泥"
+    },
+    {
+      "stockCode": "603689",
+      "stockName": "皖天然气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 8.45,
+      "latestVolume": 12044800,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "603706",
+      "stockName": "东方环宇",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 19.97,
+      "latestVolume": 1810100,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "605368",
+      "stockName": "蓝天燃气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 8.55,
+      "latestVolume": 13228311,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "920010",
+      "stockName": "凯添燃气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 17.53,
+      "latestVolume": 355756.39,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "920014",
+      "stockName": "特瑞斯",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 17.81,
+      "latestVolume": 197984.7,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "920158",
+      "stockName": "长江能科",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 23.79,
+      "latestVolume": 203221.92,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "920260",
+      "stockName": "中寰股份",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 15.4,
+      "latestVolume": 223183.18,
+      "sector": "通用设备"
+    },
+    {
+      "stockCode": "920571",
+      "stockName": "国航远洋",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-03"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-03",
+      "lastLimitUpDate": "2026-03-03",
+      "latestClose": 16.23,
+      "latestVolume": 1013725.3,
+      "sector": "航运港口"
+    },
+    {
+      "stockCode": "000035",
+      "stockName": "中国天楹",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 6.95,
+      "latestVolume": 118796234,
+      "sector": "环境治理"
+    },
+    {
+      "stockCode": "000070",
+      "stockName": "特发信息",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 14.64,
+      "latestVolume": 48030400,
+      "sector": "通信设备"
+    },
+    {
+      "stockCode": "000506",
+      "stockName": "招金黄金",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 16.4,
+      "latestVolume": 30849647,
+      "sector": "贵金属"
+    },
+    {
+      "stockCode": "000510",
+      "stockName": "新金路",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 15.26,
+      "latestVolume": 61264363,
+      "sector": "化学原料"
+    },
+    {
+      "stockCode": "000637",
+      "stockName": "茂化实华",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 4.5,
+      "latestVolume": 18849400,
+      "sector": "炼化及贸"
+    },
+    {
+      "stockCode": "000912",
+      "stockName": "泸天化",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 5.02,
+      "latestVolume": 118091841,
+      "sector": "农化制品"
+    },
+    {
+      "stockCode": "000960",
+      "stockName": "锡业股份",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 32.62,
+      "latestVolume": 42593233,
+      "sector": "小金属"
+    },
+    {
+      "stockCode": "001337",
+      "stockName": "四川黄金",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 49.73,
+      "latestVolume": 12099440,
+      "sector": "贵金属"
+    },
+    {
+      "stockCode": "002155",
+      "stockName": "湖南黄金",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 29.4,
+      "latestVolume": 68883863,
+      "sector": "贵金属"
+    },
+    {
+      "stockCode": "002356",
+      "stockName": "赫美集团",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 3.67,
+      "latestVolume": 86096490,
+      "sector": "一般零售"
+    },
+    {
+      "stockCode": "002380",
+      "stockName": "科远智慧",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 33.75,
+      "latestVolume": 5543060,
+      "sector": "IT服务Ⅱ"
+    },
+    {
+      "stockCode": "002413",
+      "stockName": "雷科防务",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 12.79,
+      "latestVolume": 109915715,
+      "sector": "军工电子"
+    },
+    {
+      "stockCode": "002545",
+      "stockName": "东方铁塔",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 21.76,
+      "latestVolume": 26750028,
+      "sector": "农化制品"
+    },
+    {
+      "stockCode": "002842",
+      "stockName": "翔鹭钨业",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 31.7,
+      "latestVolume": 22722996,
+      "sector": "小金属"
+    },
+    {
+      "stockCode": "003009",
+      "stockName": "中天火箭",
+      "market": "SZ",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 57.38,
+      "latestVolume": 4301946,
+      "sector": "航天装备"
+    },
+    {
+      "stockCode": "300084",
+      "stockName": "海默科技",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 10.52,
+      "latestVolume": 49999659,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "300139",
+      "stockName": "晓程科技",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 58.85,
+      "latestVolume": 33177606,
+      "sector": "贵金属"
+    },
+    {
+      "stockCode": "301213",
+      "stockName": "观想科技",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 67.54,
+      "latestVolume": 2701226,
+      "sector": "军工电子"
+    },
+    {
+      "stockCode": "301338",
+      "stockName": "凯格精机",
+      "market": "CYB",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 172,
+      "latestVolume": 4086729,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "600259",
+      "stockName": "中稀有色",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 79.7,
+      "latestVolume": 9362138,
+      "sector": "小金属"
+    },
+    {
+      "stockCode": "600301",
+      "stockName": "华锡有色",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 49.57,
+      "latestVolume": 7408422,
+      "sector": "小金属"
+    },
+    {
+      "stockCode": "600435",
+      "stockName": "北方导航",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 14.63,
+      "latestVolume": 29465893,
+      "sector": "地面兵装"
+    },
+    {
+      "stockCode": "600452",
+      "stockName": "涪陵电力",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 12.8,
+      "latestVolume": 84038062,
+      "sector": "电力"
+    },
+    {
+      "stockCode": "600988",
+      "stockName": "赤峰黄金",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 40.82,
+      "latestVolume": 50317997,
+      "sector": "贵金属"
+    },
+    {
+      "stockCode": "601069",
+      "stockName": "西部黄金",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 31.6,
+      "latestVolume": 14980869,
+      "sector": "贵金属"
+    },
+    {
+      "stockCode": "603011",
+      "stockName": "合锻智能",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 21.32,
+      "latestVolume": 29070575,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "603083",
+      "stockName": "剑桥科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 115.33,
+      "latestVolume": 35071873,
+      "sector": "通信设备"
+    },
+    {
+      "stockCode": "603257",
+      "stockName": "中国瑞林",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 57.16,
+      "latestVolume": 1863900,
+      "sector": "工程咨询"
+    },
+    {
+      "stockCode": "603393",
+      "stockName": "新天然气",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 42.5,
+      "latestVolume": 25600623,
+      "sector": "燃气Ⅱ"
+    },
+    {
+      "stockCode": "603488",
+      "stockName": "展鹏科技",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 9.82,
+      "latestVolume": 5309400,
+      "sector": "专用设备"
+    },
+    {
+      "stockCode": "603861",
+      "stockName": "白云电器",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 15.88,
+      "latestVolume": 18162726,
+      "sector": "电网设备"
+    },
+    {
+      "stockCode": "603950",
+      "stockName": "长源东谷",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 39.99,
+      "latestVolume": 7073540,
+      "sector": "汽车零部"
+    },
+    {
+      "stockCode": "688307",
+      "stockName": "中润光学",
+      "market": "SH",
+      "limitUpDates": [
+        "2026-03-02"
+      ],
+      "limitUpCount": 1,
+      "firstLimitUpDate": "2026-03-02",
+      "lastLimitUpDate": "2026-03-02",
+      "latestClose": 65.96,
+      "latestVolume": 15666943,
+      "sector": "计算机设"
+    }
+  ]
+}

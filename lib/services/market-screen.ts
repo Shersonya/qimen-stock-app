@@ -20,6 +20,7 @@ import {
   buildMarketPatternSummary,
   comparePatternLevelCount,
 } from '@/lib/qimen/pattern-report';
+import { getBundledMarketScreenSnapshot } from '@/lib/fallback-data/market-screen';
 import { isStStockName } from '@/lib/services/stock-data';
 
 const MARKET_POOL_ENDPOINT =
@@ -52,11 +53,20 @@ type CachedMarketScreenSnapshot = Omit<MarketScreenAnalysisSnapshot, 'stock'> & 
 type ScoredMarketScreenResult = MarketScreenResultItem & {
   patternSummary: NonNullable<MarketScreenResultItem['patternSummary']>;
 };
+type MarketPoolSource = 'live_market_pool' | 'bundled_limit_up_snapshot';
+type MarketPoolBuildResult = {
+  items: CachedMarketScreenSnapshot[];
+  source: MarketPoolSource;
+  updatedAt: number;
+  notice?: string;
+};
 
 let marketPoolCache: CachedMarketScreenSnapshot[] | null = null;
 let marketPoolCacheExpiresAt = 0;
 let marketPoolCacheUpdatedAt = 0;
-let marketPoolPromise: Promise<CachedMarketScreenSnapshot[]> | null = null;
+let marketPoolCacheSource: MarketPoolSource = 'live_market_pool';
+let marketPoolCacheNotice: string | null = null;
+let marketPoolPromise: Promise<MarketPoolBuildResult> | null = null;
 
 function normalizeFilterValue(value: string | undefined): string | undefined {
   const normalized = value?.trim();
@@ -302,38 +312,70 @@ function buildScoredMarketResult(
   };
 }
 
-async function buildMarketStockPool(): Promise<CachedMarketScreenSnapshot[]> {
-  const items = await fetchMarketPool();
+function cloneSnapshots(items: CachedMarketScreenSnapshot[]) {
+  return JSON.parse(JSON.stringify(items)) as CachedMarketScreenSnapshot[];
+}
 
-  return items
-    .map(parseMarketPoolItem)
-    .filter((item): item is ScreenableStock => Boolean(item))
-    .reduce<CachedMarketScreenSnapshot[]>((acc, item) => {
-      try {
-        const snapshot = analyzeStockForMarketScreen(item);
+function getBundledMarketPool(): MarketPoolBuildResult {
+  const bundled = getBundledMarketScreenSnapshot();
+  const updatedAt = Date.parse(bundled.generatedAt);
 
-        acc.push({
-          stock: {
-            ...snapshot.stock,
-            sector: item.sector,
-          },
-          hourWindow: snapshot.hourWindow,
-          dayWindow: snapshot.dayWindow,
-          monthWindow: snapshot.monthWindow,
-          patternInput: snapshot.patternInput,
-        });
-      } catch {
-        // Skip malformed snapshots so the broader market scan can continue.
-      }
+  return {
+    items: cloneSnapshots(bundled.items as CachedMarketScreenSnapshot[]),
+    source: 'bundled_limit_up_snapshot',
+    updatedAt: Number.isFinite(updatedAt) ? updatedAt : Date.now(),
+    notice:
+      `全市场主样本源暂不可用，已切换到内置涨停活跃股样本 ` +
+      `(${bundled.items.length} 只，样本日期 ${bundled.sourceFilterDate})。`,
+  };
+}
 
-      return acc;
-    }, []);
+async function buildMarketStockPool(): Promise<MarketPoolBuildResult> {
+  try {
+    const items = await fetchMarketPool();
+
+    return {
+      items: items
+        .map(parseMarketPoolItem)
+        .filter((item): item is ScreenableStock => Boolean(item))
+        .reduce<CachedMarketScreenSnapshot[]>((acc, item) => {
+          try {
+            const snapshot = analyzeStockForMarketScreen(item);
+
+            acc.push({
+              stock: {
+                ...snapshot.stock,
+                sector: item.sector,
+              },
+              hourWindow: snapshot.hourWindow,
+              dayWindow: snapshot.dayWindow,
+              monthWindow: snapshot.monthWindow,
+              patternInput: snapshot.patternInput,
+            });
+          } catch {
+            // Skip malformed snapshots so the broader market scan can continue.
+          }
+
+          return acc;
+        }, []),
+      source: 'live_market_pool',
+      updatedAt: Date.now(),
+    };
+  } catch (error) {
+    if (!(error instanceof AppError) || error.code !== ERROR_CODES.DATA_SOURCE_ERROR) {
+      throw error;
+    }
+
+    return getBundledMarketPool();
+  }
 }
 
 export function resetMarketStockPoolCacheForTests() {
   marketPoolCache = null;
   marketPoolCacheExpiresAt = 0;
   marketPoolCacheUpdatedAt = 0;
+  marketPoolCacheSource = 'live_market_pool';
+  marketPoolCacheNotice = null;
   marketPoolPromise = null;
 }
 
@@ -348,6 +390,8 @@ export function getMarketStockPoolCacheMeta() {
       marketPoolCacheExpiresAt > 0
         ? new Date(marketPoolCacheExpiresAt).toISOString()
         : null,
+    source: marketPoolCacheSource as MarketPoolSource | undefined,
+    notice: marketPoolCacheNotice,
   };
 }
 
@@ -369,15 +413,35 @@ export async function getMarketStockPool(args: {
 
   if (!marketPoolPromise) {
     marketPoolPromise = buildMarketStockPool()
-      .then((items) => {
-        marketPoolCache = items;
-        marketPoolCacheUpdatedAt = Date.now();
+      .then((result) => {
+        if (
+          result.source === 'bundled_limit_up_snapshot' &&
+          marketPoolCache &&
+          marketPoolCache.length > 0
+        ) {
+          return {
+            items: marketPoolCache,
+            source: marketPoolCacheSource,
+            updatedAt: marketPoolCacheUpdatedAt || Date.now(),
+            notice: marketPoolCacheNotice ?? undefined,
+          };
+        }
+
+        marketPoolCache = result.items;
+        marketPoolCacheUpdatedAt = result.updatedAt;
         marketPoolCacheExpiresAt = Date.now() + MARKET_CACHE_TTL_MS;
-        return items;
+        marketPoolCacheSource = result.source;
+        marketPoolCacheNotice = result.notice ?? null;
+        return result;
       })
       .catch((error) => {
         if (marketPoolCache && marketPoolCache.length > 0) {
-          return marketPoolCache;
+          return {
+            items: marketPoolCache,
+            source: marketPoolCacheSource,
+            updatedAt: marketPoolCacheUpdatedAt || Date.now(),
+            notice: marketPoolCacheNotice ?? undefined,
+          };
         }
 
         throw error;
@@ -387,7 +451,7 @@ export async function getMarketStockPool(args: {
       });
   }
 
-  return (await marketPoolPromise)
+  return (await marketPoolPromise).items
     .map((snapshot) =>
       buildScoredMarketResult(
         snapshot,
@@ -479,6 +543,7 @@ export async function screenMarketStocks(
     patternConfigOverride: request.patternConfigOverride,
     riskConfigOverride: request.riskConfigOverride,
   });
+  const cacheMeta = getMarketStockPoolCacheMeta();
   const matchedItems = items.filter((item) => {
     return (
       matchesWindowFilter(item.hourWindow, filters.hour) &&
@@ -496,5 +561,16 @@ export async function screenMarketStocks(
     page,
     pageSize,
     items: matchedItems.slice(startIndex, startIndex + pageSize),
+    meta:
+      cacheMeta.source === 'bundled_limit_up_snapshot'
+        ? {
+            source: 'bundled_limit_up_snapshot',
+            generatedAt: cacheMeta.updatedAt ?? undefined,
+            notice: cacheMeta.notice ?? '当前结果来自内置涨停活跃股样本。',
+          }
+        : {
+            source: 'live_market_pool',
+            generatedAt: cacheMeta.updatedAt ?? undefined,
+          },
   };
 }

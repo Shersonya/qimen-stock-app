@@ -531,6 +531,12 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
                 </div>
               </div>
 
+              {result.meta?.notice ? (
+                <div className="mt-4 rounded-2xl border border-[rgba(216,179,90,0.35)] bg-[rgba(216,179,90,0.12)] p-4 text-sm text-[var(--text-primary)]">
+                  {result.meta.notice}
+                </div>
+              ) : null}
+
               <div className="workbench-table mt-5" role="table">
                 <div className="workbench-table-header" role="rowgroup">
                   <div className="workbench-table-row is-header" role="row">

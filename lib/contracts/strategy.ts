@@ -16,7 +16,10 @@ export type TdxScanRequest = {
   pageSize?: number;
 };
 
-export type TdxScanUniverseSource = 'market_pool' | 'limit_up_fallback';
+export type TdxScanUniverseSource =
+  | 'market_pool'
+  | 'limit_up_fallback'
+  | 'bundled_market_fallback';
 
 export type TdxScanResponse = {
   total: number;
@@ -64,6 +67,11 @@ export type LimitUpFilterResponse = {
   filterDate: string;
   lookbackDays: number;
   items: LimitUpStock[];
+  meta?: {
+    source: 'live' | 'bundled_snapshot';
+    generatedAt?: string;
+    notice?: string;
+  };
 };
 
 export type PoolStockDiagnosis = {

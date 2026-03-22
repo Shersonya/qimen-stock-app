@@ -90,19 +90,18 @@ export async function getMarketDashboard(
   let degradedByDataSource = false;
 
   try {
-    [items, cacheMeta] = await Promise.all([
-      getMarketStockPool({
-        patternConfigOverride: request.patternConfigOverride,
-        riskConfigOverride: request.riskConfigOverride,
-      }),
-      Promise.resolve(getMarketStockPoolCacheMeta()),
-    ]);
+    items = await getMarketStockPool({
+      patternConfigOverride: request.patternConfigOverride,
+      riskConfigOverride: request.riskConfigOverride,
+    });
+    cacheMeta = getMarketStockPoolCacheMeta();
   } catch (error) {
     if (!(error instanceof AppError) || error.code !== ERROR_CODES.DATA_SOURCE_ERROR) {
       throw error;
     }
 
     degradedByDataSource = true;
+    cacheMeta = getMarketStockPoolCacheMeta();
   }
 
   const hasBAboveGE =
@@ -122,14 +121,22 @@ export async function getMarketDashboard(
   const summary = hasBAboveGE
     ? `当前市场局评为 ${currentBoardEvaluation.rating} 级，${currentBoardEvaluation.corePatternsLabel || currentBoardEvaluation.summary}`
     : '当前市场局未见 B 级以上吉格，建议控制仓位并等待更清晰的共振信号。';
+  const sourceNotice =
+    cacheMeta.source === 'bundled_limit_up_snapshot'
+      ? cacheMeta.notice ?? '当前全市场主样本源不可用，已切换到内置涨停活跃股样本。'
+      : null;
 
   return {
     marketSignal: {
       hasBAboveGE,
       statusLabel: hasBAboveGE ? '有吉气' : '建议观望',
       summary: degradedByDataSource
-        ? `${summary} 当前全市场样本源暂时不可用，板块热度与高分标的已降级为空。`
-        : summary,
+        ? sourceNotice
+          ? `${summary} ${sourceNotice}`
+          : `${summary} 当前全市场样本源暂时不可用，板块热度与高分标的已降级为空。`
+        : sourceNotice
+          ? `${summary} ${sourceNotice}`
+          : summary,
       referenceRating: currentBoardEvaluation.rating,
       referencePatterns: currentBoardEvaluation.activeMatches.map((item) => item.name),
     },
@@ -147,6 +154,8 @@ export async function getMarketDashboard(
     cache: {
       cached: cacheMeta.cached,
       expiresAt: cacheMeta.expiresAt,
+      source: cacheMeta.source,
+      notice: sourceNotice ?? undefined,
     },
   };
 }

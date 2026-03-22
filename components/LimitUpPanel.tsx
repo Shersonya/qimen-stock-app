@@ -363,9 +363,18 @@ export function LimitUpPanel({
             <div className="flex flex-wrap gap-2">
               <span className="mystic-chip">筛选日 {result.filterDate}</span>
               <span className="mystic-chip">回溯 {result.lookbackDays} 日</span>
+              {result.meta?.source === 'bundled_snapshot' ? (
+                <span className="mystic-chip">内置快照</span>
+              ) : null}
             </div>
           ) : null}
         </div>
+
+        {result?.meta?.notice ? (
+          <div className="mt-4 rounded-2xl border border-[rgba(216,179,90,0.35)] bg-[rgba(216,179,90,0.12)] p-4 text-sm text-[var(--text-primary)]">
+            {result.meta.notice}
+          </div>
+        ) : null}
 
         {result ? (
           <div className="mt-5 overflow-x-auto rounded-[1.2rem] border border-white/10">

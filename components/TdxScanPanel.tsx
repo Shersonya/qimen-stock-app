@@ -30,6 +30,7 @@ const SORT_LABELS: Record<TdxSortKey, string> = {
 const UNIVERSE_SOURCE_LABELS = {
   market_pool: '主市场池',
   limit_up_fallback: '涨停活跃降级',
+  bundled_market_fallback: '内置活跃样本',
 } as const;
 
 const DEFAULT_REQUEST: TdxScanRequest = {

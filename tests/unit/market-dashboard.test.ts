@@ -94,6 +94,8 @@ describe('market dashboard service', () => {
       cached: true,
       updatedAt: '2026-03-19T10:00:00.000Z',
       expiresAt: '2026-03-19T10:30:00.000Z',
+      source: 'live_market_pool',
+      notice: null,
     });
     mockedGenerateQimenChart.mockReturnValue({
       yinYang: '阴',
@@ -187,6 +189,8 @@ describe('market dashboard service', () => {
       cached: false,
       updatedAt: null,
       expiresAt: null,
+      source: undefined,
+      notice: null,
     });
     mockedGenerateQimenChart.mockReturnValue({
       yinYang: '阴',
@@ -254,5 +258,113 @@ describe('market dashboard service', () => {
     expect(result.topSectors).toEqual([]);
     expect(result.topStocks).toEqual([]);
     expect(result.marketSignal.summary).toContain('当前全市场样本源暂时不可用');
+  });
+
+  it('surfaces bundled fallback metadata after the stock pool resolves', async () => {
+    mockedGetMarketStockPool.mockResolvedValueOnce([
+      {
+        stock: {
+          code: '601975',
+          name: '招商南油',
+          market: 'SH',
+          listingDate: '2019-01-08',
+          sector: '航运',
+        },
+        hourWindow: { stem: '甲', palaceName: '坎', position: 1, door: '开门', star: '天冲星', god: '玄武' },
+        dayWindow: { stem: '乙', palaceName: '离', position: 9, door: '生门', star: '天心星', god: '六合' },
+        monthWindow: { stem: '丙', palaceName: '兑', position: 7, door: '景门', star: '天任星', god: '九天' },
+        patternSummary: {
+          totalScore: 30,
+          rating: 'A',
+          energyLabel: '高强度(趋势共振)',
+          summary: '测试摘要',
+          corePatternsLabel: '[A]青龙返首(坎1宫)',
+          matchedPatternNames: ['青龙返首'],
+          hourPatternNames: ['青龙返首'],
+          counts: { COMPOSITE: 0, A: 1, B: 0, C: 0 },
+          bullishSignal: true,
+          predictedDirection: '涨',
+          isEligible: true,
+          exclusionReason: null,
+          palacePositions: [1],
+          matches: [],
+          invalidPalaces: [],
+        },
+      },
+    ]);
+    mockedGetMarketStockPoolCacheMeta
+      .mockReturnValueOnce({
+        cached: false,
+        updatedAt: null,
+        expiresAt: null,
+        source: undefined,
+        notice: null,
+      })
+      .mockReturnValueOnce({
+        cached: true,
+        updatedAt: '2026-03-20T10:00:00.000Z',
+        expiresAt: '2026-03-20T10:30:00.000Z',
+        source: 'bundled_limit_up_snapshot',
+        notice: '全市场主样本源暂不可用，已切换到内置涨停活跃股样本。',
+      });
+    mockedGenerateQimenChart.mockReturnValue({
+      yinYang: '阴',
+      ju: 2,
+      valueStar: '天心星',
+      valueDoor: '开门',
+      palaces: [
+        { index: 0, position: 4, name: '巽', star: '天芮星', door: '休门', god: '太阴', wuxing: '木' },
+      ],
+      meta: {
+        analysisTime: '2026-03-19T10:00:00.000Z',
+        solarTerm: '春分',
+        xunHead: '甲子',
+        xunHeadGan: '戊',
+        yearGanzhi: '丙午',
+        monthGanzhi: '己卯',
+        dayGanzhi: '甲辰',
+        hourGanzhi: '乙巳',
+        rikong: '子丑',
+        shikong: '寅卯',
+        isFuyin: false,
+        isFanyin: false,
+        isWubuyushi: false,
+        valueStarPalace: 9,
+        valueDoorPalace: 3,
+      },
+    });
+    mockedEvaluateQimenAuspiciousPatterns.mockReturnValue({
+      stockId: 'MARKET',
+      stockName: '全市场',
+      marketSignal: {
+        hasBAboveGE: true,
+      },
+      baseScore: 25,
+      totalScore: 25,
+      rating: 'A',
+      activeMatches: [],
+      invalidPalaces: [],
+      counts: {
+        COMPOSITE: 0,
+        A: 1,
+        B: 0,
+        C: 0,
+      },
+      corePatternsLabel: '[A]青龙返首(离9宫)',
+      energyLabel: '高强度(趋势共振)',
+      summary: '测试摘要',
+      corePalaces: {
+        timeStemPalaceId: 1,
+        valueDoorPalaceId: 9,
+        shengDoorPalaceId: 9,
+        skyWuPalaceId: 2,
+      },
+    });
+
+    const result = await getMarketDashboard();
+
+    expect(result.cache.source).toBe('bundled_limit_up_snapshot');
+    expect(result.cache.notice).toContain('内置涨停活跃股样本');
+    expect(result.marketSignal.summary).toContain('内置涨停活跃股样本');
   });
 });

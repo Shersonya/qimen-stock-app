@@ -270,6 +270,11 @@ export function DashboardPageClient() {
       {data ? (
         <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(360px,0.85fr)]">
           <div className="space-y-6">
+            {data.cache.notice ? (
+              <div className="rounded-[1.25rem] border border-[rgba(216,179,90,0.35)] bg-[rgba(216,179,90,0.12)] px-4 py-4 text-sm text-[var(--text-primary)]">
+                {data.cache.notice}
+              </div>
+            ) : null}
             <StatusCard data={data.marketSignal} />
             <div className="grid gap-6 xl:grid-cols-2">
               <DonutHeatChart counts={data.patternHeat} />
