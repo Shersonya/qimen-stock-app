@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ErrorNotice } from '@/components/ErrorNotice';
 import { MarketReportPanel } from '@/components/MarketReportPanel';
+import { MobilePalaceExplorer } from '@/components/MobilePalaceExplorer';
 import { PalaceCard } from '@/components/PalaceCard';
 import { useWorkspaceSettings } from '@/components/providers/WorkspaceSettingsProvider';
 import { requestMarketDashboard, requestMarketScreen, requestQimenAnalysis } from '@/lib/client-api';
@@ -16,6 +17,7 @@ import type {
   QimenApiSuccessResponse,
 } from '@/lib/contracts/qimen';
 import { QIMEN_PATTERN_LIBRARY } from '@/lib/contracts/qimen';
+import { getMarketLabel } from '@/lib/ui';
 
 type PreviewState = {
   stockCode: string;
@@ -29,6 +31,7 @@ type PageProps = {
 
 const ROW_HEIGHT = 108;
 const VIEWPORT_HEIGHT = 540;
+const MOBILE_VIEWPORT_QUERY = '(max-width: 767px)';
 
 export function ScreenPageClient({ autostart = false }: PageProps) {
   const {
@@ -74,6 +77,7 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
     ReturnType<typeof requestMarketDashboard>
   > | null>(null);
   const [isAdvancedDrawerOpen, setIsAdvancedDrawerOpen] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [virtualStart, setVirtualStart] = useState(0);
   const progressTimerRef = useRef<number | null>(null);
   const previewCacheRef = useRef<Record<string, QimenApiSuccessResponse>>({});
@@ -159,6 +163,33 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
   }, [patternConfigOverride, riskConfigOverride]);
 
   useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia(MOBILE_VIEWPORT_QUERY);
+    const updateViewport = () => {
+      setIsMobileViewport(mediaQuery.matches);
+    };
+
+    updateViewport();
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', updateViewport);
+
+      return () => {
+        mediaQuery.removeEventListener('change', updateViewport);
+      };
+    }
+
+    mediaQuery.addListener(updateViewport);
+
+    return () => {
+      mediaQuery.removeListener(updateViewport);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!toastMessage) {
       return;
     }
@@ -235,6 +266,7 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
         pageSize,
         patternConfigOverride,
         riskConfigOverride: {
+          ...riskConfigOverride,
           excludeInvalidCorePalaces,
           excludeTopEvilPatterns,
         },
@@ -267,6 +299,7 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
     onlyEligible,
     pageSize,
     patternConfigOverride,
+    riskConfigOverride,
   ]);
 
   useEffect(() => {
@@ -304,6 +337,460 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
     }
   }
 
+  const previewSelectedPalaceIndex = useMemo(() => {
+    const previewPalaces = previewPayload?.qimen.palaces ?? [];
+
+    if (!preview || previewPalaces.length === 0) {
+      return null;
+    }
+
+    return previewPalaces.find((palace) => palace.position === preview.palacePosition)?.index ?? null;
+  }, [preview, previewPayload]);
+
+  const filterPanel = (
+    <aside
+      className={`workbench-card ${isMobileViewport ? '' : 'workbench-sticky-panel'}`}
+      data-testid="screen-filter-panel"
+    >
+      <div className="space-y-6">
+        <section>
+          <p className="mystic-section-label">第一层</p>
+          <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
+            市场环境
+          </h3>
+          <label className="mt-4 flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+            <input
+              checked={marketEnvironmentRequired}
+              onChange={(event) => setMarketEnvironmentRequired(event.target.checked)}
+              type="checkbox"
+            />
+            仅在市场存在 B 级以上吉气时执行
+          </label>
+          <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
+            当前状态:
+            {' '}
+            {marketDashboardState?.marketSignal.statusLabel ?? '读取中...'}
+          </p>
+        </section>
+
+        <section>
+          <p className="mystic-section-label">第二层</p>
+          <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
+            资金规则
+          </h3>
+          <div className="mt-4 space-y-4">
+            <label className="block">
+              <span className="mb-2 block text-sm text-[var(--text-secondary)]">
+                最低分
+              </span>
+              <input
+                className="mystic-input"
+                inputMode="numeric"
+                onChange={(event) =>
+                  setMinScore(event.target.value ? Number(event.target.value) : undefined)
+                }
+                placeholder="例如 20"
+                type="number"
+                value={minScore ?? ''}
+              />
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-sm text-[var(--text-secondary)]">
+                最低评级
+              </span>
+              <select
+                className="mystic-select w-full"
+                onChange={(event) =>
+                  setMinRating(event.target.value as 'ALL' | 'S' | 'A' | 'B' | 'C')
+                }
+                value={minRating}
+              >
+                <option value="ALL">不限</option>
+                <option value="S">S</option>
+                <option value="A">A 及以上</option>
+                <option value="B">B 及以上</option>
+                <option value="C">C 及以上</option>
+              </select>
+            </label>
+            <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+              <input
+                checked={bullishOnly}
+                onChange={(event) => setBullishOnly(event.target.checked)}
+                type="checkbox"
+              />
+              仅看多信号
+            </label>
+          </div>
+        </section>
+
+        <section>
+          <p className="mystic-section-label">第三层</p>
+          <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
+            风控规则
+          </h3>
+          <div className="mt-4 space-y-4">
+            <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+              <input
+                checked={onlyEligible}
+                onChange={(event) => setOnlyEligible(event.target.checked)}
+                type="checkbox"
+              />
+              仅保留可执行标的
+            </label>
+            <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+              <input
+                checked={excludeInvalidCorePalaces}
+                onChange={(event) => setExcludeInvalidCorePalaces(event.target.checked)}
+                type="checkbox"
+              />
+              剔除失效核心宫
+            </label>
+            <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+              <input
+                checked={excludeTopEvilPatterns}
+                onChange={(event) => setExcludeTopEvilPatterns(event.target.checked)}
+                type="checkbox"
+              />
+              剔除顶级凶格
+            </label>
+          </div>
+        </section>
+
+        <section>
+          <p className="mystic-section-label">第四层</p>
+          <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
+            吉格选择器
+          </h3>
+          <div className="mt-4 space-y-4">
+            {(['COMPOSITE', 'A', 'B', 'C'] as const).map((level) => (
+              <div key={level}>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <strong className="text-sm text-[var(--text-primary)]">{level} 组</strong>
+                  <button
+                    className="mystic-chip"
+                    onClick={() => toggleGroup(level)}
+                    type="button"
+                  >
+                    全选 / 反选
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {groupedPatterns[level].map((item) => (
+                    <label className="workbench-pattern-checkbox" key={item.name}>
+                      <span className="flex items-center gap-2">
+                        <input
+                          checked={selectedPatternNames.includes(item.name)}
+                          onChange={() => togglePatternName(item.name)}
+                          type="checkbox"
+                        />
+                        <span>{item.name}</span>
+                      </span>
+                      <span className="text-[var(--text-muted)]">
+                        [{settings.patternMap[item.name].weight}]
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </aside>
+  );
+
+  const resultsSection = result ? (
+    <>
+      <section className="workbench-card">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="mystic-section-label">扫描反馈</p>
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">
+              长任务异步执行中会显示进度条与完成通知，默认服务端分页 50 条，可切换到更大页容量。
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="mystic-chip">预计 6-12 秒</span>
+            <label className="text-sm text-[var(--text-secondary)]">
+              每页
+              {' '}
+              <select
+                className="mystic-select ml-2"
+                onChange={(event) => setPageSize(Number(event.target.value))}
+                value={pageSize}
+              >
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+                <option value={200}>200</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        {progress > 0 ? (
+          <div className="mt-4">
+            <div className="workbench-bar-track">
+              <div className="workbench-progress-fill" style={{ width: `${progress}%` }} />
+            </div>
+          </div>
+        ) : null}
+      </section>
+
+      {error ? <ErrorNotice error={error} title="筛选异常" /> : null}
+
+      <section className="workbench-card" data-testid={isMobileViewport ? 'screen-result-mobile-list' : 'screen-result-table'}>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="mystic-section-label">结果区</p>
+            <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+              共筛得 {result.total} 只标的
+            </h3>
+          </div>
+          <div className="mystic-chip">
+            第 {result.page} / {Math.max(1, Math.ceil(result.total / result.pageSize))} 页
+          </div>
+        </div>
+
+        {result.meta?.notice ? (
+          <div className="mt-4 rounded-2xl border border-[rgba(216,179,90,0.35)] bg-[rgba(216,179,90,0.12)] p-4 text-sm text-[var(--text-primary)]">
+            {result.meta.notice}
+          </div>
+        ) : null}
+
+        {isMobileViewport ? (
+          <div className="mt-5 space-y-3">
+            {result.items.map((item, index) => {
+              const primaryMatch = item.patternSummary?.matches[0];
+
+              return (
+                <article
+                  className="rounded-[1.25rem] border border-[var(--border-soft)] bg-[var(--surface-overlay)] px-4 py-4"
+                  key={item.stock.code}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm text-[var(--text-muted)]">#{index + 1}</p>
+                      <p className="text-lg font-semibold text-[var(--text-primary)]">
+                        {item.stock.name}
+                      </p>
+                      <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                        {item.stock.code} · {getMarketLabel(item.stock.market)}
+                        {item.stock.sector ? ` · ${item.stock.sector}` : ''}
+                      </p>
+                      <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                        上市日期 {item.stock.listingDate}
+                      </p>
+                    </div>
+                    <input
+                      checked={selectedRows.includes(item.stock.code)}
+                      onChange={(event) =>
+                        setSelectedRows((current) =>
+                          event.target.checked
+                            ? [...current, item.stock.code]
+                            : current.filter((code) => code !== item.stock.code),
+                        )
+                      }
+                      type="checkbox"
+                    />
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="mystic-chip">
+                      {item.patternSummary?.rating ?? 'C'}级 · {item.patternSummary?.totalScore ?? 0} 分
+                    </span>
+                    <span className="mystic-chip">
+                      预测 {item.patternSummary?.predictedDirection ?? '观望'}
+                    </span>
+                    {item.patternSummary?.matchedPatternNames.slice(0, 2).map((name) => (
+                      <span className="mystic-chip" key={`${item.stock.code}-${name}`}>
+                        {name}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-[var(--text-secondary)]">
+                    {item.patternSummary?.summary ?? '当前暂无吉格摘要。'}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                      className="workbench-link-button"
+                      onClick={() =>
+                        void handleOpenPreview({
+                          stockCode: item.stock.code,
+                          patternName:
+                            primaryMatch?.name ?? item.patternSummary?.corePatternsLabel ?? '未识别',
+                          palacePosition: primaryMatch?.palaceId,
+                        })
+                      }
+                      title={
+                        primaryMatch?.meaning ?? item.patternSummary?.summary ?? '当前暂无说明'
+                      }
+                      type="button"
+                    >
+                      {item.patternSummary?.corePatternsLabel || '--'}
+                    </button>
+                    <Link
+                      className="mystic-button-secondary"
+                      href={`/diagnosis/${item.stock.code}`}
+                      target="_blank"
+                    >
+                      深度诊断
+                    </Link>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="workbench-table mt-5" role="table">
+            <div className="workbench-table-header" role="rowgroup">
+              <div className="workbench-table-row is-header" role="row">
+                <div>选择</div>
+                <div>代码 / 名称</div>
+                <div>吉格总分</div>
+                <div>评级</div>
+                <div>核心吉格</div>
+                <div>操作</div>
+              </div>
+            </div>
+            <div
+              className="workbench-table-body"
+              onScroll={(event) => {
+                if (pageSize <= 50) {
+                  return;
+                }
+
+                setVirtualStart(
+                  Math.floor(event.currentTarget.scrollTop / ROW_HEIGHT),
+                );
+              }}
+              role="rowgroup"
+              style={{
+                height: pageSize > 50 ? VIEWPORT_HEIGHT : 'auto',
+              }}
+            >
+              <div
+                style={{
+                  height:
+                    pageSize > 50 ? result.items.length * ROW_HEIGHT : 'auto',
+                  position: 'relative',
+                }}
+              >
+                {visibleItems.map(({ item, index }) => {
+                  const primaryMatch = item.patternSummary?.matches[0];
+
+                  return (
+                    <div
+                      className="workbench-table-row"
+                      key={item.stock.code}
+                      role="row"
+                      style={{
+                        background:
+                          settings.visual.ratingColors[item.patternSummary?.rating ?? 'C'],
+                        position: pageSize > 50 ? 'absolute' : 'relative',
+                        top: pageSize > 50 ? index * ROW_HEIGHT : 'auto',
+                        left: 0,
+                        right: 0,
+                        minHeight: ROW_HEIGHT - 8,
+                      }}
+                    >
+                      <div>
+                        <input
+                          checked={selectedRows.includes(item.stock.code)}
+                          onChange={(event) =>
+                            setSelectedRows((current) =>
+                              event.target.checked
+                                ? [...current, item.stock.code]
+                                : current.filter((code) => code !== item.stock.code),
+                            )
+                          }
+                          type="checkbox"
+                        />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-[var(--text-primary)]">
+                          {item.stock.code} / {item.stock.name}
+                        </p>
+                        <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                          {item.stock.sector || item.stock.market}
+                        </p>
+                      </div>
+                      <div className="font-semibold text-[var(--text-primary)]">
+                        {item.patternSummary?.totalScore ?? 0}
+                      </div>
+                      <div>
+                        <span className="mystic-chip">{item.patternSummary?.rating ?? 'C'}</span>
+                      </div>
+                      <div>
+                        <button
+                          className="workbench-link-button"
+                          onClick={() =>
+                            void handleOpenPreview({
+                              stockCode: item.stock.code,
+                              patternName:
+                                primaryMatch?.name ??
+                                item.patternSummary?.corePatternsLabel ??
+                                '未识别',
+                              palacePosition: primaryMatch?.palaceId,
+                            })
+                          }
+                          title={
+                            primaryMatch?.meaning ?? item.patternSummary?.summary ?? '当前暂无说明'
+                          }
+                          type="button"
+                        >
+                          {item.patternSummary?.corePatternsLabel || '--'}
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Link
+                          className="mystic-button-secondary"
+                          href={`/diagnosis/${item.stock.code}`}
+                          target="_blank"
+                        >
+                          深度诊断
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-5 flex items-center justify-between gap-3">
+          <button
+            className="mystic-chip"
+            disabled={result.page <= 1 || isSubmitting}
+            onClick={() => void handleSearch(result.page - 1)}
+            type="button"
+          >
+            上一页
+          </button>
+          <button
+            className="mystic-chip"
+            disabled={
+              result.page >= Math.max(1, Math.ceil(result.total / result.pageSize)) ||
+              isSubmitting
+            }
+            onClick={() => void handleSearch(result.page + 1)}
+            type="button"
+          >
+            下一页
+          </button>
+        </div>
+      </section>
+    </>
+  ) : null;
+
+  const reportSection = result ? (
+    <details className="workbench-card">
+      <summary className="workbench-details-summary">策略验证</summary>
+      <div className="mt-5">
+        <MarketReportPanel filters={apiFilters} items={result.items} />
+      </div>
+    </details>
+  ) : null;
+
   return (
     <section className="workbench-page">
       <header className="workbench-page-header">
@@ -331,359 +818,21 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
         </div>
       </header>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
-        <aside className="workbench-card workbench-sticky-panel">
+      {isMobileViewport ? (
+        <div className="mt-6 space-y-6">
+          {resultsSection}
+          {reportSection}
+          {filterPanel}
+        </div>
+      ) : (
+        <div className="mt-6 grid gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
+          {filterPanel}
           <div className="space-y-6">
-            <section>
-              <p className="mystic-section-label">第一层</p>
-              <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
-                市场环境
-              </h3>
-              <label className="mt-4 flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-                <input
-                  checked={marketEnvironmentRequired}
-                  onChange={(event) => setMarketEnvironmentRequired(event.target.checked)}
-                  type="checkbox"
-                />
-                仅在市场存在 B 级以上吉气时执行
-              </label>
-              <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
-                当前状态:
-                {' '}
-                {marketDashboardState?.marketSignal.statusLabel ?? '读取中...'}
-              </p>
-            </section>
-
-            <section>
-              <p className="mystic-section-label">第二层</p>
-              <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
-                资金规则
-              </h3>
-              <div className="mt-4 space-y-4">
-                <label className="block">
-                  <span className="mb-2 block text-sm text-[var(--text-secondary)]">
-                    最低分
-                  </span>
-                  <input
-                    className="mystic-input"
-                    inputMode="numeric"
-                    onChange={(event) =>
-                      setMinScore(event.target.value ? Number(event.target.value) : undefined)
-                    }
-                    placeholder="例如 20"
-                    type="number"
-                    value={minScore ?? ''}
-                  />
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-sm text-[var(--text-secondary)]">
-                    最低评级
-                  </span>
-                  <select
-                    className="mystic-select w-full"
-                    onChange={(event) =>
-                      setMinRating(event.target.value as 'ALL' | 'S' | 'A' | 'B' | 'C')
-                    }
-                    value={minRating}
-                  >
-                    <option value="ALL">不限</option>
-                    <option value="S">S</option>
-                    <option value="A">A 及以上</option>
-                    <option value="B">B 及以上</option>
-                    <option value="C">C 及以上</option>
-                  </select>
-                </label>
-                <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-                  <input
-                    checked={bullishOnly}
-                    onChange={(event) => setBullishOnly(event.target.checked)}
-                    type="checkbox"
-                  />
-                  仅看多信号
-                </label>
-              </div>
-            </section>
-
-            <section>
-              <p className="mystic-section-label">第三层</p>
-              <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
-                风控规则
-              </h3>
-              <div className="mt-4 space-y-4">
-                <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-                  <input
-                    checked={onlyEligible}
-                    onChange={(event) => setOnlyEligible(event.target.checked)}
-                    type="checkbox"
-                  />
-                  仅保留可执行标的
-                </label>
-                <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-                  <input
-                    checked={excludeInvalidCorePalaces}
-                    onChange={(event) => setExcludeInvalidCorePalaces(event.target.checked)}
-                    type="checkbox"
-                  />
-                  剔除失效核心宫
-                </label>
-                <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-                  <input
-                    checked={excludeTopEvilPatterns}
-                    onChange={(event) => setExcludeTopEvilPatterns(event.target.checked)}
-                    type="checkbox"
-                  />
-                  剔除顶级凶格
-                </label>
-              </div>
-            </section>
-
-            <section>
-              <p className="mystic-section-label">第四层</p>
-              <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
-                吉格选择器
-              </h3>
-              <div className="mt-4 space-y-4">
-                {(['COMPOSITE', 'A', 'B', 'C'] as const).map((level) => (
-                  <div key={level}>
-                    <div className="mb-2 flex items-center justify-between gap-3">
-                      <strong className="text-sm text-[var(--text-primary)]">{level} 组</strong>
-                      <button
-                        className="mystic-chip"
-                        onClick={() => toggleGroup(level)}
-                        type="button"
-                      >
-                        全选 / 反选
-                      </button>
-                    </div>
-                    <div className="space-y-2">
-                      {groupedPatterns[level].map((item) => (
-                        <label className="workbench-pattern-checkbox" key={item.name}>
-                          <span className="flex items-center gap-2">
-                            <input
-                              checked={selectedPatternNames.includes(item.name)}
-                              onChange={() => togglePatternName(item.name)}
-                              type="checkbox"
-                            />
-                            <span>{item.name}</span>
-                          </span>
-                          <span className="text-[var(--text-muted)]">
-                            [{settings.patternMap[item.name].weight}]
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
+            {resultsSection}
+            {reportSection}
           </div>
-        </aside>
-
-        <section className="space-y-6">
-          <section className="workbench-card">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <p className="mystic-section-label">扫描反馈</p>
-                <p className="mt-2 text-sm text-[var(--text-secondary)]">
-                  长任务异步执行中会显示进度条与完成通知，默认服务端分页 50 条，可切换到更大页容量。
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="mystic-chip">预计 6-12 秒</span>
-                <label className="text-sm text-[var(--text-secondary)]">
-                  每页
-                  {' '}
-                  <select
-                    className="mystic-select ml-2"
-                    onChange={(event) => setPageSize(Number(event.target.value))}
-                    value={pageSize}
-                  >
-                    <option value={50}>50</option>
-                    <option value={100}>100</option>
-                    <option value={200}>200</option>
-                  </select>
-                </label>
-              </div>
-            </div>
-
-            {progress > 0 ? (
-              <div className="mt-4">
-                <div className="workbench-bar-track">
-                  <div className="workbench-progress-fill" style={{ width: `${progress}%` }} />
-                </div>
-              </div>
-            ) : null}
-          </section>
-
-          {error ? <ErrorNotice error={error} title="筛选异常" /> : null}
-
-          {result ? (
-            <section className="workbench-card" data-testid="screen-result-table">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <p className="mystic-section-label">结果区</p>
-                  <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
-                    共筛得 {result.total} 只标的
-                  </h3>
-                </div>
-                <div className="mystic-chip">
-                  第 {result.page} / {Math.max(1, Math.ceil(result.total / result.pageSize))} 页
-                </div>
-              </div>
-
-              {result.meta?.notice ? (
-                <div className="mt-4 rounded-2xl border border-[rgba(216,179,90,0.35)] bg-[rgba(216,179,90,0.12)] p-4 text-sm text-[var(--text-primary)]">
-                  {result.meta.notice}
-                </div>
-              ) : null}
-
-              <div className="workbench-table mt-5" role="table">
-                <div className="workbench-table-header" role="rowgroup">
-                  <div className="workbench-table-row is-header" role="row">
-                    <div>选择</div>
-                    <div>代码 / 名称</div>
-                    <div>吉格总分</div>
-                    <div>评级</div>
-                    <div>核心吉格</div>
-                    <div>操作</div>
-                  </div>
-                </div>
-                <div
-                  className="workbench-table-body"
-                  onScroll={(event) => {
-                    if (pageSize <= 50) {
-                      return;
-                    }
-
-                    setVirtualStart(
-                      Math.floor(event.currentTarget.scrollTop / ROW_HEIGHT),
-                    );
-                  }}
-                  role="rowgroup"
-                  style={{
-                    height: pageSize > 50 ? VIEWPORT_HEIGHT : 'auto',
-                  }}
-                >
-                  <div
-                    style={{
-                      height:
-                        pageSize > 50 ? result.items.length * ROW_HEIGHT : 'auto',
-                      position: 'relative',
-                    }}
-                  >
-                    {visibleItems.map(({ item, index }) => {
-                      const primaryMatch = item.patternSummary?.matches[0];
-
-                      return (
-                        <div
-                          className="workbench-table-row"
-                          key={item.stock.code}
-                          role="row"
-                          style={{
-                            background:
-                              settings.visual.ratingColors[item.patternSummary?.rating ?? 'C'],
-                            position: pageSize > 50 ? 'absolute' : 'relative',
-                            top: pageSize > 50 ? index * ROW_HEIGHT : 'auto',
-                            left: 0,
-                            right: 0,
-                            minHeight: ROW_HEIGHT - 8,
-                          }}
-                        >
-                          <div>
-                            <input
-                              checked={selectedRows.includes(item.stock.code)}
-                              onChange={(event) =>
-                                setSelectedRows((current) =>
-                                  event.target.checked
-                                    ? [...current, item.stock.code]
-                                    : current.filter((code) => code !== item.stock.code),
-                                )
-                              }
-                              type="checkbox"
-                            />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-[var(--text-primary)]">
-                              {item.stock.code} / {item.stock.name}
-                            </p>
-                            <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                              {item.stock.sector || item.stock.market}
-                            </p>
-                          </div>
-                          <div className="font-semibold text-[var(--text-primary)]">
-                            {item.patternSummary?.totalScore ?? 0}
-                          </div>
-                          <div>
-                            <span className="mystic-chip">{item.patternSummary?.rating ?? 'C'}</span>
-                          </div>
-                          <div>
-                            <button
-                              className="workbench-link-button"
-                              onClick={() =>
-                                void handleOpenPreview({
-                                  stockCode: item.stock.code,
-                                  patternName: primaryMatch?.name ?? item.patternSummary?.corePatternsLabel ?? '未识别',
-                                  palacePosition: primaryMatch?.palaceId,
-                                })
-                              }
-                              title={
-                                primaryMatch?.meaning ?? item.patternSummary?.summary ?? '当前暂无说明'
-                              }
-                              type="button"
-                            >
-                              {item.patternSummary?.corePatternsLabel || '--'}
-                            </button>
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            <Link
-                              className="mystic-button-secondary"
-                              href={`/diagnosis/${item.stock.code}`}
-                              target="_blank"
-                            >
-                              深度诊断
-                            </Link>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-5 flex items-center justify-between gap-3">
-                <button
-                  className="mystic-chip"
-                  disabled={result.page <= 1 || isSubmitting}
-                  onClick={() => void handleSearch(result.page - 1)}
-                  type="button"
-                >
-                  上一页
-                </button>
-                <button
-                  className="mystic-chip"
-                  disabled={
-                    result.page >= Math.max(1, Math.ceil(result.total / result.pageSize)) ||
-                    isSubmitting
-                  }
-                  onClick={() => void handleSearch(result.page + 1)}
-                  type="button"
-                >
-                  下一页
-                </button>
-              </div>
-            </section>
-          ) : null}
-
-          {result ? (
-            <details className="workbench-card">
-              <summary className="workbench-details-summary">策略验证</summary>
-              <div className="mt-5">
-                <MarketReportPanel filters={apiFilters} items={result.items} />
-              </div>
-            </details>
-          ) : null}
-        </section>
-      </div>
+        </div>
+      )}
 
       {preview ? (
         <div className="workbench-overlay workbench-side-overlay">
@@ -717,26 +866,69 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
 
             {previewPayload ? (
               <div className="mt-5 space-y-5">
-                <div className="grid gap-3 [grid-template-columns:repeat(3,minmax(0,1fr))] [grid-template-rows:repeat(3,minmax(10rem,auto))]">
-                  {previewPayload.qimen.palaces.map((palace) => (
-                    <PalaceCard
-                      annotation={previewPayload.patternAnalysis.palaceAnnotations.find(
-                        (item) => item.palacePosition === palace.position,
-                      )}
-                      detailMode="compact"
-                      isFilterSelected={preview.palacePosition === palace.position}
-                      isSelected={preview.palacePosition === palace.position}
-                      key={`${palace.index}-${palace.position}`}
-                      onPatternClick={() => {}}
-                      onSelect={() => {}}
-                      onSelectionDragStart={() => {}}
-                      onSelectionEnter={() => {}}
-                      onSelectionToggle={() => {}}
-                      palace={palace}
-                      selectionMode={false}
-                      status="ready"
-                    />
-                  ))}
+                <MobilePalaceExplorer
+                  className="sm:hidden"
+                  detailCardTestId="screen-preview-mobile-detail-card"
+                  detailStatus={isPreviewLoading ? 'loading' : 'ready'}
+                  detailTestId="screen-preview-mobile-detail"
+                  getAnnotation={(palace) =>
+                    previewPayload.patternAnalysis.palaceAnnotations.find(
+                      (item) => item.palacePosition === palace.position,
+                    )
+                  }
+                  layoutTestId="screen-preview-mobile-layout"
+                  onOverviewPointerLeave={() => {}}
+                  onOverviewPointerUp={() => {}}
+                  onSelectPalace={(palaceIndex) => {
+                    const selectedPalace = previewPayload.qimen.palaces.find(
+                      (palace) => palace.index === palaceIndex,
+                    );
+
+                    if (!selectedPalace) {
+                      return;
+                    }
+
+                    setPreview((current) =>
+                      current
+                        ? {
+                            ...current,
+                            palacePosition: selectedPalace.position,
+                          }
+                        : current,
+                    );
+                  }}
+                  overviewTestId="screen-preview-mobile-overview"
+                  palaceTestId="screen-preview-mobile-palace"
+                  palaces={previewPayload.qimen.palaces}
+                  selectedFilterPositions={
+                    preview.palacePosition ? [preview.palacePosition] : []
+                  }
+                  selectedPalaceIndex={previewSelectedPalaceIndex}
+                  selectionMode={false}
+                  status={isPreviewLoading ? 'loading' : 'ready'}
+                />
+                <div className="hidden sm:block">
+                  <div className="grid gap-3 [grid-template-columns:repeat(3,minmax(0,1fr))] [grid-template-rows:repeat(3,minmax(10rem,auto))]">
+                    {previewPayload.qimen.palaces.map((palace) => (
+                      <PalaceCard
+                        annotation={previewPayload.patternAnalysis.palaceAnnotations.find(
+                          (item) => item.palacePosition === palace.position,
+                        )}
+                        detailMode="compact"
+                        isFilterSelected={preview.palacePosition === palace.position}
+                        isSelected={preview.palacePosition === palace.position}
+                        key={`${palace.index}-${palace.position}`}
+                        onPatternClick={() => {}}
+                        onSelect={() => {}}
+                        onSelectionDragStart={() => {}}
+                        onSelectionEnter={() => {}}
+                        onSelectionToggle={() => {}}
+                        palace={palace}
+                        selectionMode={false}
+                        status="ready"
+                      />
+                    ))}
+                  </div>
                 </div>
                 <p className="text-sm leading-7 text-[var(--text-secondary)]">
                   当前高亮宫位会与点击的核心吉格保持同步，方便从结果列表直接回看该股的原始盘面定位。

@@ -32,11 +32,29 @@ const mockedRequestMarketDashboard = jest.mocked(requestMarketDashboard);
 const mockedRequestMarketScreen = jest.mocked(requestMarketScreen);
 const mockedRequestQimenAnalysis = jest.mocked(requestQimenAnalysis);
 
+function mockMatchMedia(matches: boolean) {
+  Object.defineProperty(window, 'matchMedia', {
+    configurable: true,
+    writable: true,
+    value: jest.fn().mockImplementation((query: string) => ({
+      matches,
+      media: query,
+      onchange: null,
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  });
+}
+
 describe('ScreenPageClient', () => {
   beforeEach(() => {
     window.localStorage.clear();
     mockPush.mockReset();
     mockPathname.mockReturnValue('/screen');
+    mockMatchMedia(false);
     mockedRequestMarketDashboard.mockReset();
     mockedRequestMarketScreen.mockReset();
     mockedRequestQimenAnalysis.mockReset();
@@ -94,5 +112,39 @@ describe('ScreenPageClient', () => {
       '_blank',
     );
     expect(screen.getByText('策略验证')).toBeInTheDocument();
+    expect(mockedRequestMarketScreen).toHaveBeenCalledWith(
+      expect.objectContaining({
+        riskConfigOverride: expect.objectContaining({
+          excludeInvalidCorePalaces: expect.any(Boolean),
+          excludeTopEvilPatterns: expect.any(Boolean),
+        }),
+      }),
+    );
+  });
+
+  it('renders mobile result cards and the mobile palace explorer preview', async () => {
+    const user = userEvent.setup();
+
+    mockMatchMedia(true);
+    renderInWorkbench(<ScreenPageClient />);
+
+    fireEvent.keyDown(window, { key: 'F5' });
+
+    expect(await screen.findByTestId('screen-result-mobile-list')).toBeInTheDocument();
+    expect(screen.queryByTestId('screen-result-table')).not.toBeInTheDocument();
+    expect(screen.getByTestId('screen-filter-panel')).not.toHaveClass(
+      'workbench-sticky-panel',
+    );
+
+    const corePatternButton = screen.getByRole('button', {
+      name: '[COMPOSITE]真诈格(离9宫)、[A]青龙返首(坎1宫)',
+    });
+
+    await user.click(corePatternButton);
+
+    expect(await screen.findByTestId('screen-preview-mobile-layout')).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toHaveTextContent(
+      '当前高亮宫位会与点击的核心吉格保持同步',
+    );
   });
 });
