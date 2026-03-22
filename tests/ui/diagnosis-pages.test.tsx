@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { DiagnosisReportPageClient } from '@/components/DiagnosisReportPageClient';
@@ -9,6 +9,15 @@ import { renderInWorkbench } from '@/tests/ui/render-workbench';
 
 const mockPush = jest.fn();
 const mockPathname = jest.fn(() => '/diagnosis');
+
+function setViewportWidth(width: number) {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    value: width,
+    writable: true,
+  });
+  window.dispatchEvent(new Event('resize'));
+}
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
@@ -30,6 +39,7 @@ describe('Diagnosis pages', () => {
     mockPathname.mockReturnValue('/diagnosis');
     mockedRequestQimenAnalysis.mockReset();
     mockedRequestQimenAnalysis.mockResolvedValue(getDemoQimenResponse('600519'));
+    setViewportWidth(1024);
   });
 
   it('opens the selected stock report from the diagnosis entry page', async () => {
@@ -44,19 +54,8 @@ describe('Diagnosis pages', () => {
 
   it('renders the five-step report, auxiliary view, and PDF export flow', async () => {
     const user = userEvent.setup();
-    const popup = {
-      document: {
-        open: jest.fn(),
-        write: jest.fn(),
-        close: jest.fn(),
-        title: '',
-      },
-      focus: jest.fn(),
-      print: jest.fn(),
-    };
 
     mockPathname.mockReturnValue('/diagnosis/600519');
-    jest.spyOn(window, 'open').mockReturnValue(popup as never);
 
     renderInWorkbench(<DiagnosisReportPageClient stockCode="600519" />);
 
@@ -95,8 +94,19 @@ describe('Diagnosis pages', () => {
     await user.click(screen.getByRole('tab', { name: '诊断报告' }));
     await user.click(screen.getByRole('button', { name: '导出 PDF' }));
 
-    await waitFor(() => {
-      expect(window.open).toHaveBeenCalled();
-    });
+    const printFrame = await screen.findByTestId('diagnosis-print-frame');
+    expect(printFrame).toHaveAttribute('title', '贵州茅台-奇门诊断报告');
+    expect(printFrame).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('renders the mobile palace explorer on compact screens', async () => {
+    setViewportWidth(375);
+
+    renderInWorkbench(<DiagnosisReportPageClient stockCode="600519" />);
+
+    expect(await screen.findByTestId('diagnosis-mobile-layout')).toBeInTheDocument();
+    expect(screen.getByTestId('diagnosis-mobile-overview')).toBeInTheDocument();
+    expect(screen.getByTestId('diagnosis-mobile-detail-card')).toBeInTheDocument();
+    expect(screen.queryByTestId('diagnosis-palace-grid')).not.toBeInTheDocument();
   });
 });

@@ -1,16 +1,29 @@
+import type {
+  TdxScanRequest,
+  TdxScanResponse,
+  TdxScanUniverseSource,
+} from '@/lib/contracts/strategy';
 import { ERROR_CODES } from '@/lib/contracts/qimen';
-import type { TdxScanRequest, TdxScanResponse } from '@/lib/contracts/strategy';
 import { AppError } from '@/lib/errors';
+import { filterLimitUpStocks } from '@/lib/services/limit-up';
 import { calculateTdxIndicators } from '@/lib/tdx/engine';
 import type { ExtendedKLineBar } from '@/lib/tdx/types';
-import { getMarketStockPool } from '@/lib/services/market-screen';
+import {
+  getMarketStockPool,
+  getMarketStockPoolCacheMeta,
+} from '@/lib/services/market-screen';
 import { getStockDailyHistory } from '@/lib/services/stock-history';
+import { mapWithConcurrency } from '@/lib/utils/async';
+import { getShanghaiDateString } from '@/lib/utils/date';
 
 const HISTORY_CACHE_TTL_MS = 30 * 60 * 1000;
+const SCAN_CACHE_TTL_MS = 10 * 60 * 1000;
 const DEFAULT_PAGE_SIZE = 50;
 const MAX_PAGE_SIZE = 200;
 const SCAN_CONCURRENCY = 6;
 const HISTORY_LOOKBACK_BARS = 180;
+const FALLBACK_SCAN_LOOKBACK_DAYS = 5;
+const FALLBACK_SCAN_UNIVERSE_SIZE = 200;
 
 type HistoryCacheEntry = {
   expiresAt: number;
@@ -18,7 +31,32 @@ type HistoryCacheEntry = {
   promise?: Promise<ExtendedKLineBar[]>;
 };
 
+type ScanCacheSnapshot = {
+  scanDate: string;
+  items: TdxScanResponse['items'];
+  universeSource: TdxScanUniverseSource;
+  universeSize: number;
+};
+
+type ScanCacheEntry = {
+  expiresAt: number;
+  value?: ScanCacheSnapshot;
+  promise?: Promise<ScanCacheSnapshot>;
+};
+
+type ScanUniverseStock = {
+  code: string;
+  name: string;
+  market: 'SH' | 'SZ' | 'CYB';
+};
+
+type ScanUniverse = {
+  items: ScanUniverseStock[];
+  source: TdxScanUniverseSource;
+};
+
 let historyCache = new Map<string, HistoryCacheEntry>();
+let scanCache = new Map<string, ScanCacheEntry>();
 
 function formatEastMoneyDate(date: Date) {
   const year = date.getUTCFullYear();
@@ -62,27 +100,6 @@ function normalizeRequest(request: TdxScanRequest) {
   };
 }
 
-async function mapWithConcurrency<TInput, TOutput>(
-  items: TInput[],
-  concurrency: number,
-  worker: (item: TInput) => Promise<TOutput>,
-) {
-  const results: TOutput[] = [];
-  let cursor = 0;
-
-  const runners = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
-    while (cursor < items.length) {
-      const current = items[cursor];
-      cursor += 1;
-      results.push(await worker(current));
-    }
-  });
-
-  await Promise.all(runners);
-
-  return results;
-}
-
 function buildHistoryRange() {
   const end = new Date();
   const begin = new Date(end.getTime() - 420 * 24 * 60 * 60 * 1000);
@@ -93,7 +110,107 @@ function buildHistoryRange() {
   };
 }
 
-async function loadHistory(stock: Awaited<ReturnType<typeof getMarketStockPool>>[number]['stock']) {
+async function getScanUniverse(): Promise<ScanUniverse> {
+  try {
+    const pool = await getMarketStockPool();
+    const cacheMeta = getMarketStockPoolCacheMeta();
+
+    return {
+      source:
+        cacheMeta?.source === 'bundled_limit_up_snapshot'
+          ? 'bundled_market_fallback'
+          : 'market_pool',
+      items: pool.map((item) => ({
+        code: item.stock.code,
+        name: item.stock.name,
+        market: item.stock.market,
+      })),
+    };
+  } catch (error) {
+    if (!(error instanceof AppError) || error.code !== ERROR_CODES.DATA_SOURCE_ERROR) {
+      throw error;
+    }
+
+    console.warn('[TDX Scan] Falling back to recent limit-up universe because market pool is unavailable.');
+    const fallback = await filterLimitUpStocks({
+      lookbackDays: FALLBACK_SCAN_LOOKBACK_DAYS,
+      minLimitUpCount: 1,
+      excludeST: true,
+      excludeKechuang: false,
+      excludeNewStock: true,
+      page: 1,
+      pageSize: FALLBACK_SCAN_UNIVERSE_SIZE,
+      sortBy: 'limitUpCount',
+      sortOrder: 'desc',
+    });
+
+    return {
+      source: 'limit_up_fallback',
+      items: fallback.items.map((item) => ({
+        code: item.stockCode,
+        name: item.stockName,
+        market: item.market,
+      })),
+    };
+  }
+}
+
+function buildScanCacheKey(normalized: ReturnType<typeof normalizeRequest>, scanDate: string) {
+  return JSON.stringify({
+    signalType: normalized.signalType,
+    requireMaUp: normalized.requireMaUp,
+    requireFiveLinesBull: normalized.requireFiveLinesBull,
+    maxBiasRate: Number.isFinite(normalized.maxBiasRate) ? normalized.maxBiasRate : 'all',
+    minSignalStrength: normalized.minSignalStrength,
+    scanDate,
+  });
+}
+
+function buildResponseMeta(
+  snapshot: ScanCacheSnapshot,
+  cached: boolean,
+): TdxScanResponse['meta'] {
+  let notice: string | undefined;
+
+  if (snapshot.universeSource === 'limit_up_fallback') {
+    notice = cached
+      ? '主市场池暂不可用，当前展示的是最近涨停活跃股降级结果，并命中了 10 分钟内缓存。'
+      : '主市场池暂不可用，已自动切换到最近涨停活跃股宇宙继续扫描。';
+  } else if (snapshot.universeSource === 'bundled_market_fallback') {
+    notice = cached
+      ? '实时主市场池暂不可用，当前展示的是内置活跃股样本，并命中了 10 分钟内缓存。'
+      : '实时主市场池暂不可用，已切换到内置活跃股样本继续扫描。';
+  } else if (cached) {
+    notice = '当前展示的是 10 分钟内缓存结果，适合重复翻页和短时间复查。';
+  }
+
+  return {
+    cached,
+    universeSource: snapshot.universeSource,
+    universeSize: snapshot.universeSize,
+    notice,
+  };
+}
+
+function buildPagedResponse(
+  snapshot: ScanCacheSnapshot,
+  page: number,
+  pageSize: number,
+  cached: boolean,
+): TdxScanResponse {
+  const startIndex = (page - 1) * pageSize;
+
+  return {
+    total: snapshot.items.length,
+    page,
+    pageSize,
+    scanDate: snapshot.scanDate,
+    items: snapshot.items.slice(startIndex, startIndex + pageSize),
+    meta: buildResponseMeta(snapshot, cached),
+  };
+}
+
+async function loadHistory(stock: ScanUniverseStock) {
   const cacheKey = `${stock.market}:${stock.code}`;
   const cached = historyCache.get(cacheKey);
 
@@ -146,28 +263,28 @@ async function loadHistory(stock: Awaited<ReturnType<typeof getMarketStockPool>>
 
 export function resetTdxScanCacheForTests() {
   historyCache = new Map();
+  scanCache = new Map();
 }
 
-export async function scanTdxSignals(
-  request: TdxScanRequest,
-): Promise<TdxScanResponse> {
-  const normalized = normalizeRequest(request);
-  const pool = await getMarketStockPool();
-  const scanDate = new Date().toISOString().slice(0, 10);
+async function buildScanSnapshot(
+  normalized: ReturnType<typeof normalizeRequest>,
+  scanDate: string,
+): Promise<ScanCacheSnapshot> {
+  const universe = await getScanUniverse();
 
-  const settled = await mapWithConcurrency(pool, SCAN_CONCURRENCY, async (item) => {
+  const settled = await mapWithConcurrency(universe.items, SCAN_CONCURRENCY, async (item) => {
     try {
-      const bars = await loadHistory(item.stock);
+      const bars = await loadHistory(item);
 
       if (bars.length < 120) {
-        return { ok: true, item: null } as const;
+        return null;
       }
 
-      const indicators = calculateTdxIndicators(bars, item.stock.name);
+      const indicators = calculateTdxIndicators(bars, item.name);
       const latest = indicators.at(-1);
 
       if (!latest) {
-        return { ok: true, item: null } as const;
+        return null;
       }
 
       const matchesSignal =
@@ -178,60 +295,56 @@ export async function scanTdxSignals(
             : latest.meiZhu > 0 || latest.meiYangYang;
 
       if (!matchesSignal) {
-        return { ok: true, item: null } as const;
+        return null;
       }
 
       if (normalized.requireMaUp && !latest.maUp) {
-        return { ok: true, item: null } as const;
+        return null;
       }
 
       if (normalized.requireFiveLinesBull && !latest.fiveLinesBull) {
-        return { ok: true, item: null } as const;
+        return null;
       }
 
       if (latest.biasRate > normalized.maxBiasRate) {
-        return { ok: true, item: null } as const;
+        return null;
       }
 
-      if (latest.X_74 < normalized.minSignalStrength) {
-        return { ok: true, item: null } as const;
+      if (Number(latest.X_74) < normalized.minSignalStrength) {
+        return null;
       }
 
       const latestBar = bars.at(-1);
       const lastMeiZhuIndex = indicators.findLastIndex((entry) => entry.meiZhu > 0);
 
       if (!latestBar) {
-        return { ok: true, item: null } as const;
+        return null;
       }
 
       return {
-        ok: true,
-        item: {
-          stockCode: item.stock.code,
-          stockName: item.stock.name,
-          market: item.stock.market,
-          signalDate: latestBar.date,
-          closePrice: latestBar.close,
-          volume: latestBar.volume,
-          meiZhu: latest.meiZhu > 0,
-          meiYangYang: latest.meiYangYang,
-          meiZhuDate: lastMeiZhuIndex >= 0 ? bars[lastMeiZhuIndex]?.date : undefined,
-          signalStrength: latest.X_74,
-          trueCGain: latest.trueCGain,
-          maUp: latest.maUp,
-          fiveLinesBull: latest.fiveLinesBull,
-          biasRate: latest.biasRate,
-          volumeRatio: latest.X_14,
-        },
-      } as const;
-    } catch {
-      return { ok: false } as const;
+        stockCode: item.code,
+        stockName: item.name,
+        market: item.market,
+        signalDate: latestBar.date,
+        closePrice: latestBar.close,
+        volume: latestBar.volume,
+        meiZhu: latest.meiZhu > 0,
+        meiYangYang: latest.meiYangYang,
+        meiZhuDate: lastMeiZhuIndex >= 0 ? bars[lastMeiZhuIndex]?.date : undefined,
+        signalStrength: Number(latest.X_74),
+        trueCGain: latest.trueCGain,
+        maUp: latest.maUp,
+        fiveLinesBull: latest.fiveLinesBull,
+        biasRate: latest.biasRate,
+        volumeRatio: Number(latest.X_14),
+      };
+    } catch (error) {
+      console.warn(`[TDX Scan] Failed to process ${item.code}:`, error);
+      return null;
     }
   });
 
   const items = settled
-    .filter((entry) => entry.ok)
-    .map((entry) => entry.item)
     .filter((item): item is NonNullable<typeof item> => Boolean(item))
     .sort((left, right) => {
       if (right.signalStrength !== left.signalStrength) {
@@ -244,22 +357,67 @@ export async function scanTdxSignals(
 
       return left.stockCode.localeCompare(right.stockCode);
     });
-  const failedCount = settled.filter((entry) => !entry.ok).length;
-  const startIndex = (normalized.page - 1) * normalized.pageSize;
-
-  if (failedCount > 0 && failedCount === settled.length) {
-    throw new AppError(
-      ERROR_CODES.DATA_SOURCE_ERROR,
-      502,
-      '策略扫描依赖的历史行情数据源暂时不可用，请稍后重试。',
-    );
-  }
 
   return {
-    total: items.length,
-    page: normalized.page,
-    pageSize: normalized.pageSize,
     scanDate,
-    items: items.slice(startIndex, startIndex + normalized.pageSize),
+    items,
+    universeSource: universe.source,
+    universeSize: universe.items.length,
   };
+}
+
+async function getOrBuildScanSnapshot(
+  normalized: ReturnType<typeof normalizeRequest>,
+  scanDate: string,
+): Promise<{ snapshot: ScanCacheSnapshot; cached: boolean }> {
+  const cacheKey = buildScanCacheKey(normalized, scanDate);
+  const cachedEntry = scanCache.get(cacheKey);
+
+  if (cachedEntry?.value && Date.now() < cachedEntry.expiresAt) {
+    return {
+      snapshot: cachedEntry.value,
+      cached: true,
+    };
+  }
+
+  if (cachedEntry?.promise) {
+    return {
+      snapshot: await cachedEntry.promise,
+      cached: false,
+    };
+  }
+
+  const promise = buildScanSnapshot(normalized, scanDate)
+    .then((snapshot) => {
+      scanCache.set(cacheKey, {
+        expiresAt: Date.now() + SCAN_CACHE_TTL_MS,
+        value: snapshot,
+      });
+
+      return snapshot;
+    })
+    .catch((error) => {
+      scanCache.delete(cacheKey);
+      throw error;
+    });
+
+  scanCache.set(cacheKey, {
+    expiresAt: Date.now() + SCAN_CACHE_TTL_MS,
+    promise,
+  });
+
+  return {
+    snapshot: await promise,
+    cached: false,
+  };
+}
+
+export async function scanTdxSignals(
+  request: TdxScanRequest,
+): Promise<TdxScanResponse> {
+  const normalized = normalizeRequest(request);
+  const scanDate = getShanghaiDateString();
+  const { snapshot, cached } = await getOrBuildScanSnapshot(normalized, scanDate);
+
+  return buildPagedResponse(snapshot, normalized.page, normalized.pageSize, cached);
 }

@@ -1,13 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { LimitUpPanel } from '@/components/LimitUpPanel';
 import { TdxScanPanel } from '@/components/TdxScanPanel';
 import type { LimitUpStock, PoolStock } from '@/lib/contracts/strategy';
+import { useToast } from '@/lib/hooks/use-toast';
 import type { TdxScanResult } from '@/lib/tdx/types';
 import { addToPool, createPool, getActivePool } from '@/lib/services/stock-pool';
+import { getShanghaiDateString } from '@/lib/utils/date';
 
 type StrategyPageClientProps = {
   demoMode?: boolean;
@@ -35,21 +37,7 @@ const STRATEGY_TABS: Array<{
 export function StrategyPageClient({ demoMode = false }: StrategyPageClientProps) {
   const [activeTab, setActiveTab] = useState<StrategyTab>('tdx');
   const [activePool, setActivePool] = useState(() => getActivePool());
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!toastMessage) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      setToastMessage(null);
-    }, 2800);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, [toastMessage]);
+  const [toastMessage, setToastMessage] = useToast();
 
   function ensureActivePool() {
     return getActivePool() ?? createPool('策略观察池', []);
@@ -64,6 +52,7 @@ export function StrategyPageClient({ demoMode = false }: StrategyPageClientProps
   }
 
   function mapTdxStockToPool(item: TdxScanResult): PoolStock {
+    const addDate = getShanghaiDateString();
     const tdxSignalType =
       item.meiZhu && item.meiYangYang
         ? 'both'
@@ -72,30 +61,32 @@ export function StrategyPageClient({ demoMode = false }: StrategyPageClientProps
           : 'meiZhu';
     const addSource =
       item.meiZhu && item.meiYangYang
-        ? '美柱 + 美阳阳共振'
+        ? `美柱 + 美阳阳共振 / 信号日 ${item.signalDate}`
         : item.meiYangYang
-          ? '美阳阳扫描'
-          : '美柱扫描';
+          ? `美阳阳扫描 / 信号日 ${item.signalDate}`
+          : `美柱扫描 / 信号日 ${item.signalDate}`;
 
     return {
       stockCode: item.stockCode,
       stockName: item.stockName,
       market: item.market,
       addReason: 'tdx_signal',
-      addDate: item.signalDate,
+      addDate,
       addSource,
       tdxSignalType,
     };
   }
 
   function mapLimitUpStockToPool(item: LimitUpStock): PoolStock {
+    const addDate = getShanghaiDateString();
+
     return {
       stockCode: item.stockCode,
       stockName: item.stockName,
       market: item.market,
       addReason: 'limit_up',
-      addDate: item.lastLimitUpDate,
-      addSource: `近 30 日涨停 ${item.limitUpCount} 次`,
+      addDate,
+      addSource: `近 30 日涨停 ${item.limitUpCount} 次 / 最近涨停 ${item.lastLimitUpDate}`,
       limitUpCount: item.limitUpCount,
     };
   }

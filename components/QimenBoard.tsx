@@ -597,8 +597,8 @@ export function QimenBoard({
           </p>
           {selectedPalaceMetaItems.length > 0 && !selectionMode ? (
             <div className="mt-4 flex flex-wrap gap-2">
-              {selectedPalaceMetaItems.map((item) => (
-                <span className="mystic-chip" key={item}>
+              {selectedPalaceMetaItems.map((item, index) => (
+                <span className="mystic-chip" key={`${item}-${index}`}>
                   {item}
                 </span>
               ))}
@@ -746,8 +746,8 @@ export function QimenBoard({
                             {result.deepDiagnosis.firstImpression}
                           </p>
                           <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--text-secondary)]">
-                            {result.deepDiagnosis.decisionRationale.map((item) => (
-                              <p key={item}>{item}</p>
+                            {result.deepDiagnosis.decisionRationale.map((item, index) => (
+                              <p key={`${item}-${index}`}>{item}</p>
                             ))}
                           </div>
                         </article>
@@ -777,16 +777,16 @@ export function QimenBoard({
                         <article className="rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-muted)] px-4 py-4">
                           <p className="mystic-section-label">行动指南</p>
                           <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--text-secondary)]">
-                            {result.deepDiagnosis.actionGuide.map((item) => (
-                              <p key={item}>{item}</p>
+                            {result.deepDiagnosis.actionGuide.map((item, index) => (
+                              <p key={`${item}-${index}`}>{item}</p>
                             ))}
                           </div>
                           {result.deepDiagnosis.keyTimingHints.length > 0 ? (
                             <div className="mt-4 border-t border-[var(--border-soft)] pt-4">
                               <p className="mystic-section-label">关键节点</p>
                               <div className="mt-3 space-y-3 text-sm leading-7 text-[var(--text-secondary)]">
-                                {result.deepDiagnosis.keyTimingHints.map((item) => (
-                                  <p key={item}>{item}</p>
+                                {result.deepDiagnosis.keyTimingHints.map((item, index) => (
+                                  <p key={`${item}-${index}`}>{item}</p>
                                 ))}
                               </div>
                             </div>

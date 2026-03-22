@@ -43,6 +43,7 @@ async function diagnoseSingleStock(stockCode: string): Promise<PoolStockDiagnosi
 
   return {
     stockCode: stock.code,
+    stockName: stock.name,
     diagnosisTime: new Date().toISOString(),
     rating: patternAnalysis.rating,
     totalScore: patternAnalysis.totalScore,
@@ -106,7 +107,7 @@ export function generateComparisonTable(
     .sort((left, right) => right.totalScore - left.totalScore)
     .map((result) => ({
       stockCode: result.stockCode,
-      stockName: result.stockCode,
+      stockName: result.stockName,
       rating: result.rating,
       totalScore: result.totalScore,
       riskLevel: result.riskLevel,

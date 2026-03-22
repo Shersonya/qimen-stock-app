@@ -7,6 +7,15 @@ import { renderInWorkbench } from '@/tests/ui/render-workbench';
 const mockPush = jest.fn();
 const mockPathname = jest.fn(() => '/settings');
 
+function setViewportWidth(width: number) {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    value: width,
+    writable: true,
+  });
+  window.dispatchEvent(new Event('resize'));
+}
+
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
   usePathname: () => mockPathname(),
@@ -17,6 +26,7 @@ describe('SettingsPageClient', () => {
     window.localStorage.clear();
     mockPush.mockReset();
     mockPathname.mockReturnValue('/settings');
+    setViewportWidth(1024);
   });
 
   it('manages pattern, risk, and visual settings with import/export support', async () => {
@@ -52,5 +62,19 @@ describe('SettingsPageClient', () => {
 
     expect(await screen.findByText('配置已导入并立即生效。')).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: '默认最低评级' })).toHaveValue('S');
+  });
+
+  it('renders stacked mobile cards for pattern settings', async () => {
+    setViewportWidth(375);
+
+    renderInWorkbench(<SettingsPageClient />);
+
+    const mobileList = await screen.findByTestId('settings-pattern-mobile-list');
+
+    expect(mobileList).toBeInTheDocument();
+    expect(within(mobileList).getAllByRole('checkbox').length).toBeGreaterThan(0);
+    expect(within(mobileList).getAllByRole('spinbutton').length).toBeGreaterThan(0);
+    expect(within(mobileList).getAllByRole('combobox').length).toBeGreaterThan(0);
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 });

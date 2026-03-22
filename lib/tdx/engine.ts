@@ -333,23 +333,23 @@ export function calculateTdxIndicators(
     const x45 = close[index] <= previousClose && close[index] > previousClose * 0.97;
     const x46 = close[index] <= previousClose * 0.97;
     const x47 =
-      refBoolean(results.map((item) => item.X_45), index, 1) &&
+      refBoolean(results.map((item) => Boolean(item.X_45)), index, 1) &&
       close[index] >= refNumber(open, index, 1) &&
       close[index] >= previousClose * 1.04;
     const x48 =
-      refBoolean(results.map((item) => item.X_46), index, 1) &&
+      refBoolean(results.map((item) => Boolean(item.X_46)), index, 1) &&
       close[index] >= (refNumber(open, index, 1) + previousClose) * 0.5 &&
       close[index] >= previousClose * 1.045;
     const x49 = x47 || x48;
     const x50 =
       close[index] >= refNumber(close, index, 2) * 1.045 &&
       close[index] >= previousClose * 1.04 &&
-      refBoolean(results.map((item) => item.X_45), index, 2) &&
+      refBoolean(results.map((item) => Boolean(item.X_45)), index, 2) &&
       close[index] >= refNumber(open, index, 2);
     const x51 =
       close[index] >= refNumber(close, index, 2) * 1.05 &&
       close[index] >= previousClose * 1.045 &&
-      refBoolean(results.map((item) => item.X_46), index, 2) &&
+      refBoolean(results.map((item) => Boolean(item.X_46)), index, 2) &&
       close[index] >= (refNumber(open, index, 1) + previousClose) * 0.5;
     const x52 = x50 || x51;
     const x53 = toWeight(x49 || x52, 0.6);
@@ -359,7 +359,7 @@ export function calculateTdxIndicators(
       high[index] >= previousClose * 1.05 &&
       trueCGain >= 5;
     const x56 = x54 || x55;
-    const limitUpCountHistory = COUNT(results.map((item) => item.X_22), 13);
+    const limitUpCountHistory = COUNT(results.map((item) => Boolean(item.X_22)), 13);
     const x57 = (
       (limitUpCountHistory[index] > 0 ? x16 > 1 : x16 > 2.68) &&
       volume[index] > refNumber(volume, index, 1) * 1.5 &&
@@ -430,11 +430,11 @@ export function calculateTdxIndicators(
     const x82 = x15 >= previousClose * 1.007 && close[index] >= previousClose * 0.993;
     const x83 =
       refNumber(close, index, 1) >= refNumber(close, index, 2) * 1.007 &&
-      refNumber(results.map((item) => item.X_18), index, 1) > -0.8 &&
+      refNumber(results.map((item) => Number(item.X_18)), index, 1) > -0.8 &&
       close[index] >= refNumber(close, index, 1) &&
       volume[index] <= refNumber(volume, index, 1);
     const x84 =
-      refNumber(results.map((item) => item.X_15), index, 1) >= refNumber(close, index, 2) * 1.007 &&
+      refNumber(results.map((item) => Number(item.X_15)), index, 1) >= refNumber(close, index, 2) * 1.007 &&
       refNumber(close, index, 1) >= refNumber(close, index, 2) * 0.993 &&
       close[index] >= refNumber(close, index, 1) &&
       volume[index] <= refNumber(volume, index, 1);
@@ -545,7 +545,7 @@ export function calculateTdxIndicators(
     result.X_4 = maVol5[index] ?? 0;
     result.X_5 = maVol10[index] ?? 0;
     result.X_6 = close[index] * circulatingShares[index] / 10000 / 10000;
-    result.X_7 = result.X_6 < 50;
+    result.X_7 = Number(result.X_6) < 50;
     result.virtualVolume = volume[index];
     result.realVolume = volume[index];
     result.volumeRatio = safeDivide(volume[index], previousClose === close[index] ? refNumber(volume, index, 1) : refNumber(volume, index, 1));

@@ -2,6 +2,8 @@
 
 import { scanTdxSignals, resetTdxScanCacheForTests } from '@/lib/services/tdx-scan';
 import { ERROR_CODES } from '@/lib/contracts/qimen';
+import { AppError } from '@/lib/errors';
+import { filterLimitUpStocks } from '@/lib/services/limit-up';
 import { getMarketStockPool } from '@/lib/services/market-screen';
 import { getStockDailyHistory } from '@/lib/services/stock-history';
 import { calculateTdxIndicators } from '@/lib/tdx/engine';
@@ -9,10 +11,12 @@ import { calculateTdxIndicators } from '@/lib/tdx/engine';
 jest.mock('@/lib/services/market-screen');
 jest.mock('@/lib/services/stock-history');
 jest.mock('@/lib/tdx/engine');
+jest.mock('@/lib/services/limit-up');
 
 const mockedGetMarketStockPool = jest.mocked(getMarketStockPool);
 const mockedGetStockDailyHistory = jest.mocked(getStockDailyHistory);
 const mockedCalculateTdxIndicators = jest.mocked(calculateTdxIndicators);
+const mockedFilterLimitUpStocks = jest.mocked(filterLimitUpStocks);
 
 type HistoryPoint = Awaited<ReturnType<typeof getStockDailyHistory>>[number];
 
@@ -48,11 +52,22 @@ function createIndicator(args: {
   return Array.from({ length: 180 }, () => ({
     X_14: 1.8,
     X_74: signalStrength,
+    virtualVolume: 120000,
+    realVolume: 100000,
+    volumeRatio: 1.8,
+    angle20: 12,
+    trueC: 10.5,
     trueCGain: 3.2,
+    MA5: 10.2,
+    MA10: 10.1,
+    MA20: 10,
+    MA60: 9.8,
+    MA120: 9.5,
     maUp,
     fiveLinesBull,
     biasRate,
     meiZhu: meiZhu ? 0.5 : 0,
+    shadowPressure: 10.8,
     meiYangYang,
   })) as ReturnType<typeof calculateTdxIndicators>;
 }
@@ -74,11 +89,19 @@ function createMarketItem(
 }
 
 describe('tdx scan service', () => {
+  let consoleWarnSpy: jest.SpyInstance;
+
   beforeEach(() => {
     resetTdxScanCacheForTests();
     mockedGetMarketStockPool.mockReset();
     mockedGetStockDailyHistory.mockReset();
     mockedCalculateTdxIndicators.mockReset();
+    mockedFilterLimitUpStocks.mockReset();
+    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleWarnSpy.mockRestore();
   });
 
   it('filters, sorts, paginates, and caches repeated history fetches', async () => {
@@ -129,6 +152,11 @@ describe('tdx scan service', () => {
 
     expect(first.total).toBe(2);
     expect(first.items[0]?.stockCode).toBe('300001');
+    expect(first.meta).toMatchObject({
+      cached: false,
+      universeSource: 'market_pool',
+      universeSize: 3,
+    });
 
     const second = await scanTdxSignals({
       signalType: 'both',
@@ -137,7 +165,13 @@ describe('tdx scan service', () => {
     });
 
     expect(second.items[0]?.stockCode).toBe('600001');
+    expect(second.meta).toMatchObject({
+      cached: true,
+      universeSource: 'market_pool',
+      universeSize: 3,
+    });
     expect(mockedGetStockDailyHistory).toHaveBeenCalledTimes(3);
+    expect(mockedGetMarketStockPool).toHaveBeenCalledTimes(1);
   });
 
   it('keeps the overall scan alive when one stock history request fails', async () => {
@@ -160,25 +194,10 @@ describe('tdx scan service', () => {
 
     expect(result.total).toBe(1);
     expect(result.items[0]?.stockCode).toBe('300001');
-  });
-
-  it('throws a data-source error when all stock history requests fail', async () => {
-    mockedGetMarketStockPool.mockResolvedValue([
-      createMarketItem('600001', '样本A', 'SH'),
-      createMarketItem('300001', '样本B', 'CYB'),
-    ]);
-    mockedGetStockDailyHistory.mockRejectedValue(new Error('network'));
-
-    await expect(
-      scanTdxSignals({
-        signalType: 'both',
-        page: 1,
-        pageSize: 10,
-      }),
-    ).rejects.toMatchObject({
-      code: ERROR_CODES.DATA_SOURCE_ERROR,
-      statusCode: 502,
-    });
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      '[TDX Scan] Failed to process 600001:',
+      expect.any(Error),
+    );
   });
 
   it('applies signal strength and trend filters', async () => {
@@ -207,5 +226,57 @@ describe('tdx scan service', () => {
     });
 
     expect(result.total).toBe(0);
+  });
+
+  it('falls back to recent limit-up stocks when the market pool source is unavailable', async () => {
+    mockedGetMarketStockPool.mockRejectedValueOnce(
+      new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502),
+    );
+    mockedFilterLimitUpStocks.mockResolvedValueOnce({
+      total: 1,
+      page: 1,
+      pageSize: 200,
+      filterDate: '2026-03-20',
+      lookbackDays: 5,
+      items: [
+        {
+          stockCode: '600001',
+          stockName: '样本A',
+          market: 'SH',
+          limitUpDates: ['2026-03-20'],
+          limitUpCount: 1,
+          firstLimitUpDate: '2026-03-20',
+          lastLimitUpDate: '2026-03-20',
+          latestClose: 12.3,
+          latestVolume: 120000,
+          sector: '测试行业',
+        },
+      ],
+    });
+    mockedGetStockDailyHistory.mockResolvedValueOnce(createHistory(180));
+    mockedCalculateTdxIndicators.mockReturnValueOnce(
+      createIndicator({ signalStrength: 4.2, meiZhu: true }),
+    );
+
+    const result = await scanTdxSignals({
+      signalType: 'both',
+      page: 1,
+      pageSize: 10,
+    });
+
+    expect(result.total).toBe(1);
+    expect(result.items[0]?.stockCode).toBe('600001');
+    expect(result.meta).toMatchObject({
+      cached: false,
+      universeSource: 'limit_up_fallback',
+      universeSize: 1,
+    });
+    expect(result.meta.notice).toContain('主市场池暂不可用');
+    expect(mockedFilterLimitUpStocks).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lookbackDays: 5,
+        pageSize: 200,
+      }),
+    );
   });
 });

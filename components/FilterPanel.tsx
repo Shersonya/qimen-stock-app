@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   ERROR_CODES,
@@ -155,6 +155,24 @@ function hasActiveFilters(filters: MarketScreenFilters): boolean {
   return hasWindowFilters || hasPatternFilters(filters.pattern);
 }
 
+export function applyBoardFilterPreset(
+  filters: MarketScreenFilters,
+  boardFilterPreset: BoardFilterPreset,
+): MarketScreenFilters {
+  return {
+    ...filters,
+    pattern: {
+      ...filters.pattern,
+      names: boardFilterPreset.patternNames
+        ? [...boardFilterPreset.patternNames]
+        : filters.pattern?.names ?? [],
+      palacePositions: boardFilterPreset.palacePositions
+        ? [...boardFilterPreset.palacePositions]
+        : filters.pattern?.palacePositions ?? [],
+    },
+  };
+}
+
 function WindowSummary({
   item,
 }: {
@@ -219,6 +237,7 @@ export function FilterPanel({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [expandedWindowKey, setExpandedWindowKey] = useState<ExpandableCardKey>('hour');
+  const filtersRef = useRef(filters);
   const appliedPresetKeyRef = useRef<number | null>(null);
   const demoAutoplayRef = useRef(false);
 
@@ -277,10 +296,10 @@ export function FilterPanel({
     };
   }, []);
 
-  async function fetchScreening(
+  const fetchScreening = useCallback(async (
     nextPage: number,
     nextFilters: MarketScreenFilters,
-  ) {
+  ) => {
     setIsSubmitting(true);
 
     try {
@@ -326,7 +345,11 @@ export function FilterPanel({
     } finally {
       setIsSubmitting(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
 
   useEffect(() => {
     if (
@@ -335,25 +358,19 @@ export function FilterPanel({
     ) {
       return;
     }
+    // 只对同一个 preset key 应用一次，避免 setFilters 触发的 rerender
+    // 再次进入这个 effect 时重复写回，形成联动更新回环。
     appliedPresetKeyRef.current = boardFilterPreset.key;
 
-    const nextFilters: MarketScreenFilters = {
-      ...filters,
-      pattern: {
-        ...filters.pattern,
-        names: boardFilterPreset.patternNames
-          ? [...boardFilterPreset.patternNames]
-          : filters.pattern?.names ?? [],
-        palacePositions: boardFilterPreset.palacePositions
-          ? [...boardFilterPreset.palacePositions]
-          : filters.pattern?.palacePositions ?? [],
-      },
-    };
+    const nextFilters = applyBoardFilterPreset(
+      filtersRef.current,
+      boardFilterPreset,
+    );
 
     setPresetLabel(boardFilterPreset.sourceLabel);
     setFilters(nextFilters);
     void fetchScreening(1, nextFilters);
-  }, [boardFilterPreset, filters]);
+  }, [boardFilterPreset, fetchScreening]);
 
   useEffect(() => {
     if (demoAutoplayRef.current || !isDemoAutoplay()) {
@@ -362,7 +379,7 @@ export function FilterPanel({
 
     demoAutoplayRef.current = true;
     void fetchScreening(1, getInitialFilters());
-  }, []);
+  }, [fetchScreening]);
 
   function handleFieldChange(
     windowKey: WindowKey,
@@ -628,8 +645,8 @@ export function FilterPanel({
               </p>
               <div className="flex flex-wrap gap-2">
                 {activeFilterSummary.length > 0 ? (
-                  activeFilterSummary.map((item) => (
-                    <span className="mystic-chip" key={item}>
+                  activeFilterSummary.map((item, index) => (
+                    <span className="mystic-chip" key={`${item}-${index}`}>
                       {item}
                     </span>
                   ))

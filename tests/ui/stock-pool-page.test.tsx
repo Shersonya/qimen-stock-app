@@ -9,6 +9,15 @@ import { renderInWorkbench } from '@/tests/ui/render-workbench';
 
 const mockPathname = jest.fn(() => '/stock-pool');
 
+function setViewportWidth(width: number) {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    value: width,
+    writable: true,
+  });
+  window.dispatchEvent(new Event('resize'));
+}
+
 jest.mock('next/navigation', () => ({
   usePathname: () => mockPathname(),
 }));
@@ -22,6 +31,7 @@ const mockedRequestBatchDiagnosis = jest.mocked(requestBatchDiagnosis);
 function createDiagnosis(stockCode: string, overrides: Partial<PoolStockDiagnosis> = {}): PoolStockDiagnosis {
   return {
     stockCode,
+    stockName: stockCode === '600519' ? '贵州茅台' : stockCode === '300750' ? '宁德时代' : stockCode,
     diagnosisTime: '2026-03-21T10:00:00.000Z',
     rating: 'A',
     totalScore: 82,
@@ -40,6 +50,7 @@ describe('StockPoolPageClient', () => {
     mockPathname.mockReset();
     mockPathname.mockReturnValue('/stock-pool');
     mockedRequestBatchDiagnosis.mockReset();
+    setViewportWidth(1024);
     mockedRequestBatchDiagnosis.mockImplementation(async ({ stockCodes }) =>
       stockCodes.map((stockCode, index) =>
         createDiagnosis(stockCode, {
@@ -110,6 +121,7 @@ describe('StockPoolPageClient', () => {
     const activePool = getActivePool();
 
     expect(activePool?.stocks[0]?.diagnosisResult?.rating).toBe('S');
+    expect(activePool?.stocks[0]?.diagnosisResult?.stockName).toBe('贵州茅台');
     expect(mockedRequestBatchDiagnosis).toHaveBeenCalledWith({
       stockCodes: ['600519'],
       poolId: activePool?.id,
@@ -140,5 +152,28 @@ describe('StockPoolPageClient', () => {
     const snapshotPanel = screen.getByTestId('snapshot-panel');
 
     expect(within(snapshotPanel).getByText(/当前新增/)).toBeInTheDocument();
+  });
+
+  it('switches between mobile stock-pool sections without long scrolling', async () => {
+    const user = userEvent.setup();
+
+    setViewportWidth(375);
+    renderInWorkbench(<StockPoolPageClient />);
+
+    expect(await screen.findByTestId('stock-pool-mobile-layout')).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /股票池/ })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+
+    await user.click(screen.getByRole('tab', { name: /批量诊断/ }));
+
+    expect(screen.getByTestId('batch-diagnosis-panel')).toBeInTheDocument();
+    expect(screen.queryByTestId('stock-pool-table')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: /历史留痕/ }));
+
+    expect(screen.getByTestId('removed-stocks-panel')).toBeInTheDocument();
+    expect(screen.getByTestId('snapshot-panel')).toBeInTheDocument();
   });
 });

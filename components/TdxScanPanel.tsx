@@ -7,6 +7,7 @@ import { requestTdxScan } from '@/lib/client-api';
 import type { ApiError } from '@/lib/contracts/qimen';
 import type { TdxScanRequest, TdxScanResponse } from '@/lib/contracts/strategy';
 import type { TdxScanResult } from '@/lib/tdx/types';
+import { toApiError } from '@/lib/utils/api-error';
 
 type TdxSortKey = 'signalStrength' | 'trueCGain' | 'biasRate' | 'volumeRatio' | 'closePrice' | 'signalDate';
 
@@ -27,6 +28,12 @@ const SORT_LABELS: Record<TdxSortKey, string> = {
   signalDate: '信号日期',
 };
 
+const UNIVERSE_SOURCE_LABELS = {
+  market_pool: '主市场池',
+  limit_up_fallback: '涨停活跃降级',
+  bundled_market_fallback: '内置活跃样本',
+} as const;
+
 const DEFAULT_REQUEST: TdxScanRequest = {
   signalType: 'both',
   requireMaUp: false,
@@ -36,17 +43,6 @@ const DEFAULT_REQUEST: TdxScanRequest = {
   page: 1,
   pageSize: 5,
 };
-
-function toApiError(error: unknown): ApiError {
-  if (typeof error === 'object' && error && 'code' in error && 'message' in error) {
-    return error as ApiError;
-  }
-
-  return {
-    code: 'API_ERROR',
-    message: '策略扫描失败，请稍后重试。',
-  };
-}
 
 function compareValues(left: TdxScanResult, right: TdxScanResult, key: TdxSortKey) {
   if (key === 'signalDate') {
@@ -102,7 +98,7 @@ export function TdxScanPanel({
         pageSize: payload.pageSize,
       });
     } catch (nextError) {
-      setError(toApiError(nextError));
+      setError(toApiError(nextError, 'API_ERROR', '策略扫描失败，请稍后重试。'));
     } finally {
       setIsSubmitting(false);
     }
@@ -360,9 +356,23 @@ export function TdxScanPanel({
             <div className="flex flex-wrap gap-2">
               <span className="mystic-chip">扫描日 {result.scanDate}</span>
               <span className="mystic-chip">页大小 {result.pageSize}</span>
+              <span className="mystic-chip">
+                扫描宇宙 {UNIVERSE_SOURCE_LABELS[result.meta.universeSource]}
+              </span>
+              <span className="mystic-chip">宇宙样本 {result.meta.universeSize}</span>
+              {result.meta.cached ? <span className="mystic-chip">短期缓存命中</span> : null}
             </div>
           ) : null}
         </div>
+
+        {result?.meta.notice ? (
+          <div
+            className="mt-4 rounded-2xl border border-[rgba(216,179,90,0.35)] bg-[rgba(216,179,90,0.12)] p-4 text-sm text-[var(--text-primary)]"
+            data-testid="tdx-scan-notice"
+          >
+            {result.meta.notice}
+          </div>
+        ) : null}
 
         {result ? (
           <div className="mt-5 overflow-x-auto rounded-[1.2rem] border border-white/10">

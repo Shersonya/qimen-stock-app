@@ -515,6 +515,11 @@ export type MarketScreenSuccessResponse = {
   page: number;
   pageSize: number;
   items: MarketScreenResultItem[];
+  meta?: {
+    source: 'live_market_pool' | 'bundled_limit_up_snapshot';
+    generatedAt?: string;
+    notice?: string;
+  };
 };
 
 export type MarketScreenApiResponse =
@@ -556,6 +561,8 @@ export type MarketDashboardResponse = {
   cache: {
     cached: boolean;
     expiresAt: string | null;
+    source?: 'live_market_pool' | 'bundled_limit_up_snapshot';
+    notice?: string;
   };
 };
 

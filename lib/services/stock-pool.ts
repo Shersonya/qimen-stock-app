@@ -25,6 +25,7 @@ import {
   writeAllPools,
   writeAllSnapshots,
 } from '@/lib/storage/pool-storage';
+import { getShanghaiDateString } from '@/lib/utils/date';
 
 const VALID_ADD_REASONS = new Set<PoolStock['addReason']>([
   'limit_up',
@@ -56,7 +57,7 @@ function now() {
 }
 
 function todayString(date = now()) {
-  return date.toISOString().slice(0, 10);
+  return getShanghaiDateString(date);
 }
 
 function nowIsoString(date = now()) {
@@ -195,6 +196,7 @@ export function normalizeDiagnosisResult(
 
   return {
     stockCode,
+    stockName: normalizeText(candidate.stockName) || stockCode,
     diagnosisTime,
     rating: rating as QimenStockRating,
     totalScore: Number(candidate.totalScore) || 0,
@@ -471,6 +473,18 @@ export function getAllPools() {
   return clone(resolvePools());
 }
 
+export function getPoolById(poolId: string) {
+  const normalizedPoolId = normalizePoolId(poolId);
+
+  if (!normalizedPoolId) {
+    return null;
+  }
+
+  const pool = resolvePools().find((item) => item.id === normalizedPoolId) ?? null;
+
+  return pool ? clone(pool) : null;
+}
+
 export function getActivePool() {
   const pools = resolvePools();
   const activePoolId = readActivePoolId();
@@ -716,9 +730,9 @@ export function importPool(jsonStr: string) {
   }
 }
 
-export function cleanupExpiredData() {
+export function cleanupExpiredData(retentionDays = DEFAULT_RETENTION_DAYS) {
   const snapshots = resolveSnapshots();
-  const nextSnapshots = pruneExpiredSnapshots(snapshots, now(), DEFAULT_RETENTION_DAYS);
+  const nextSnapshots = pruneExpiredSnapshots(snapshots, now(), retentionDays);
 
   if (nextSnapshots.length !== snapshots.length) {
     persistSnapshots(nextSnapshots);

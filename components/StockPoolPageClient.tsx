@@ -6,7 +6,9 @@ import { BatchDiagnosisPanel } from '@/components/BatchDiagnosisPanel';
 import { DiagnosisCompareTable } from '@/components/DiagnosisCompareTable';
 import { ErrorNotice } from '@/components/ErrorNotice';
 import { PoolManagerPanel } from '@/components/PoolManagerPanel';
+import { useIsMobileViewport } from '@/components/useIsMobileViewport';
 import { requestBatchDiagnosis } from '@/lib/client-api';
+import { useToast } from '@/lib/hooks/use-toast';
 import type { ApiError } from '@/lib/contracts/qimen';
 import type {
   BatchDiagnosisProgress,
@@ -31,6 +33,7 @@ import {
   setActivePool,
   addToPool,
 } from '@/lib/services/stock-pool';
+import { toApiError } from '@/lib/utils/api-error';
 
 type StockPoolPageClientProps = {
   demoMode?: boolean;
@@ -40,17 +43,6 @@ type SnapshotComparison = {
   added: string[];
   removed: string[];
 };
-
-function toApiError(error: unknown, fallbackMessage: string): ApiError {
-  if (typeof error === 'object' && error && 'code' in error && 'message' in error) {
-    return error as ApiError;
-  }
-
-  return {
-    code: 'API_ERROR',
-    message: fallbackMessage,
-  };
-}
 
 function downloadFile(filename: string, content: string, mimeType: string) {
   const blob = new Blob([content], { type: mimeType });
@@ -149,11 +141,15 @@ export function StockPoolPageClient({
   const [newPoolName, setNewPoolName] = useState('策略观察池');
   const [importValue, setImportValue] = useState('');
   const [isImportOpen, setIsImportOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useToast();
   const [error, setError] = useState<ApiError | null>(null);
   const [diagnosisError, setDiagnosisError] = useState<ApiError | null>(null);
   const [progress, setProgress] = useState<BatchDiagnosisProgress | null>(null);
   const [isRunningDiagnosis, setIsRunningDiagnosis] = useState(false);
+  const [mobileSection, setMobileSection] = useState<'manager' | 'diagnosis' | 'history'>(
+    'manager',
+  );
+  const isMobileViewport = useIsMobileViewport();
 
   function syncPoolState(seedDemo = false) {
     cleanupExpiredData();
@@ -207,20 +203,6 @@ export function StockPoolPageClient({
     };
   }, [demoMode]);
 
-  useEffect(() => {
-    if (!toastMessage) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      setToastMessage(null);
-    }, 2800);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, [toastMessage]);
-
   const comparisonData = useMemo(() => createComparisonTableData(activePool), [activePool]);
   const staleCount = useMemo(
     () => comparisonData.items.filter((item) => item.stale).length,
@@ -249,7 +231,7 @@ export function StockPoolPageClient({
         showToast(successMessage);
       }
     } catch (nextError) {
-      setError(toApiError(nextError, '股票池操作失败，请稍后重试。'));
+      setError(toApiError(nextError, 'API_ERROR', '股票池操作失败，请稍后重试。'));
     }
   }
 
@@ -297,7 +279,7 @@ export function StockPoolPageClient({
       downloadFile(filename, payload, 'application/json;charset=utf-8');
       showToast('已导出当前股票池 JSON。');
     } catch (nextError) {
-      setError(toApiError(nextError, '导出股票池失败，请稍后重试。'));
+      setError(toApiError(nextError, 'API_ERROR', '导出股票池失败，请稍后重试。'));
     }
   }
 
@@ -447,6 +429,24 @@ export function StockPoolPageClient({
 
   const removedStocks = activePool?.removedStocks ?? [];
 
+  const mobileSectionItems = [
+    {
+      id: 'manager' as const,
+      label: '股票池',
+      hint: '增删、导入、快照',
+    },
+    {
+      id: 'diagnosis' as const,
+      label: '批量诊断',
+      hint: '执行与对比',
+    },
+    {
+      id: 'history' as const,
+      label: '历史留痕',
+      hint: '剔除与快照',
+    },
+  ];
+
   return (
     <section className="workbench-page" data-testid="stock-pool-page">
       <header className="workbench-page-header">
@@ -470,168 +470,367 @@ export function StockPoolPageClient({
         </div>
       ) : null}
 
-      <div className="mt-6">
-        <PoolManagerPanel
-          activePool={activePool}
-          importValue={importValue}
-          isDiagnosing={isRunningDiagnosis}
-          isImportOpen={isImportOpen}
-          newPoolName={newPoolName}
-          onCreatePool={handleCreatePool}
-          onDeletePool={handleDeletePool}
-          onExportPool={handleExportPool}
-          onImportPool={handleImportPool}
-          onImportValueChange={setImportValue}
-          onNewPoolNameChange={setNewPoolName}
-          onRemoveSelected={handleRemoveSelected}
-          onRemoveStock={handleRemoveStock}
-          onRunStockDiagnosis={(stockCode) => {
-            void runDiagnosis([stockCode]);
-          }}
-          onSaveSnapshot={handleSaveSnapshot}
-          onSelectPool={handleSelectPool}
-          onToggleAll={handleToggleAll}
-          onToggleImport={() => setIsImportOpen((current) => !current)}
-          onToggleStock={handleToggleStock}
-          pools={pools}
-          selectedCodes={selectedCodes}
-        />
-      </div>
-
-      <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
-        <div className="space-y-6">
-          <BatchDiagnosisPanel
-            error={diagnosisError}
-            isRunning={isRunningDiagnosis}
-            onRunAll={() => {
-              void runDiagnosis(activePool?.stocks.map((stock) => stock.stockCode) ?? []);
-            }}
-            onRunSelected={() => {
-              void runDiagnosis(selectedCodes);
-            }}
-            progress={progress}
-            selectedCount={selectedCodes.length}
-            staleCount={staleCount}
-            totalCount={activePool?.stocks.length ?? 0}
-          />
-
-          {comparisonData.items.length > 0 ? (
-            <DiagnosisCompareTable data={comparisonData} />
-          ) : (
-            <section className="workbench-card" data-testid="diagnosis-compare-empty">
-              <p className="mystic-section-label">诊断对比</p>
-              <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
-                等待批量诊断结果
-              </h3>
-              <p className="mt-3 text-sm text-[var(--text-secondary)]">
-                先勾选股票并执行诊断，排序对比表会在这里展示得分、风险和成功率。
-              </p>
-            </section>
-          )}
-        </div>
-
-        <aside className="space-y-6">
-          <section className="workbench-card" data-testid="removed-stocks-panel">
-            <p className="mystic-section-label">已剔除股票</p>
+      {isMobileViewport ? (
+        <div className="mt-6 space-y-6" data-testid="stock-pool-mobile-layout">
+          <section className="workbench-card" data-testid="stock-pool-mobile-switcher">
+            <p className="mystic-section-label">移动工作台</p>
             <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
-              {removedStocks.length} 条历史记录
+              先选区块，再做操作
             </h3>
-            {removedStocks.length > 0 ? (
-              <ul className="mt-5 space-y-3 text-sm text-[var(--text-secondary)]">
-                {removedStocks.slice().reverse().map((stock) => (
-                  <li
-                    className="rounded-2xl border border-white/10 bg-black/10 px-4 py-3"
-                    key={`${stock.stockCode}-${stock.removeDate}`}
-                  >
-                    <div className="font-semibold text-[var(--text-primary)]">
-                      {stock.stockCode} {stock.stockName}
+            <div className="mt-4 grid grid-cols-3 gap-2" role="tablist" aria-label="股票池移动分区">
+              {mobileSectionItems.map((item) => (
+                <button
+                  aria-selected={mobileSection === item.id}
+                  className={`workbench-tab flex h-full min-h-[4.75rem] w-full items-start justify-start ${
+                    mobileSection === item.id ? 'is-active' : ''
+                  }`}
+                  key={item.id}
+                  onClick={() => setMobileSection(item.id)}
+                  role="tab"
+                  type="button"
+                >
+                  <div className="text-left">
+                    <div className="text-sm font-semibold">{item.label}</div>
+                    <div className="mt-1 text-xs leading-5 text-[var(--text-muted)]">
+                      {item.hint}
                     </div>
-                    <div className="mt-1 text-xs text-[var(--text-muted)]">
-                      {stock.removeReason} / {stock.removeDate}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-4 text-sm text-[var(--text-secondary)]">
-                还没有剔除记录，手动移除股票后会在这里留痕。
-              </p>
-            )}
+                  </div>
+                </button>
+              ))}
+            </div>
           </section>
 
-          <section className="workbench-card" data-testid="snapshot-panel">
-            <p className="mystic-section-label">历史快照</p>
-            <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
-              {snapshots.length} 份快照可对比
-            </h3>
+          {mobileSection === 'manager' ? (
+            <PoolManagerPanel
+              activePool={activePool}
+              importValue={importValue}
+              isDiagnosing={isRunningDiagnosis}
+              isImportOpen={isImportOpen}
+              newPoolName={newPoolName}
+              onCreatePool={handleCreatePool}
+              onDeletePool={handleDeletePool}
+              onExportPool={handleExportPool}
+              onImportPool={handleImportPool}
+              onImportValueChange={setImportValue}
+              onNewPoolNameChange={setNewPoolName}
+              onRemoveSelected={handleRemoveSelected}
+              onRemoveStock={handleRemoveStock}
+              onRunStockDiagnosis={(stockCode) => {
+                void runDiagnosis([stockCode]);
+              }}
+              onSaveSnapshot={handleSaveSnapshot}
+              onSelectPool={handleSelectPool}
+              onToggleAll={handleToggleAll}
+              onToggleImport={() => setIsImportOpen((current) => !current)}
+              onToggleStock={handleToggleStock}
+              pools={pools}
+              selectedCodes={selectedCodes}
+            />
+          ) : null}
 
-            {snapshots.length > 0 ? (
-              <>
-                <label className="mt-4 block">
-                  <span className="mb-2 block text-sm text-[var(--text-secondary)]">
-                    选择快照
-                  </span>
-                  <select
-                    className="mystic-select w-full"
-                    onChange={(event) => setSelectedSnapshotId(event.target.value)}
-                    value={selectedSnapshotId}
-                  >
-                    {snapshots.map((snapshot) => (
-                      <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                        {formatDateLabel(snapshot.timestamp)} / {snapshot.stockCount} 只
-                      </option>
+          {mobileSection === 'diagnosis' ? (
+            <div className="space-y-6">
+              <BatchDiagnosisPanel
+                error={diagnosisError}
+                isRunning={isRunningDiagnosis}
+                onRunAll={() => {
+                  void runDiagnosis(activePool?.stocks.map((stock) => stock.stockCode) ?? []);
+                }}
+                onRunSelected={() => {
+                  void runDiagnosis(selectedCodes);
+                }}
+                progress={progress}
+                selectedCount={selectedCodes.length}
+                staleCount={staleCount}
+                totalCount={activePool?.stocks.length ?? 0}
+              />
+
+              {comparisonData.items.length > 0 ? (
+                <DiagnosisCompareTable data={comparisonData} />
+              ) : (
+                <section className="workbench-card" data-testid="diagnosis-compare-empty">
+                  <p className="mystic-section-label">诊断对比</p>
+                  <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+                    等待批量诊断结果
+                  </h3>
+                  <p className="mt-3 text-sm text-[var(--text-secondary)]">
+                    先勾选股票并执行诊断，排序对比表会在这里展示得分、风险和成功率。
+                  </p>
+                </section>
+              )}
+            </div>
+          ) : null}
+
+          {mobileSection === 'history' ? (
+            <div className="space-y-6">
+              <section className="workbench-card" data-testid="removed-stocks-panel">
+                <p className="mystic-section-label">已剔除股票</p>
+                <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+                  {removedStocks.length} 条历史记录
+                </h3>
+                {removedStocks.length > 0 ? (
+                  <ul className="mt-5 space-y-3 text-sm text-[var(--text-secondary)]">
+                    {removedStocks.slice().reverse().map((stock) => (
+                      <li
+                        className="rounded-2xl border border-white/10 bg-black/10 px-4 py-3"
+                        key={`${stock.stockCode}-${stock.removeDate}`}
+                      >
+                        <div className="font-semibold text-[var(--text-primary)]">
+                          {stock.stockCode} {stock.stockName}
+                        </div>
+                        <div className="mt-1 text-xs text-[var(--text-muted)]">
+                          {stock.removeReason} / {stock.removeDate}
+                        </div>
+                      </li>
                     ))}
-                  </select>
-                </label>
+                  </ul>
+                ) : (
+                  <p className="mt-4 text-sm text-[var(--text-secondary)]">
+                    还没有剔除记录，手动移除股票后会在这里留痕。
+                  </p>
+                )}
+              </section>
 
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <div className="workbench-subcard">
-                    <p className="mystic-section-label">当前新增</p>
-                    <strong className="mt-2 block text-2xl text-[var(--text-primary)]">
-                      {snapshotComparison?.added.length ?? 0}
-                    </strong>
-                    <p className="mt-2 text-xs text-[var(--text-muted)]">
-                      相比快照新增的股票
-                    </p>
-                  </div>
-                  <div className="workbench-subcard">
-                    <p className="mystic-section-label">当前缺失</p>
-                    <strong className="mt-2 block text-2xl text-[var(--text-primary)]">
-                      {snapshotComparison?.removed.length ?? 0}
-                    </strong>
-                    <p className="mt-2 text-xs text-[var(--text-muted)]">
-                      快照里有、当前池已无的股票
-                    </p>
-                  </div>
-                </div>
+              <section className="workbench-card" data-testid="snapshot-panel">
+                <p className="mystic-section-label">历史快照</p>
+                <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+                  {snapshots.length} 份快照可对比
+                </h3>
 
-                <div className="mt-5 space-y-3 text-sm text-[var(--text-secondary)]">
-                  <div className="rounded-2xl border border-white/10 bg-black/10 px-4 py-3">
-                    <div className="font-semibold text-[var(--text-primary)]">新增股票</div>
-                    <div className="mt-2">
-                      {snapshotComparison?.added.length
-                        ? snapshotComparison.added.join('，')
-                        : '与快照一致，无新增。'}
+                {snapshots.length > 0 ? (
+                  <>
+                    <label className="mt-4 block">
+                      <span className="mb-2 block text-sm text-[var(--text-secondary)]">
+                        选择快照
+                      </span>
+                      <select
+                        className="mystic-select w-full"
+                        onChange={(event) => setSelectedSnapshotId(event.target.value)}
+                        value={selectedSnapshotId}
+                      >
+                        {snapshots.map((snapshot) => (
+                          <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
+                            {formatDateLabel(snapshot.timestamp)} / {snapshot.stockCount} 只
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                      <div className="workbench-subcard">
+                        <p className="mystic-section-label">当前新增</p>
+                        <strong className="mt-2 block text-2xl text-[var(--text-primary)]">
+                          {snapshotComparison?.added.length ?? 0}
+                        </strong>
+                        <p className="mt-2 text-xs text-[var(--text-muted)]">
+                          相比快照新增的股票
+                        </p>
+                      </div>
+                      <div className="workbench-subcard">
+                        <p className="mystic-section-label">当前缺失</p>
+                        <strong className="mt-2 block text-2xl text-[var(--text-primary)]">
+                          {snapshotComparison?.removed.length ?? 0}
+                        </strong>
+                        <p className="mt-2 text-xs text-[var(--text-muted)]">
+                          快照里有、当前池已无的股票
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/10 px-4 py-3">
-                    <div className="font-semibold text-[var(--text-primary)]">已移除股票</div>
-                    <div className="mt-2">
-                      {snapshotComparison?.removed.length
-                        ? snapshotComparison.removed.join('，')
-                        : '与快照一致，无移除。'}
+
+                    <div className="mt-5 space-y-3 text-sm text-[var(--text-secondary)]">
+                      <div className="rounded-2xl border border-white/10 bg-black/10 px-4 py-3">
+                        <div className="font-semibold text-[var(--text-primary)]">新增股票</div>
+                        <div className="mt-2">
+                          {snapshotComparison?.added.length
+                            ? snapshotComparison.added.join('，')
+                            : '与快照一致，无新增。'}
+                        </div>
+                      </div>
+                      <div className="rounded-2xl border border-white/10 bg-black/10 px-4 py-3">
+                        <div className="font-semibold text-[var(--text-primary)]">已移除股票</div>
+                        <div className="mt-2">
+                          {snapshotComparison?.removed.length
+                            ? snapshotComparison.removed.join('，')
+                            : '与快照一致，无移除。'}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <p className="mt-4 text-sm text-[var(--text-secondary)]">
-                还没有历史快照。点击上方“保存快照”即可沉淀一份对比基线。
-              </p>
-            )}
-          </section>
-        </aside>
-      </div>
+                  </>
+                ) : (
+                  <p className="mt-4 text-sm text-[var(--text-secondary)]">
+                    还没有历史快照。点击上方“保存快照”即可沉淀一份对比基线。
+                  </p>
+                )}
+              </section>
+            </div>
+          ) : null}
+        </div>
+      ) : (
+        <>
+          <div className="mt-6">
+            <PoolManagerPanel
+              activePool={activePool}
+              importValue={importValue}
+              isDiagnosing={isRunningDiagnosis}
+              isImportOpen={isImportOpen}
+              newPoolName={newPoolName}
+              onCreatePool={handleCreatePool}
+              onDeletePool={handleDeletePool}
+              onExportPool={handleExportPool}
+              onImportPool={handleImportPool}
+              onImportValueChange={setImportValue}
+              onNewPoolNameChange={setNewPoolName}
+              onRemoveSelected={handleRemoveSelected}
+              onRemoveStock={handleRemoveStock}
+              onRunStockDiagnosis={(stockCode) => {
+                void runDiagnosis([stockCode]);
+              }}
+              onSaveSnapshot={handleSaveSnapshot}
+              onSelectPool={handleSelectPool}
+              onToggleAll={handleToggleAll}
+              onToggleImport={() => setIsImportOpen((current) => !current)}
+              onToggleStock={handleToggleStock}
+              pools={pools}
+              selectedCodes={selectedCodes}
+            />
+          </div>
+
+          <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
+            <div className="space-y-6">
+              <BatchDiagnosisPanel
+                error={diagnosisError}
+                isRunning={isRunningDiagnosis}
+                onRunAll={() => {
+                  void runDiagnosis(activePool?.stocks.map((stock) => stock.stockCode) ?? []);
+                }}
+                onRunSelected={() => {
+                  void runDiagnosis(selectedCodes);
+                }}
+                progress={progress}
+                selectedCount={selectedCodes.length}
+                staleCount={staleCount}
+                totalCount={activePool?.stocks.length ?? 0}
+              />
+
+              {comparisonData.items.length > 0 ? (
+                <DiagnosisCompareTable data={comparisonData} />
+              ) : (
+                <section className="workbench-card" data-testid="diagnosis-compare-empty">
+                  <p className="mystic-section-label">诊断对比</p>
+                  <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+                    等待批量诊断结果
+                  </h3>
+                  <p className="mt-3 text-sm text-[var(--text-secondary)]">
+                    先勾选股票并执行诊断，排序对比表会在这里展示得分、风险和成功率。
+                  </p>
+                </section>
+              )}
+            </div>
+
+            <aside className="space-y-6">
+              <section className="workbench-card" data-testid="removed-stocks-panel">
+                <p className="mystic-section-label">已剔除股票</p>
+                <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+                  {removedStocks.length} 条历史记录
+                </h3>
+                {removedStocks.length > 0 ? (
+                  <ul className="mt-5 space-y-3 text-sm text-[var(--text-secondary)]">
+                    {removedStocks.slice().reverse().map((stock) => (
+                      <li
+                        className="rounded-2xl border border-white/10 bg-black/10 px-4 py-3"
+                        key={`${stock.stockCode}-${stock.removeDate}`}
+                      >
+                        <div className="font-semibold text-[var(--text-primary)]">
+                          {stock.stockCode} {stock.stockName}
+                        </div>
+                        <div className="mt-1 text-xs text-[var(--text-muted)]">
+                          {stock.removeReason} / {stock.removeDate}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-4 text-sm text-[var(--text-secondary)]">
+                    还没有剔除记录，手动移除股票后会在这里留痕。
+                  </p>
+                )}
+              </section>
+
+              <section className="workbench-card" data-testid="snapshot-panel">
+                <p className="mystic-section-label">历史快照</p>
+                <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+                  {snapshots.length} 份快照可对比
+                </h3>
+
+                {snapshots.length > 0 ? (
+                  <>
+                    <label className="mt-4 block">
+                      <span className="mb-2 block text-sm text-[var(--text-secondary)]">
+                        选择快照
+                      </span>
+                      <select
+                        className="mystic-select w-full"
+                        onChange={(event) => setSelectedSnapshotId(event.target.value)}
+                        value={selectedSnapshotId}
+                      >
+                        {snapshots.map((snapshot) => (
+                          <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
+                            {formatDateLabel(snapshot.timestamp)} / {snapshot.stockCount} 只
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                      <div className="workbench-subcard">
+                        <p className="mystic-section-label">当前新增</p>
+                        <strong className="mt-2 block text-2xl text-[var(--text-primary)]">
+                          {snapshotComparison?.added.length ?? 0}
+                        </strong>
+                        <p className="mt-2 text-xs text-[var(--text-muted)]">
+                          相比快照新增的股票
+                        </p>
+                      </div>
+                      <div className="workbench-subcard">
+                        <p className="mystic-section-label">当前缺失</p>
+                        <strong className="mt-2 block text-2xl text-[var(--text-primary)]">
+                          {snapshotComparison?.removed.length ?? 0}
+                        </strong>
+                        <p className="mt-2 text-xs text-[var(--text-muted)]">
+                          快照里有、当前池已无的股票
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 space-y-3 text-sm text-[var(--text-secondary)]">
+                      <div className="rounded-2xl border border-white/10 bg-black/10 px-4 py-3">
+                        <div className="font-semibold text-[var(--text-primary)]">新增股票</div>
+                        <div className="mt-2">
+                          {snapshotComparison?.added.length
+                            ? snapshotComparison.added.join('，')
+                            : '与快照一致，无新增。'}
+                        </div>
+                      </div>
+                      <div className="rounded-2xl border border-white/10 bg-black/10 px-4 py-3">
+                        <div className="font-semibold text-[var(--text-primary)]">已移除股票</div>
+                        <div className="mt-2">
+                          {snapshotComparison?.removed.length
+                            ? snapshotComparison.removed.join('，')
+                            : '与快照一致，无移除。'}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <p className="mt-4 text-sm text-[var(--text-secondary)]">
+                    还没有历史快照。点击上方“保存快照”即可沉淀一份对比基线。
+                  </p>
+                )}
+              </section>
+            </aside>
+          </div>
+        </>
+      )}
 
       {toastMessage ? (
         <div className="workbench-toast" role="status">

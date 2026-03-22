@@ -163,6 +163,28 @@ describe('market-screen service', () => {
     expect(pool[0]?.patternSummary?.totalScore).toBe(36);
   });
 
+  it('retries transient upstream failures before succeeding', async () => {
+    fetchMock
+      .mockRejectedValueOnce(new Error('socket hang up'))
+      .mockRejectedValueOnce(new Error('empty reply'))
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            diff: [
+              { f12: '000001', f14: '平安银行', f26: '19910403' },
+            ],
+          },
+        }),
+      );
+    mockedAnalyzeStockForMarketScreen.mockImplementation((stock) => createSnapshot(stock));
+    mockedEvaluateQimenAuspiciousPatterns.mockImplementation(() => createPatternEvaluation());
+
+    const pool = await getMarketStockPool();
+
+    expect(pool).toHaveLength(1);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
   it('keeps legacy window filtering compatible and exposes pattern summaries', async () => {
     fetchMock.mockResolvedValueOnce(
       jsonResponse({
@@ -277,6 +299,42 @@ describe('market-screen service', () => {
     expect(result.total).toBe(1);
     expect(result.items[0]?.stock.code).toBe('000001');
     expect(result.items[0]?.patternSummary?.hourPatternNames).toEqual(['青龙返首']);
+  });
+
+  it('falls back to the last cached stock pool when refresh fails', async () => {
+    jest.useFakeTimers();
+
+    try {
+      jest.setSystemTime(new Date('2026-03-21T10:00:00.000Z'));
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            diff: [
+              { f12: '000001', f14: '平安银行', f26: '19910403' },
+            ],
+          },
+        }),
+      );
+      mockedAnalyzeStockForMarketScreen.mockImplementation((stock) => createSnapshot(stock));
+      mockedEvaluateQimenAuspiciousPatterns.mockImplementation(() => createPatternEvaluation());
+
+      const first = await getMarketStockPool();
+
+      expect(first).toHaveLength(1);
+
+      jest.setSystemTime(new Date('2026-03-21T10:31:00.000Z'));
+      fetchMock.mockRejectedValue(new Error('upstream down'));
+      const secondPromise = getMarketStockPool();
+
+      await jest.advanceTimersByTimeAsync(1000);
+
+      const second = await secondPromise;
+
+      expect(second).toHaveLength(1);
+      expect(second[0]?.stock.code).toBe('000001');
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('blocks screening when the market environment is explicitly unfavorable', async () => {

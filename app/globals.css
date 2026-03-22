@@ -732,20 +732,20 @@ body::before {
       top: 0;
       z-index: 40;
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 0.5rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.4rem;
       border-bottom: 1px solid rgba(120, 146, 177, 0.14);
       background: rgba(10, 14, 20, 0.96);
-      padding: 0.75rem;
+      padding: 0.65rem;
       backdrop-filter: blur(18px);
     }
 
     .workbench-mobile-link {
       flex-direction: column;
       justify-content: center;
-      padding: 0.7rem 0.5rem;
+      padding: 0.62rem 0.4rem;
       text-align: center;
-      font-size: 0.78rem;
+      font-size: 0.72rem;
     }
 
     .workbench-content {
@@ -772,6 +772,28 @@ body::before {
 
     .workbench-table-row {
       min-width: 980px;
+    }
+
+    .workbench-step-head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .workbench-step-index {
+      height: 2.45rem;
+      width: 2.45rem;
+      font-size: 0.95rem;
+    }
+
+    .workbench-timeline-row {
+      grid-template-columns: 12px minmax(0, 1fr);
+      gap: 0.65rem;
+    }
+
+    .workbench-timeline-dot {
+      margin-top: 0.4rem;
+      height: 0.55rem;
+      width: 0.55rem;
     }
 
     .workbench-drawer,

@@ -16,12 +16,23 @@ export type TdxScanRequest = {
   pageSize?: number;
 };
 
+export type TdxScanUniverseSource =
+  | 'market_pool'
+  | 'limit_up_fallback'
+  | 'bundled_market_fallback';
+
 export type TdxScanResponse = {
   total: number;
   page: number;
   pageSize: number;
   scanDate: string;
   items: TdxScanResult[];
+  meta: {
+    cached: boolean;
+    universeSource: TdxScanUniverseSource;
+    universeSize: number;
+    notice?: string;
+  };
 };
 
 export type LimitUpStock = {
@@ -56,10 +67,16 @@ export type LimitUpFilterResponse = {
   filterDate: string;
   lookbackDays: number;
   items: LimitUpStock[];
+  meta?: {
+    source: 'live' | 'bundled_snapshot';
+    generatedAt?: string;
+    notice?: string;
+  };
 };
 
 export type PoolStockDiagnosis = {
   stockCode: string;
+  stockName: string;
   diagnosisTime: string;
   rating: QimenStockRating;
   totalScore: number;

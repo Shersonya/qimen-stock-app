@@ -3,15 +3,22 @@ import {
   type Market,
 } from '@/lib/contracts/qimen';
 import { AppError } from '@/lib/errors';
+import {
+  getDateRangeLength,
+  normalizeDateString,
+} from '@/lib/utils/date';
 
 const EASTMONEY_HISTORY_ENDPOINT =
   'https://push2his.eastmoney.com/api/qt/stock/kline/get';
 const TENCENT_HISTORY_ENDPOINT =
   'https://web.ifzq.gtimg.cn/appstock/app/newfqkline/get';
+const SINA_HISTORY_ENDPOINT = 'https://quotes.sina.cn/cn/api/jsonp_v2.php';
 const HISTORY_FETCH_RETRY_COUNT = 3;
 const HISTORY_FETCH_RETRY_DELAY_MS = 250;
 const TENCENT_HISTORY_MAX_COUNT = 800;
 const EASTMONEY_FAILURE_COOLDOWN_MS = 5 * 60 * 1000;
+const DEFAULT_SINA_DATA_LENGTH = 480;
+const MAX_SINA_DATA_LENGTH = 1000;
 
 export type StockHistoryPoint = {
   tradeDate: string;
@@ -38,6 +45,15 @@ type TencentHistoryResponse = {
       day?: unknown[][];
     }
   >;
+};
+
+type SinaHistoryRow = {
+  day?: string;
+  open?: string;
+  close?: string;
+  high?: string;
+  low?: string;
+  volume?: string;
 };
 
 type HistoryOptions = {
@@ -95,6 +111,10 @@ function getTencentSecIdPrefix(market: Market): 'sh' | 'sz' {
   return market === 'SH' ? 'sh' : 'sz';
 }
 
+function getSinaSymbol(stockCode: string, market: Market) {
+  return `${market === 'SH' ? 'sh' : 'sz'}${stockCode}`;
+}
+
 function normalizeHistoryNumber(value: string | undefined): number | null {
   if (!value) {
     return null;
@@ -146,6 +166,36 @@ export function parseHistoryKlineRow(row: string): StockHistoryPoint | null {
   };
 }
 
+export function parseSinaHistoryKlineRow(row: SinaHistoryRow): StockHistoryPoint | null {
+  const tradeDate = normalizeDateString(row.day);
+  const open = normalizeHistoryNumber(row.open);
+  const close = normalizeHistoryNumber(row.close);
+  const high = normalizeHistoryNumber(row.high);
+  const low = normalizeHistoryNumber(row.low);
+  const volume = normalizeHistoryNumber(row.volume);
+
+  if (
+    !tradeDate ||
+    open === null ||
+    close === null ||
+    high === null ||
+    low === null ||
+    volume === null
+  ) {
+    return null;
+  }
+
+  return {
+    tradeDate,
+    open,
+    close,
+    high,
+    low,
+    volume,
+    amount: Number((close * volume * 100).toFixed(2)),
+  };
+}
+
 function parseTencentHistoryRow(row: unknown[]): StockHistoryPoint | null {
   const [
     tradeDateRaw,
@@ -190,7 +240,69 @@ function parseTencentHistoryRow(row: unknown[]): StockHistoryPoint | null {
   };
 }
 
-async function fetchEastMoneyHistory(url: string): Promise<EastMoneyHistoryResponse> {
+export function parseSinaHistoryJsonp(payload: string): StockHistoryPoint[] | null {
+  const sanitized = payload
+    .replace(/^\/\*[\s\S]*?\*\/\s*/, '')
+    .trim();
+  const match = sanitized.match(/^(?:var\s+)?[\w$]+\s*=\s*([\s\S]+);?\s*$/);
+
+  if (!match) {
+    return null;
+  }
+
+  let rows: unknown;
+
+  try {
+    const raw = match[1].trim().replace(/;$/, '');
+    const json =
+      raw.startsWith('(') && raw.endsWith(')')
+        ? raw.slice(1, -1)
+        : raw;
+    rows = JSON.parse(json);
+  } catch {
+    return null;
+  }
+
+  if (!Array.isArray(rows)) {
+    return null;
+  }
+
+  return rows
+    .map((row) => parseSinaHistoryKlineRow(row as SinaHistoryRow))
+    .filter((item): item is StockHistoryPoint => Boolean(item));
+}
+
+function filterHistoryByDateRange(
+  items: StockHistoryPoint[],
+  options: HistoryOptions,
+) {
+  const beg = normalizeDateString(options.beg);
+  const end = normalizeDateString(options.end);
+
+  return items.filter((item) => {
+    if (beg && item.tradeDate < beg) {
+      return false;
+    }
+
+    if (end && item.tradeDate > end) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+function getSinaDataLength(options: HistoryOptions) {
+  const rangeLength = getDateRangeLength(options);
+
+  if (rangeLength === null) {
+    return DEFAULT_SINA_DATA_LENGTH;
+  }
+
+  return Math.min(Math.max(rangeLength + 120, 180), MAX_SINA_DATA_LENGTH);
+}
+
+async function fetchEastMoneyHistory(url: string) {
   if (Date.now() < eastMoneyDisabledUntil) {
     throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
   }
@@ -216,7 +328,9 @@ async function fetchEastMoneyHistory(url: string): Promise<EastMoneyHistoryRespo
 
       eastMoneyDisabledUntil = 0;
 
-      return payload;
+      return (payload.data?.klines ?? [])
+        .map(parseHistoryKlineRow)
+        .filter((item): item is StockHistoryPoint => Boolean(item));
     } catch {
       if (attempt >= HISTORY_FETCH_RETRY_COUNT) {
         eastMoneyDisabledUntil = Date.now() + EASTMONEY_FAILURE_COOLDOWN_MS;
@@ -234,7 +348,7 @@ async function fetchTencentHistory(
   stockCode: string,
   market: Market,
   options: Required<HistoryOptions>,
-): Promise<StockHistoryPoint[]> {
+) {
   const secid = `${getTencentSecIdPrefix(market)}${stockCode}`;
   const url = `${TENCENT_HISTORY_ENDPOINT}?param=${secid},day,,,${TENCENT_HISTORY_MAX_COUNT},qfq`;
   const response = await fetch(url, {
@@ -262,6 +376,37 @@ async function fetchTencentHistory(
     .filter((item) => item.tradeDate >= beg && item.tradeDate <= end);
 }
 
+async function fetchSinaHistory(
+  stockCode: string,
+  market: Market,
+  options: HistoryOptions,
+) {
+  const datalen = getSinaDataLength(options);
+  const url =
+    `${SINA_HISTORY_ENDPOINT}/var%20_history=` +
+    `/CN_MarketDataService.getKLineData?symbol=${getSinaSymbol(stockCode, market)}` +
+    `&scale=240&ma=no&datalen=${datalen}`;
+  const response = await fetch(url, {
+    cache: 'no-store',
+    headers: {
+      accept: '*/*',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('sina_history_unavailable');
+  }
+
+  const text = await response.text();
+  const parsed = parseSinaHistoryJsonp(text);
+
+  if (!parsed) {
+    throw new Error('sina_history_invalid_payload');
+  }
+
+  return filterHistoryByDateRange(parsed, options);
+}
+
 export async function getStockDailyHistory(
   stockCode: string,
   market: Market,
@@ -282,17 +427,18 @@ export async function getStockDailyHistory(
     end: normalizedOptions.end,
   });
   const url = `${EASTMONEY_HISTORY_ENDPOINT}?${params.toString()}`;
-  try {
-    const payload = await fetchEastMoneyHistory(url);
 
-    return (payload.data?.klines ?? [])
-      .map(parseHistoryKlineRow)
-      .filter((item): item is StockHistoryPoint => Boolean(item));
+  try {
+    return await fetchEastMoneyHistory(url);
   } catch {
     try {
       return await fetchTencentHistory(stockCode, market, normalizedOptions);
     } catch {
-      throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
+      try {
+        return await fetchSinaHistory(stockCode, market, normalizedOptions);
+      } catch {
+        throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
+      }
     }
   }
 }

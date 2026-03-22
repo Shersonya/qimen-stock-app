@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 
 import { useWorkspaceSettings } from '@/components/providers/WorkspaceSettingsProvider';
+import { useIsMobileViewport } from '@/components/useIsMobileViewport';
 import { QIMEN_PATTERN_LIBRARY } from '@/lib/contracts/qimen';
 
 export function SettingsPageClient() {
@@ -11,6 +12,7 @@ export function SettingsPageClient() {
   const [transferMode, setTransferMode] = useState<'import' | 'export' | null>(null);
   const [transferValue, setTransferValue] = useState('');
   const [transferMessage, setTransferMessage] = useState<string | null>(null);
+  const isMobileViewport = useIsMobileViewport();
 
   const groupedPatterns = useMemo(() => {
     return {
@@ -72,91 +74,191 @@ export function SettingsPageClient() {
           <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
             启用、权重与所属等级
           </h3>
-          {(['COMPOSITE', 'A', 'B', 'C'] as const).map((level) => (
-            <div className="mt-6" key={level}>
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <h4 className="text-lg font-semibold text-[var(--text-primary)]">{level} 组</h4>
-                <button
-                  className="mystic-chip"
-                  onClick={() => {
-                    groupedPatterns[level].forEach((item) => {
-                      updatePattern(item.name, {
-                        enabled: !groupedPatterns[level].every(
-                          (entry) => settings.patternMap[entry.name].enabled,
-                        ),
-                      });
-                    });
-                  }}
-                  type="button"
-                >
-                  组内全选 / 反选
-                </button>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="workbench-settings-table">
-                  <thead>
-                    <tr>
-                      <th>启用</th>
-                      <th>吉格</th>
-                      <th>权重</th>
-                      <th>等级</th>
-                      <th>象意</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {groupedPatterns[level].map((item) => (
-                      <tr key={item.name}>
-                        <td>
-                          <input
-                            checked={settings.patternMap[item.name].enabled}
-                            onChange={(event) =>
-                              updatePattern(item.name, { enabled: event.target.checked })
-                            }
-                            type="checkbox"
-                          />
-                        </td>
-                        <td>{item.name}</td>
-                        <td>
-                          <input
-                            className="mystic-input workbench-mini-input"
-                            inputMode="numeric"
-                            onChange={(event) =>
-                              updatePattern(item.name, {
-                                weight: Number(event.target.value) || 0,
-                              })
-                            }
-                            type="number"
-                            value={settings.patternMap[item.name].weight}
-                          />
-                        </td>
-                        <td>
-                          <select
-                            className="mystic-select"
-                            onChange={(event) =>
-                              updatePattern(item.name, {
-                                level: event.target.value as
-                                  | 'COMPOSITE'
-                                  | 'A'
-                                  | 'B'
-                                  | 'C',
-                              })
-                            }
-                            value={settings.patternMap[item.name].level}
-                          >
-                            <option value="COMPOSITE">COMPOSITE</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                          </select>
-                        </td>
-                        <td>{item.meaning}</td>
-                      </tr>
+          {isMobileViewport ? (
+            <div className="space-y-6" data-testid="settings-pattern-mobile-list">
+              {(['COMPOSITE', 'A', 'B', 'C'] as const).map((level, levelIndex) => (
+                <div className="mt-6" key={`${level}-${levelIndex}`}>
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <h4 className="text-lg font-semibold text-[var(--text-primary)]">{level} 组</h4>
+                    <button
+                      className="mystic-chip"
+                      onClick={() => {
+                        groupedPatterns[level].forEach((item) => {
+                          updatePattern(item.name, {
+                            enabled: !groupedPatterns[level].every(
+                              (entry) => settings.patternMap[entry.name].enabled,
+                            ),
+                          });
+                        });
+                      }}
+                      type="button"
+                    >
+                      组内全选 / 反选
+                    </button>
+                  </div>
+                  <div className="grid gap-3">
+                    {groupedPatterns[level].map((item, index) => (
+                      <article
+                        className="workbench-card workbench-subcard"
+                        key={`${level}-${item.name}-${index}`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="mystic-section-label">{item.name}</p>
+                            <h5 className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
+                              {item.meaning}
+                            </h5>
+                            <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                              当前等级 {settings.patternMap[item.name].level}
+                            </p>
+                          </div>
+                          <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+                            <input
+                              checked={settings.patternMap[item.name].enabled}
+                              onChange={(event) =>
+                                updatePattern(item.name, { enabled: event.target.checked })
+                              }
+                              type="checkbox"
+                            />
+                            启用
+                          </label>
+                        </div>
+                        <div className="mt-4 grid gap-3">
+                          <label className="block">
+                            <span className="mb-2 block text-sm text-[var(--text-secondary)]">
+                              权重
+                            </span>
+                            <input
+                              className="mystic-input workbench-mini-input"
+                              inputMode="numeric"
+                              onChange={(event) =>
+                                updatePattern(item.name, {
+                                  weight: Number(event.target.value) || 0,
+                                })
+                              }
+                              type="number"
+                              value={settings.patternMap[item.name].weight}
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="mb-2 block text-sm text-[var(--text-secondary)]">
+                              等级
+                            </span>
+                            <select
+                              className="mystic-select w-full"
+                              onChange={(event) =>
+                                updatePattern(item.name, {
+                                  level: event.target.value as
+                                    | 'COMPOSITE'
+                                    | 'A'
+                                    | 'B'
+                                    | 'C',
+                                })
+                              }
+                              value={settings.patternMap[item.name].level}
+                            >
+                              <option value="COMPOSITE">COMPOSITE</option>
+                              <option value="A">A</option>
+                              <option value="B">B</option>
+                              <option value="C">C</option>
+                            </select>
+                          </label>
+                        </div>
+                      </article>
                     ))}
-                  </tbody>
-                </table>
-              </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            <>
+              {(['COMPOSITE', 'A', 'B', 'C'] as const).map((level, levelIndex) => (
+                <div className="mt-6" key={`${level}-${levelIndex}`}>
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <h4 className="text-lg font-semibold text-[var(--text-primary)]">{level} 组</h4>
+                    <button
+                      className="mystic-chip"
+                      onClick={() => {
+                        groupedPatterns[level].forEach((item) => {
+                          updatePattern(item.name, {
+                            enabled: !groupedPatterns[level].every(
+                              (entry) => settings.patternMap[entry.name].enabled,
+                            ),
+                          });
+                        });
+                      }}
+                      type="button"
+                    >
+                      组内全选 / 反选
+                    </button>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="workbench-settings-table">
+                      <thead>
+                        <tr>
+                          <th>启用</th>
+                          <th>吉格</th>
+                          <th>权重</th>
+                          <th>等级</th>
+                          <th>象意</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {groupedPatterns[level].map((item, itemIndex) => (
+                          <tr key={`${level}-${item.name}-${itemIndex}`}>
+                            <td>
+                              <input
+                                checked={settings.patternMap[item.name].enabled}
+                                onChange={(event) =>
+                                  updatePattern(item.name, { enabled: event.target.checked })
+                                }
+                                type="checkbox"
+                              />
+                            </td>
+                            <td>{item.name}</td>
+                            <td>
+                              <input
+                                className="mystic-input workbench-mini-input"
+                                inputMode="numeric"
+                                onChange={(event) =>
+                                  updatePattern(item.name, {
+                                    weight: Number(event.target.value) || 0,
+                                  })
+                                }
+                                type="number"
+                                value={settings.patternMap[item.name].weight}
+                              />
+                            </td>
+                            <td>
+                              <select
+                                className="mystic-select"
+                                onChange={(event) =>
+                                  updatePattern(item.name, {
+                                    level: event.target.value as
+                                      | 'COMPOSITE'
+                                      | 'A'
+                                      | 'B'
+                                      | 'C',
+                                  })
+                                }
+                                value={settings.patternMap[item.name].level}
+                              >
+                                <option value="COMPOSITE">COMPOSITE</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                              </select>
+                            </td>
+                            <td>{item.meaning}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
         </section>
 
         <section className="workbench-card" data-testid="settings-risk-panel">
@@ -269,7 +371,7 @@ export function SettingsPageClient() {
                     失效状态
                   </span>
                   <div className="flex flex-wrap gap-2">
-                    {['空亡', '击刑', '入墓', '门迫'].map((item) => {
+                    {['空亡', '击刑', '入墓', '门迫'].map((item, index) => {
                       const active = settings.risk.invalidatingStates.includes(
                         item as (typeof settings.risk.invalidatingStates)[number],
                       );
@@ -277,7 +379,7 @@ export function SettingsPageClient() {
                       return (
                         <button
                           className={`workbench-pill-toggle ${active ? 'is-active' : ''}`}
-                          key={item}
+                          key={`${item}-${index}`}
                           onClick={() =>
                             setSettings({
                               ...settings,
@@ -307,7 +409,7 @@ export function SettingsPageClient() {
                     顶级凶格
                   </span>
                   <div className="flex flex-wrap gap-2">
-                    {['白虎猖狂'].map((item) => {
+                    {['白虎猖狂'].map((item, index) => {
                       const active = settings.risk.topEvilPatterns.includes(
                         item as (typeof settings.risk.topEvilPatterns)[number],
                       );
@@ -315,7 +417,7 @@ export function SettingsPageClient() {
                       return (
                         <button
                           className={`workbench-pill-toggle ${active ? 'is-active' : ''}`}
-                          key={item}
+                          key={`${item}-${index}`}
                           onClick={() =>
                             setSettings({
                               ...settings,
