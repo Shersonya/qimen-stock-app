@@ -32,6 +32,17 @@ const mockedRequestMarketDashboard = jest.mocked(requestMarketDashboard);
 const mockedRequestMarketScreen = jest.mocked(requestMarketScreen);
 const mockedRequestQimenAnalysis = jest.mocked(requestQimenAnalysis);
 
+function createDeferredPromise<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((nextResolve, nextReject) => {
+    resolve = nextResolve;
+    reject = nextReject;
+  });
+
+  return { promise, resolve, reject };
+}
+
 function mockMatchMedia(matches: boolean) {
   Object.defineProperty(window, 'matchMedia', {
     configurable: true,
@@ -146,5 +157,27 @@ describe('ScreenPageClient', () => {
     expect(screen.getByRole('dialog')).toHaveTextContent(
       '当前高亮宫位会与点击的核心吉格保持同步',
     );
+  });
+
+  it('shows estimated progress on the first screen request before results return', async () => {
+    const deferred = createDeferredPromise<ReturnType<typeof getDemoMarketScreenResponse>>();
+
+    mockedRequestMarketScreen.mockReturnValueOnce(
+      deferred.promise as ReturnType<typeof mockedRequestMarketScreen>,
+    );
+
+    renderInWorkbench(<ScreenPageClient />);
+
+    fireEvent.keyDown(window, { key: 'F5' });
+
+    expect(await screen.findByTestId('screen-progress')).toHaveTextContent('预计 6-12 秒');
+    expect(screen.queryByTestId('screen-result-table')).not.toBeInTheDocument();
+
+    deferred.resolve(getDemoMarketScreenResponse());
+
+    expect(await screen.findByTestId('screen-result-table')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByTestId('screen-progress')).not.toBeInTheDocument();
+    });
   });
 });

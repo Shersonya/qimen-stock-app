@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 
+import { EstimatedProgressNotice } from '@/components/EstimatedProgressNotice';
 import { ErrorNotice } from '@/components/ErrorNotice';
 import { requestTdxScan } from '@/lib/client-api';
 import type { ApiError } from '@/lib/contracts/qimen';
@@ -332,12 +333,14 @@ export function TdxScanPanel({
           </div>
 
           {isSubmitting ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-[var(--text-secondary)]">
-              <div className="flex items-center gap-3">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-[rgba(216,179,90,0.45)] border-t-[rgba(216,179,90,0.95)]" />
-                <span>正在扫描通达信策略，结果表即将刷新。</span>
-              </div>
-            </div>
+            <EstimatedProgressNotice
+              className="mt-4"
+              description="正在遍历全市场样本并判断美柱 / 美阳阳信号，结果表会在本次扫描完成后刷新。"
+              expectedDurationMs={32000}
+              expectedRangeLabel="25-40 秒"
+              testId="tdx-progress"
+              title="通达信策略扫描中"
+            />
           ) : null}
 
           {error ? <div className="mt-4"><ErrorNotice error={error} title="策略扫描失败" /></div> : null}

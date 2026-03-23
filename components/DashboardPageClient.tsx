@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
+import { EstimatedProgressNotice } from '@/components/EstimatedProgressNotice';
 import { ErrorNotice } from '@/components/ErrorNotice';
 import { useWorkspaceSettings } from '@/components/providers/WorkspaceSettingsProvider';
 import { requestMarketDashboard } from '@/lib/client-api';
@@ -264,7 +265,13 @@ export function DashboardPageClient() {
 
       {isLoading && !data ? (
         <div className="workbench-card mt-6">
-          <p className="text-sm text-[var(--text-secondary)]">正在汇总市场吉格热度与板块分布...</p>
+          <EstimatedProgressNotice
+            description="正在汇总市场吉格热度、板块分布和高分样本，首屏会在数据返回后自动刷新。"
+            expectedDurationMs={6000}
+            expectedRangeLabel="4-8 秒"
+            testId="dashboard-progress"
+            title="市场仪表盘加载中"
+          />
         </div>
       ) : null}
 

@@ -30,6 +30,17 @@ jest.mock('@/lib/utils/date', () => {
 const mockedRequestTdxScan = jest.mocked(requestTdxScan);
 const mockedRequestLimitUp = jest.mocked(requestLimitUp);
 
+function createDeferredPromise<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((nextResolve, nextReject) => {
+    resolve = nextResolve;
+    reject = nextReject;
+  });
+
+  return { promise, resolve, reject };
+}
+
 function createTdxResponse(page: number) {
   const response = getDemoTdxScanResponse();
 
@@ -215,5 +226,36 @@ describe('StrategyPageClient', () => {
         }),
       ]),
     );
+  });
+
+  it('shows estimated progress while tdx and limit-up requests are in flight', async () => {
+    const user = userEvent.setup();
+    const tdxDeferred = createDeferredPromise<ReturnType<typeof createTdxResponse>>();
+    const limitUpDeferred = createDeferredPromise<ReturnType<typeof createLimitUpResponse>>();
+
+    mockedRequestTdxScan.mockReturnValueOnce(
+      tdxDeferred.promise as ReturnType<typeof mockedRequestTdxScan>,
+    );
+    mockedRequestLimitUp.mockReturnValueOnce(
+      limitUpDeferred.promise as ReturnType<typeof mockedRequestLimitUp>,
+    );
+
+    renderInWorkbench(<StrategyPageClient demoMode />);
+
+    await user.click(screen.getByRole('button', { name: '开始扫描' }));
+
+    expect(await screen.findByTestId('tdx-progress')).toHaveTextContent('预计 25-40 秒');
+
+    tdxDeferred.resolve(createTdxResponse(1));
+
+    expect(await screen.findByTestId('tdx-result-table')).toBeInTheDocument();
+    await user.click(screen.getByRole('tab', { name: /涨停板筛选/ }));
+    await user.click(screen.getByRole('button', { name: '执行筛选' }));
+
+    expect(await screen.findByTestId('limit-up-progress')).toHaveTextContent('预计 4-10 秒');
+
+    limitUpDeferred.resolve(createLimitUpResponse(1));
+
+    expect(await screen.findByTestId('limit-up-result-table')).toBeInTheDocument();
   });
 });

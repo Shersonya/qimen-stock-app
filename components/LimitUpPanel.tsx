@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 
+import { EstimatedProgressNotice } from '@/components/EstimatedProgressNotice';
 import { ErrorNotice } from '@/components/ErrorNotice';
 import { requestLimitUp } from '@/lib/client-api';
 import type { ApiError } from '@/lib/contracts/qimen';
@@ -329,12 +330,14 @@ export function LimitUpPanel({
           </div>
 
           {isSubmitting ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-[var(--text-secondary)]">
-              <div className="flex items-center gap-3">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-[rgba(216,179,90,0.45)] border-t-[rgba(216,179,90,0.95)]" />
-                <span>正在筛选涨停板样本，结果表即将刷新。</span>
-              </div>
-            </div>
+            <EstimatedProgressNotice
+              className="mt-4"
+              description="正在回溯涨停样本并套用排除条件与排序规则，结果会在筛选完成后一次性返回。"
+              expectedDurationMs={7000}
+              expectedRangeLabel="4-10 秒"
+              testId="limit-up-progress"
+              title="涨停板筛选中"
+            />
           ) : null}
 
           {error ? <div className="mt-4"><ErrorNotice error={error} title="涨停筛选失败" /></div> : null}

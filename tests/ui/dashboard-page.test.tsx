@@ -21,6 +21,17 @@ jest.mock('@/lib/client-api', () => ({
 
 const mockedRequestMarketDashboard = jest.mocked(requestMarketDashboard);
 
+function createDeferredPromise<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((nextResolve, nextReject) => {
+    resolve = nextResolve;
+    reject = nextReject;
+  });
+
+  return { promise, resolve, reject };
+}
+
 describe('DashboardPageClient', () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -65,6 +76,25 @@ describe('DashboardPageClient', () => {
 
     await waitFor(() => {
       expect(mockedRequestMarketDashboard).toHaveBeenCalled();
+    });
+  });
+
+  it('shows estimated progress before the dashboard request resolves', async () => {
+    const deferred = createDeferredPromise<ReturnType<typeof getDemoMarketDashboardResponse>>();
+
+    mockedRequestMarketDashboard.mockReturnValueOnce(
+      deferred.promise as ReturnType<typeof mockedRequestMarketDashboard>,
+    );
+
+    renderInWorkbench(<DashboardPageClient />);
+
+    expect(await screen.findByTestId('dashboard-progress')).toHaveTextContent('预计 4-8 秒');
+
+    deferred.resolve(getDemoMarketDashboardResponse());
+
+    expect(await screen.findByText('有吉气')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByTestId('dashboard-progress')).not.toBeInTheDocument();
     });
   });
 });

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { EstimatedProgressNotice } from '@/components/EstimatedProgressNotice';
 import { ErrorNotice } from '@/components/ErrorNotice';
 import { MarketReportPanel } from '@/components/MarketReportPanel';
 import { MobilePalaceExplorer } from '@/components/MobilePalaceExplorer';
@@ -68,7 +69,6 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
   const [result, setResult] = useState<MarketScreenSuccessResponse | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [toastMessage, setToastMessage] = useToast();
   const [pageSize, setPageSize] = useState(50);
   const [preview, setPreview] = useState<PreviewState | null>(null);
@@ -81,7 +81,6 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
   const [isAdvancedDrawerOpen, setIsAdvancedDrawerOpen] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [virtualStart, setVirtualStart] = useState(0);
-  const progressTimerRef = useRef<number | null>(null);
   const previewCacheRef = useRef<Record<string, QimenApiSuccessResponse>>({});
 
   const groupedPatterns = useMemo(() => {
@@ -229,16 +228,8 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
   }
 
   const handleSearch = useCallback(async (nextPage: number) => {
-    if (progressTimerRef.current) {
-      window.clearInterval(progressTimerRef.current);
-    }
-
     setIsSubmitting(true);
-    setProgress(10);
     setError(null);
-    progressTimerRef.current = window.setInterval(() => {
-      setProgress((current) => Math.min(current + 12, 88));
-    }, 250);
 
     try {
       const payload = await requestMarketScreen({
@@ -261,20 +252,12 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
       });
 
       setResult(payload);
-      setProgress(100);
       setToastMessage(`扫描完成，共命中 ${payload.total} 只标的。`);
       setSelectedRows([]);
     } catch (nextError) {
       setResult(null);
       setError(toApiError(nextError, 'API_ERROR', '筛选失败，请稍后重试。'));
-      setProgress(100);
     } finally {
-      if (progressTimerRef.current) {
-        window.clearInterval(progressTimerRef.current);
-        progressTimerRef.current = null;
-      }
-
-      window.setTimeout(() => setProgress(0), 400);
       setIsSubmitting(false);
     }
   }, [
@@ -488,45 +471,60 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
     </aside>
   );
 
+  const feedbackSection = (
+    <section className="workbench-card" data-testid="screen-feedback-panel">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p className="mystic-section-label">扫描反馈</p>
+          <p className="mt-2 text-sm text-[var(--text-secondary)]">
+            这里会显示预计等待时间、已等待时长和异常状态，帮助用户判断这次全量筛选还要多久。
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="mystic-chip">预计 6-12 秒</span>
+          <label className="text-sm text-[var(--text-secondary)]">
+            每页
+            {' '}
+            <select
+              className="mystic-select ml-2"
+              onChange={(event) => setPageSize(Number(event.target.value))}
+              value={pageSize}
+            >
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+              <option value={200}>200</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      {isSubmitting ? (
+        <EstimatedProgressNotice
+          className="mt-4"
+          description="正在执行四层滤网全量筛选，结果会在服务端完成本页计算后一次性返回。"
+          expectedDurationMs={9000}
+          expectedRangeLabel="6-12 秒"
+          testId="screen-progress"
+          title="全市场筛选进行中"
+        />
+      ) : null}
+
+      {!isSubmitting && !result && !error ? (
+        <p className="mt-4 text-sm text-[var(--text-secondary)]">
+          点击“执行筛选”后，这里会显示预计进度和等待时长。
+        </p>
+      ) : null}
+
+      {error ? (
+        <div className="mt-4">
+          <ErrorNotice error={error} title="筛选异常" />
+        </div>
+      ) : null}
+    </section>
+  );
+
   const resultsSection = result ? (
     <>
-      <section className="workbench-card">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="mystic-section-label">扫描反馈</p>
-            <p className="mt-2 text-sm text-[var(--text-secondary)]">
-              长任务异步执行中会显示进度条与完成通知，默认服务端分页 50 条，可切换到更大页容量。
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="mystic-chip">预计 6-12 秒</span>
-            <label className="text-sm text-[var(--text-secondary)]">
-              每页
-              {' '}
-              <select
-                className="mystic-select ml-2"
-                onChange={(event) => setPageSize(Number(event.target.value))}
-                value={pageSize}
-              >
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-                <option value={200}>200</option>
-              </select>
-            </label>
-          </div>
-        </div>
-
-        {progress > 0 ? (
-          <div className="mt-4">
-            <div className="workbench-bar-track">
-              <div className="workbench-progress-fill" style={{ width: `${progress}%` }} />
-            </div>
-          </div>
-        ) : null}
-      </section>
-
-      {error ? <ErrorNotice error={error} title="筛选异常" /> : null}
-
       <section className="workbench-card" data-testid={isMobileViewport ? 'screen-result-mobile-list' : 'screen-result-table'}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -809,6 +807,7 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
 
       {isMobileViewport ? (
         <div className="mt-6 space-y-6">
+          {feedbackSection}
           {resultsSection}
           {reportSection}
           {filterPanel}
@@ -817,6 +816,7 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
         <div className="mt-6 grid gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
           {filterPanel}
           <div className="space-y-6">
+            {feedbackSection}
             {resultsSection}
             {reportSection}
           </div>
