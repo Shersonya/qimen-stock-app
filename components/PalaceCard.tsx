@@ -187,6 +187,8 @@ export function PalaceCard({
   const shouldRenderCompact = detailMode === 'compact' || detailMode === 'adaptive';
   const shouldRenderExpanded = detailMode === 'expanded' || detailMode === 'adaptive';
   const shouldShowExpandedAnnotationDetails = detailMode === 'expanded';
+  const shouldUseComfortableDetailPanelLayout =
+    detailMode === 'expanded' && !isInteractive;
 
   function handleCardClick() {
     if (!isInteractive) {
@@ -361,17 +363,44 @@ export function PalaceCard({
 
             {shouldRenderExpanded ? (
               <dl
-                className={`grid grid-cols-2 gap-2 border-t border-[var(--border-soft)] pt-3 text-[10px] sm:pt-4 sm:text-[11px] ${
+                className={`border-t border-[var(--border-soft)] ${
+                  shouldUseComfortableDetailPanelLayout
+                    ? 'grid grid-cols-1 gap-2.5 pt-4 text-xs sm:grid-cols-2 sm:gap-2 sm:pt-4 sm:text-[11px]'
+                    : 'grid grid-cols-2 gap-2 pt-3 text-[10px] sm:pt-4 sm:text-[11px]'
+                } ${
                   detailMode === 'adaptive' ? 'hidden sm:grid' : ''
                 }`}
+                data-testid={
+                  shouldUseComfortableDetailPanelLayout
+                    ? `${testId}-expanded-details`
+                    : undefined
+                }
               >
                 {expandedDetailRows.map((item) => (
                   <div
-                    className="flex min-h-[4.4rem] flex-col justify-between rounded-[0.85rem] border border-[var(--border-soft)] bg-black/10 px-2 py-1.5"
+                    className={`rounded-[0.95rem] border border-[var(--border-soft)] bg-black/10 ${
+                      shouldUseComfortableDetailPanelLayout
+                        ? 'flex items-start justify-between gap-3 px-3 py-2.5 sm:min-h-[4.4rem] sm:flex-col sm:justify-between sm:px-2 sm:py-1.5'
+                        : 'flex min-h-[4.4rem] flex-col justify-between px-2 py-1.5'
+                    }`}
                     key={item.label}
                   >
-                    <dt className="text-[var(--text-muted)]">{item.label}</dt>
-                    <dd className="mt-1.5 font-medium leading-5 text-[var(--text-primary)]">
+                    <dt
+                      className={`text-[var(--text-muted)] ${
+                        shouldUseComfortableDetailPanelLayout
+                          ? 'shrink-0 text-[11px] uppercase tracking-[0.16em]'
+                          : ''
+                      }`}
+                    >
+                      {item.label}
+                    </dt>
+                    <dd
+                      className={`font-medium text-[var(--text-primary)] ${
+                        shouldUseComfortableDetailPanelLayout
+                          ? 'text-right text-sm leading-6 break-words sm:mt-1.5 sm:text-left sm:text-[13px] sm:leading-5'
+                          : 'mt-1.5 leading-5'
+                      }`}
+                    >
                       {item.value}
                     </dd>
                   </div>
@@ -381,13 +410,19 @@ export function PalaceCard({
 
             {patternNames.length > 0 ? (
               <div
-                className={`flex-wrap gap-2 border-t border-[var(--border-soft)] pt-2 ${
+                className={`flex-wrap border-t border-[var(--border-soft)] ${
+                  shouldUseComfortableDetailPanelLayout ? 'gap-2.5 pt-3' : 'gap-2 pt-2'
+                } ${
                   shouldShowExpandedAnnotationDetails ? 'flex' : 'hidden sm:flex'
                 }`}
               >
                 {patternNames.map((patternName) => (
                   <button
-                    className="rounded-full border border-[var(--border-strong)] bg-black/10 px-2.5 py-1 text-xs text-[var(--text-primary)] transition hover:border-[var(--accent-soft)]"
+                    className={`rounded-full border border-[var(--border-strong)] bg-black/10 text-[var(--text-primary)] transition hover:border-[var(--accent-soft)] ${
+                      shouldUseComfortableDetailPanelLayout
+                        ? 'px-3 py-1.5 text-[11px] leading-none'
+                        : 'px-2.5 py-1 text-xs'
+                    }`}
                     key={`${palace.index}-${patternName}`}
                     onClick={(event) => {
                       event.stopPropagation();
@@ -403,7 +438,11 @@ export function PalaceCard({
 
             {invalidReasonLabel ? (
               <p
-                className={`border-t border-[var(--border-soft)] pt-2 text-xs leading-6 text-[var(--text-muted)] ${
+                className={`text-[var(--text-muted)] ${
+                  shouldUseComfortableDetailPanelLayout
+                    ? 'rounded-[0.95rem] border border-[rgba(217,138,59,0.3)] bg-[rgba(217,138,59,0.08)] px-3 py-2.5 text-[11px] leading-6'
+                    : 'border-t border-[var(--border-soft)] pt-2 text-xs leading-6'
+                } ${
                   shouldShowExpandedAnnotationDetails ? 'block' : 'hidden sm:block'
                 }`}
               >
@@ -413,7 +452,11 @@ export function PalaceCard({
 
             {topEvilPatternLabel ? (
               <p
-                className={`border-t border-[var(--border-soft)] pt-2 text-xs leading-6 text-[var(--text-muted)] ${
+                className={`text-[var(--text-muted)] ${
+                  shouldUseComfortableDetailPanelLayout
+                    ? 'rounded-[0.95rem] border border-[rgba(189,87,87,0.32)] bg-[rgba(189,87,87,0.08)] px-3 py-2.5 text-[11px] leading-6'
+                    : 'border-t border-[var(--border-soft)] pt-2 text-xs leading-6'
+                } ${
                   shouldShowExpandedAnnotationDetails ? 'block' : 'hidden sm:block'
                 }`}
               >

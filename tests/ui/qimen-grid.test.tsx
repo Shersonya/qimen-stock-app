@@ -23,6 +23,9 @@ describe('QimenGrid', () => {
     const qimenMobileLayout = screen.getByTestId('qimen-mobile-layout');
     const qimenMobileOverview = screen.getByTestId('qimen-mobile-overview');
     const qimenMobileDetailCard = screen.getByTestId('qimen-mobile-detail-card');
+    const qimenMobileDetailGrid = screen.getByTestId(
+      'qimen-mobile-detail-card-expanded-details',
+    );
     const qimenGrid = screen.getByTestId('qimen-grid');
     const mobilePalaces = screen.getAllByTestId('qimen-mobile-palace');
     const palaceCards = screen.getAllByTestId('qimen-palace');
@@ -30,6 +33,8 @@ describe('QimenGrid', () => {
     expect(qimenMobileLayout.className).toContain('sm:hidden');
     expect(qimenMobileOverview).toBeInTheDocument();
     expect(qimenMobileDetailCard).toHaveAttribute('data-detail-mode', 'expanded');
+    expect(qimenMobileDetailGrid.className).toContain('grid-cols-1');
+    expect(qimenMobileDetailGrid.className).toContain('sm:grid-cols-2');
     expect(qimenGrid).toBeInTheDocument();
     expect(screen.getByTestId('qimen-desktop-layout').className).toContain('hidden sm:block');
     expect(mobilePalaces).toHaveLength(9);
