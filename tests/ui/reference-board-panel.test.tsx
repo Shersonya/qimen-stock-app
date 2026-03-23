@@ -46,7 +46,7 @@ describe('ReferenceBoardPanel mobile experience', () => {
     expect(screen.getByTestId('reference-mobile-overview').className).toContain(
       'board-shell',
     );
-    expect(screen.getByText('当前宫位完整信息')).toBeInTheDocument();
+    expect(screen.getByText('当前宫位补充说明')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '中宫局眼' })).toBeInTheDocument();
     expect(
       screen.getByText('中宫以 天禽 守局，适合用来观察整盘的重心与回旋余地。'),
@@ -67,8 +67,8 @@ describe('ReferenceBoardPanel mobile experience', () => {
     ).toBeInTheDocument();
 
     const shDetailCard = screen.getByTestId('reference-mobile-detail-card');
-    expect(within(shDetailCard).getByText('开门')).toBeInTheDocument();
-    expect(within(shDetailCard).getByText('玄武')).toBeInTheDocument();
+    expect(shDetailCard).toHaveTextContent('八门 开门');
+    expect(shDetailCard).toHaveTextContent('八神 玄武');
 
     await user.click(screen.getByRole('tab', { name: '深市' }));
 
@@ -87,6 +87,6 @@ describe('ReferenceBoardPanel mobile experience', () => {
     ).toBeInTheDocument();
 
     const szDetailCard = screen.getByTestId('reference-mobile-detail-card');
-    expect(within(szDetailCard).getByText('白虎')).toBeInTheDocument();
+    expect(szDetailCard).toHaveTextContent('八神 白虎');
   });
 });

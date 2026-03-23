@@ -23,22 +23,21 @@ describe('QimenGrid', () => {
     const qimenMobileLayout = screen.getByTestId('qimen-mobile-layout');
     const qimenMobileOverview = screen.getByTestId('qimen-mobile-overview');
     const qimenMobileDetailCard = screen.getByTestId('qimen-mobile-detail-card');
-    const qimenMobileDetailGrid = screen.getByTestId(
-      'qimen-mobile-detail-card-expanded-details',
-    );
+    const qimenMobileDetail = screen.getByTestId('qimen-mobile-detail');
     const qimenGrid = screen.getByTestId('qimen-grid');
     const mobilePalaces = screen.getAllByTestId('qimen-mobile-palace');
     const palaceCards = screen.getAllByTestId('qimen-palace');
 
     expect(qimenMobileLayout.className).toContain('sm:hidden');
     expect(qimenMobileOverview).toBeInTheDocument();
-    expect(qimenMobileDetailCard).toHaveAttribute('data-detail-mode', 'expanded');
-    expect(qimenMobileDetailGrid.className).toContain('grid-cols-1');
-    expect(qimenMobileDetailGrid.className).toContain('sm:grid-cols-2');
+    expect(qimenMobileDetail).toHaveTextContent('当前宫位补充说明');
+    expect(qimenMobileDetailCard).toHaveTextContent('主星');
     expect(qimenGrid).toBeInTheDocument();
     expect(screen.getByTestId('qimen-desktop-layout').className).toContain('hidden sm:block');
     expect(mobilePalaces).toHaveLength(9);
-    expect(mobilePalaces[0]).toHaveAttribute('data-detail-mode', 'compact');
+    expect(mobilePalaces[0]).toHaveAttribute('data-mobile-overview-card', 'true');
+    expect(within(mobilePalaces[0]!).getByText('休门')).toBeInTheDocument();
+    expect(within(mobilePalaces[0]!).getByText('太阴')).toBeInTheDocument();
     expect(palaceCards).toHaveLength(9);
     expect(palaceCards[0]).toHaveAttribute('data-detail-mode', 'expanded');
     expect(screen.getAllByText('天心星').length).toBeGreaterThan(0);
@@ -83,18 +82,20 @@ describe('QimenGrid', () => {
 
     render(<QimenGrid palaces={palacesWithDetail} />);
 
+    const mobilePalace = screen.getAllByTestId('qimen-mobile-palace')[1]!;
+
     expect(
-      screen.getAllByText((_, element) => element?.textContent === '天盘丁').length,
-    ).toBeGreaterThan(0);
+      within(mobilePalace).getByText((_, element) => element?.textContent === '天丁'),
+    ).toBeInTheDocument();
     expect(
-      screen.getAllByText((_, element) => element?.textContent === '地盘壬').length,
-    ).toBeGreaterThan(0);
+      within(mobilePalace).getByText((_, element) => element?.textContent === '地壬'),
+    ).toBeInTheDocument();
     expect(
-      screen.getAllByText((_, element) => element?.textContent === '空亡日空').length,
-    ).toBeGreaterThan(0);
+      within(mobilePalace).getByText((_, element) => element?.textContent === '空日空'),
+    ).toBeInTheDocument();
   });
 
-  it('surfaces palace metadata in the focus panel after selecting a palace', async () => {
+  it('keeps palace metadata visible in the mobile overview after selecting a palace', async () => {
     const user = userEvent.setup();
     const palacesWithDetail = palaces.map((palace, index) => {
       if (index !== 8) {
@@ -115,17 +116,26 @@ describe('QimenGrid', () => {
 
     await user.click(screen.getAllByTestId('qimen-mobile-palace')[8]!);
 
+    const selectedMobilePalace = screen.getAllByTestId('qimen-mobile-palace')[8]!;
     const mobileDetailCard = screen.getByTestId('qimen-mobile-detail-card');
 
-    expect(mobileDetailCard).toHaveTextContent('天盘');
-    expect(mobileDetailCard).toHaveTextContent('丙');
-    expect(mobileDetailCard).toHaveTextContent('地盘');
-    expect(mobileDetailCard).toHaveTextContent('辛');
-    expect(mobileDetailCard).toHaveTextContent('外盘');
-    expect(mobileDetailCard).toHaveTextContent('癸');
-    expect(mobileDetailCard).toHaveTextContent('地支');
-    expect(mobileDetailCard).toHaveTextContent('戌 / 亥');
-    expect(mobileDetailCard).toHaveTextContent('空亡');
-    expect(mobileDetailCard).toHaveTextContent('时空');
+    expect(
+      within(selectedMobilePalace).getByText((_, element) => element?.textContent === '天丙'),
+    ).toBeInTheDocument();
+    expect(
+      within(selectedMobilePalace).getByText((_, element) => element?.textContent === '地辛'),
+    ).toBeInTheDocument();
+    expect(
+      within(selectedMobilePalace).getByText((_, element) => element?.textContent === '外癸'),
+    ).toBeInTheDocument();
+    expect(
+      within(selectedMobilePalace).getByText((_, element) => element?.textContent === '支戌/亥'),
+    ).toBeInTheDocument();
+    expect(
+      within(selectedMobilePalace).getByText((_, element) => element?.textContent === '空时空'),
+    ).toBeInTheDocument();
+    expect(mobileDetailCard).toHaveTextContent('主星 天任星');
+    expect(mobileDetailCard).toHaveTextContent('八门 景门');
+    expect(mobileDetailCard).toHaveTextContent('八神 九地');
   });
 });
