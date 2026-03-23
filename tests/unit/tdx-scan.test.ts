@@ -1,22 +1,19 @@
 /** @jest-environment node */
 
 import { scanTdxSignals, resetTdxScanCacheForTests } from '@/lib/services/tdx-scan';
-import type { Market } from '@/lib/contracts/qimen';
+import { ERROR_CODES, type Market } from '@/lib/contracts/qimen';
+import { AppError } from '@/lib/errors';
 import { filterLimitUpStocks } from '@/lib/services/limit-up';
+import { getMarketStockPool } from '@/lib/services/market-screen';
 import { getStockDailyHistory } from '@/lib/services/stock-history';
 import { calculateTdxIndicators } from '@/lib/tdx/engine';
 
-jest.mock('@/data/stocks', () => ({
-  MOCK_STOCKS: [
-    { code: '000001', name: '样本A', market: 'SZ' },
-    { code: '000002', name: '样本B', market: 'SZ' },
-    { code: '000003', name: '样本C', market: 'SZ' },
-  ],
-}));
+jest.mock('@/lib/services/market-screen');
 jest.mock('@/lib/services/stock-history');
 jest.mock('@/lib/tdx/engine');
 jest.mock('@/lib/services/limit-up');
 
+const mockedGetMarketStockPool = jest.mocked(getMarketStockPool);
 const mockedGetStockDailyHistory = jest.mocked(getStockDailyHistory);
 const mockedCalculateTdxIndicators = jest.mocked(calculateTdxIndicators);
 const mockedFilterLimitUpStocks = jest.mocked(filterLimitUpStocks);
@@ -75,11 +72,28 @@ function createIndicator(args: {
   })) as ReturnType<typeof calculateTdxIndicators>;
 }
 
+function createMarketItem(
+  code: string,
+  name: string,
+  market: Market,
+) {
+  return {
+    stock: {
+      code,
+      name,
+      market,
+      listingDate: '2025-01-01',
+      sector: '测试行业',
+    },
+  } as Awaited<ReturnType<typeof getMarketStockPool>>[number];
+}
+
 describe('tdx scan service', () => {
   let consoleWarnSpy: jest.SpyInstance;
 
   beforeEach(() => {
     resetTdxScanCacheForTests();
+    mockedGetMarketStockPool.mockReset();
     mockedGetStockDailyHistory.mockReset();
     mockedCalculateTdxIndicators.mockReset();
     mockedFilterLimitUpStocks.mockReset();
@@ -107,6 +121,11 @@ describe('tdx scan service', () => {
       low: item.low + 20,
     }));
 
+    mockedGetMarketStockPool.mockResolvedValue([
+      createMarketItem('600001', '样本A', 'SH'),
+      createMarketItem('300001', '样本B', 'CYB'),
+      createMarketItem('000001', '样本C', 'SZ'),
+    ]);
     mockedGetStockDailyHistory
       .mockResolvedValueOnce(historyA)
       .mockResolvedValueOnce(historyB)
@@ -132,13 +151,12 @@ describe('tdx scan service', () => {
     });
 
     expect(first.total).toBe(2);
-    expect(first.items[0]?.stockCode).toBe('000001');
+    expect(first.items[0]?.stockCode).toBe('300001');
     expect(first.meta).toMatchObject({
       cached: false,
-      universeSource: 'local_stock_universe',
-      universeSize: expect.any(Number),
+      universeSource: 'market_pool',
+      universeSize: 3,
     });
-    expect(first.meta.notice).toContain('本地全市场股票快照');
 
     const second = await scanTdxSignals({
       signalType: 'both',
@@ -146,17 +164,21 @@ describe('tdx scan service', () => {
       pageSize: 1,
     });
 
-    expect(second.items[0]?.stockCode).toBe('000002');
+    expect(second.items[0]?.stockCode).toBe('600001');
     expect(second.meta).toMatchObject({
       cached: true,
-      universeSource: 'local_stock_universe',
-      universeSize: expect.any(Number),
+      universeSource: 'market_pool',
+      universeSize: 3,
     });
     expect(mockedGetStockDailyHistory).toHaveBeenCalledTimes(3);
-    expect(mockedFilterLimitUpStocks).not.toHaveBeenCalled();
+    expect(mockedGetMarketStockPool).toHaveBeenCalledTimes(1);
   });
 
   it('keeps the overall scan alive when one stock history request fails', async () => {
+    mockedGetMarketStockPool.mockResolvedValue([
+      createMarketItem('600001', '样本A', 'SH'),
+      createMarketItem('300001', '样本B', 'CYB'),
+    ]);
     mockedGetStockDailyHistory
       .mockRejectedValueOnce(new Error('network'))
       .mockResolvedValueOnce(createHistory(180));
@@ -171,14 +193,17 @@ describe('tdx scan service', () => {
     });
 
     expect(result.total).toBe(1);
-    expect(result.items[0]?.stockCode).toBe('000002');
+    expect(result.items[0]?.stockCode).toBe('300001');
     expect(consoleWarnSpy).toHaveBeenCalledWith(
-      '[TDX Scan] Failed to process 000001:',
+      '[TDX Scan] Failed to process 600001:',
       expect.any(Error),
     );
   });
 
   it('applies signal strength and trend filters', async () => {
+    mockedGetMarketStockPool.mockResolvedValue([
+      createMarketItem('600001', '样本A', 'SH'),
+    ]);
     mockedGetStockDailyHistory.mockResolvedValue(createHistory(180));
     mockedCalculateTdxIndicators.mockReturnValue(
       createIndicator({
@@ -201,5 +226,57 @@ describe('tdx scan service', () => {
     });
 
     expect(result.total).toBe(0);
+  });
+
+  it('falls back to recent limit-up stocks when the market pool source is unavailable', async () => {
+    mockedGetMarketStockPool.mockRejectedValueOnce(
+      new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502),
+    );
+    mockedFilterLimitUpStocks.mockResolvedValueOnce({
+      total: 1,
+      page: 1,
+      pageSize: 200,
+      filterDate: '2026-03-20',
+      lookbackDays: 5,
+      items: [
+        {
+          stockCode: '600001',
+          stockName: '样本A',
+          market: 'SH',
+          limitUpDates: ['2026-03-20'],
+          limitUpCount: 1,
+          firstLimitUpDate: '2026-03-20',
+          lastLimitUpDate: '2026-03-20',
+          latestClose: 12.3,
+          latestVolume: 120000,
+          sector: '测试行业',
+        },
+      ],
+    });
+    mockedGetStockDailyHistory.mockResolvedValueOnce(createHistory(180));
+    mockedCalculateTdxIndicators.mockReturnValueOnce(
+      createIndicator({ signalStrength: 4.2, meiZhu: true }),
+    );
+
+    const result = await scanTdxSignals({
+      signalType: 'both',
+      page: 1,
+      pageSize: 10,
+    });
+
+    expect(result.total).toBe(1);
+    expect(result.items[0]?.stockCode).toBe('600001');
+    expect(result.meta).toMatchObject({
+      cached: false,
+      universeSource: 'limit_up_fallback',
+      universeSize: 1,
+    });
+    expect(result.meta.notice).toContain('主市场池暂不可用');
+    expect(mockedFilterLimitUpStocks).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lookbackDays: 5,
+        pageSize: 200,
+      }),
+    );
   });
 });
