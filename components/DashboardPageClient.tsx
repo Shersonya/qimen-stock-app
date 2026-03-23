@@ -8,10 +8,8 @@ import { useWorkspaceSettings } from '@/components/providers/WorkspaceSettingsPr
 import { requestMarketDashboard } from '@/lib/client-api';
 import type {
   ApiError,
-  MarketDashboardRequest,
   MarketDashboardResponse,
 } from '@/lib/contracts/qimen';
-import { serializeMarketDashboardRequest } from '@/lib/market-dashboard-request';
 import { toApiError } from '@/lib/utils/api-error';
 
 function StatusCard({
@@ -200,54 +198,27 @@ function QuickActions() {
   );
 }
 
-type DashboardPageClientProps = {
-  initialData?: MarketDashboardResponse | null;
-  initialRequestKey?: string;
-};
-
-export function DashboardPageClient({
-  initialData = null,
-  initialRequestKey,
-}: DashboardPageClientProps) {
+export function DashboardPageClient() {
   const { patternConfigOverride, riskConfigOverride } = useWorkspaceSettings();
-  const [data, setData] = useState<MarketDashboardResponse | null>(initialData);
+  const [data, setData] = useState<MarketDashboardResponse | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
-  const [isLoading, setIsLoading] = useState(!initialData);
-  const [lastResolvedRequestKey, setLastResolvedRequestKey] = useState<string | null>(
-    initialData && initialRequestKey ? initialRequestKey : null,
-  );
-  const request = useMemo<MarketDashboardRequest>(
-    () => ({
-      patternConfigOverride,
-      riskConfigOverride,
-    }),
-    [patternConfigOverride, riskConfigOverride],
-  );
-  const currentRequestKey = useMemo(
-    () => serializeMarketDashboardRequest(request),
-    [request],
-  );
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-
-    if (data && lastResolvedRequestKey === currentRequestKey) {
-      setIsLoading(false);
-      return () => {
-        cancelled = true;
-      };
-    }
 
     async function run() {
       setIsLoading(true);
 
       try {
-        const nextData = await requestMarketDashboard(request);
+        const nextData = await requestMarketDashboard({
+          patternConfigOverride,
+          riskConfigOverride,
+        });
 
         if (!cancelled) {
           setData(nextData);
           setError(null);
-          setLastResolvedRequestKey(currentRequestKey);
         }
       } catch (nextError) {
         if (!cancelled) {
@@ -266,7 +237,7 @@ export function DashboardPageClient({
     return () => {
       cancelled = true;
     };
-  }, [currentRequestKey, data, lastResolvedRequestKey, request]);
+  }, [patternConfigOverride, riskConfigOverride]);
 
   const topStocks = useMemo(() => data?.topStocks ?? [], [data]);
 

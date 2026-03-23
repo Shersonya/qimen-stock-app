@@ -9,7 +9,6 @@
     "generate:references": "tsx scripts/generate-reference-boards.ts",
     "stocks:sync": "python3 scripts/sync-stock-search-data.py",
     "smoke:runtime": "tsx scripts/smoke-runtime.ts",
-    "profile:screening": "tsx scripts/profile-screening.ts",
     "lint": "eslint . --max-warnings=0",
     "test": "jest --runInBand",
     "typecheck": "tsc --noEmit",

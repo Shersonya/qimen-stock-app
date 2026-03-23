@@ -6,10 +6,7 @@ import {
   ERROR_CODES,
   type Market,
 } from '@/lib/contracts/qimen';
-import {
-  getStockListingInfo,
-  resetStockListingCacheForTests,
-} from '@/lib/services/stock-data';
+import { getStockListingInfo } from '@/lib/services/stock-data';
 import { getStockDailyHistory } from '@/lib/services/stock-history';
 
 jest.mock('@/lib/services/stock-history');
@@ -31,7 +28,6 @@ describe('getStockListingInfo', () => {
   afterEach(() => {
     fetchMock.mockReset();
     mockedGetStockDailyHistory.mockReset();
-    resetStockListingCacheForTests();
   });
 
   afterAll(() => {

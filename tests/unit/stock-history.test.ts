@@ -137,30 +137,6 @@ describe('getStockDailyHistory', () => {
     expect(url).toContain('end=20260318');
   });
 
-  it('caches repeated history requests with the same market and date range', async () => {
-    fetchMock.mockResolvedValueOnce(
-      jsonResponse({
-        data: {
-          klines: [
-            '2026-03-01,10.10,10.45,10.60,9.98,120000,234000000',
-          ],
-        },
-      }),
-    );
-
-    const first = await getStockDailyHistory('600519', 'SH', {
-      beg: '20260201',
-      end: '20260318',
-    });
-    const second = await getStockDailyHistory('600519', 'SH', {
-      beg: '20260201',
-      end: '20260318',
-    });
-
-    expect(first).toEqual(second);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-  });
-
   it('maps transport failures to DATA_SOURCE_ERROR', async () => {
     fetchMock.mockRejectedValue(new Error('network down'));
 

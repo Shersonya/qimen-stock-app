@@ -1,5 +1,3 @@
-import { unstable_cache } from 'next/cache';
-
 import type {
   MarketDashboardRequest,
   MarketDashboardResponse,
@@ -7,7 +5,6 @@ import type {
 } from '@/lib/contracts/qimen';
 import { ERROR_CODES } from '@/lib/contracts/qimen';
 import { AppError } from '@/lib/errors';
-import { serializeMarketDashboardRequest } from '@/lib/market-dashboard-request';
 import { evaluateQimenAuspiciousPatterns } from '@/lib/qimen/auspicious-patterns';
 import { generateQimenChart } from '@/lib/qimen/engine';
 import {
@@ -15,7 +12,6 @@ import {
   getMarketStockPoolCacheMeta,
 } from '@/lib/services/market-screen';
 
-const MARKET_DASHBOARD_CACHE_REVALIDATE_SECONDS = 5 * 60;
 const PALACE_WUXING_MAP: Record<number, string> = {
   1: '水',
   2: '土',
@@ -29,10 +25,6 @@ const PALACE_WUXING_MAP: Record<number, string> = {
 };
 
 type PatternHeat = MarketDashboardResponse['patternHeat'];
-
-function isMissingIncrementalCacheError(error: unknown) {
-  return error instanceof Error && error.message.includes('incrementalCache missing');
-}
 
 function countEntries(values: string[]) {
   const counts = new Map<string, number>();
@@ -166,32 +158,4 @@ export async function getMarketDashboard(
       notice: sourceNotice ?? undefined,
     },
   };
-}
-
-const getCachedMarketDashboardByRequest = unstable_cache(
-  async (serializedRequest: string): Promise<MarketDashboardResponse> => {
-    return getMarketDashboard(
-      JSON.parse(serializedRequest) as MarketDashboardRequest,
-    );
-  },
-  ['market-dashboard'],
-  {
-    revalidate: MARKET_DASHBOARD_CACHE_REVALIDATE_SECONDS,
-  },
-);
-
-export async function getCachedMarketDashboard(
-  request: MarketDashboardRequest = {},
-): Promise<MarketDashboardResponse> {
-  try {
-    return await getCachedMarketDashboardByRequest(
-      serializeMarketDashboardRequest(request),
-    );
-  } catch (error) {
-    if (isMissingIncrementalCacheError(error)) {
-      return getMarketDashboard(request);
-    }
-
-    throw error;
-  }
 }

@@ -20,7 +20,6 @@ const TENCENT_HISTORY_ENDPOINT =
 const SINA_HISTORY_ENDPOINT = 'https://quotes.sina.cn/cn/api/jsonp_v2.php';
 const HISTORY_FETCH_RETRY_COUNT = 3;
 const HISTORY_FETCH_RETRY_DELAY_MS = 250;
-const HISTORY_CACHE_TTL_MS = 30 * 60 * 1000;
 const TENCENT_HISTORY_MAX_COUNT = 5000;
 const EASTMONEY_FAILURE_COOLDOWN_MS = 5 * 60 * 1000;
 const DEFAULT_SINA_DATA_LENGTH = 480;
@@ -67,18 +66,10 @@ type HistoryOptions = {
   end?: string;
 };
 
-type HistoryCacheEntry = {
-  expiresAt: number;
-  value?: StockHistoryPoint[];
-  promise?: Promise<StockHistoryPoint[]>;
-};
-
 let eastMoneyDisabledUntil = 0;
-let historyResponseCache = new Map<string, HistoryCacheEntry>();
 
 export function resetStockHistoryStateForTests() {
   eastMoneyDisabledUntil = 0;
-  historyResponseCache = new Map();
 }
 
 function normalizeHistoryDateParam(value: string | undefined, fallback: string): string {
@@ -115,14 +106,6 @@ function delay(ms: number) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
-}
-
-function buildHistoryCacheKey(
-  stockCode: string,
-  market: Market,
-  options: Required<HistoryOptions>,
-) {
-  return `${market}:${stockCode}:${options.beg}:${options.end}`;
 }
 
 function getSinaSymbol(stockCode: string, market: Market) {
@@ -430,17 +413,6 @@ export async function getStockDailyHistory(
     beg: normalizeHistoryDateParam(options.beg, '20240101'),
     end: normalizeHistoryDateParam(options.end, '20500101'),
   };
-  const cacheKey = buildHistoryCacheKey(stockCode, market, normalizedOptions);
-  const cached = historyResponseCache.get(cacheKey);
-
-  if (cached?.value && Date.now() < cached.expiresAt) {
-    return cached.value;
-  }
-
-  if (cached?.promise) {
-    return cached.promise;
-  }
-
   const secid = `${getEastMoneySecIdPrefix(market)}.${stockCode}`;
   const params = new URLSearchParams({
     secid,
@@ -452,41 +424,18 @@ export async function getStockDailyHistory(
     end: normalizedOptions.end,
   });
   const url = `${EASTMONEY_HISTORY_ENDPOINT}?${params.toString()}`;
-  const promise = (async () => {
-    try {
-      try {
-        return await fetchEastMoneyHistory(url);
-      } catch {
-        try {
-          return await fetchTencentHistory(stockCode, market, normalizedOptions);
-        } catch {
-          try {
-            return await fetchSinaHistory(stockCode, market, normalizedOptions);
-          } catch {
-            throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
-          }
-        }
-      }
-    } finally {
-      const next = historyResponseCache.get(cacheKey);
 
-      if (next?.promise) {
-        historyResponseCache.delete(cacheKey);
+  try {
+    return await fetchEastMoneyHistory(url);
+  } catch {
+    try {
+      return await fetchTencentHistory(stockCode, market, normalizedOptions);
+    } catch {
+      try {
+        return await fetchSinaHistory(stockCode, market, normalizedOptions);
+      } catch {
+        throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
       }
     }
-  })();
-
-  historyResponseCache.set(cacheKey, {
-    expiresAt: Date.now() + HISTORY_CACHE_TTL_MS,
-    promise,
-  });
-
-  const result = await promise;
-
-  historyResponseCache.set(cacheKey, {
-    expiresAt: Date.now() + HISTORY_CACHE_TTL_MS,
-    value: result,
-  });
-
-  return result;
+  }
 }

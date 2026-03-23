@@ -25,11 +25,11 @@ import { getMarketFromCurrentAStockCode } from '@/lib/markets';
 import { isStStockName } from '@/lib/services/stock-data';
 import { mapWithConcurrency } from '@/lib/utils/async';
 
-const MARKET_CACHE_TTL_MS = 4 * 60 * 60 * 1000;
+const MARKET_CACHE_TTL_MS = 30 * 60 * 1000;
 const MARKET_POOL_MAX_ATTEMPTS = 3;
 const MARKET_POOL_RETRY_DELAY_MS = 250;
 const MARKET_POOL_PAGE_SIZE = 100;
-const MARKET_POOL_PAGE_CONCURRENCY = 8;
+const MARKET_POOL_PAGE_CONCURRENCY = 4;
 const DEFAULT_PAGE_SIZE = 50;
 const MAX_PAGE_SIZE = 200;
 

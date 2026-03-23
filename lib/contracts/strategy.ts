@@ -17,7 +17,6 @@ export type TdxScanRequest = {
 };
 
 export type TdxScanUniverseSource =
-  | 'local_stock_universe'
   | 'market_pool'
   | 'limit_up_fallback'
   | 'bundled_market_fallback';

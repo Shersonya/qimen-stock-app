@@ -29,7 +29,6 @@ const SORT_LABELS: Record<TdxSortKey, string> = {
 };
 
 const UNIVERSE_SOURCE_LABELS = {
-  local_stock_universe: '本地全市场快照',
   market_pool: '主市场池',
   limit_up_fallback: '涨停活跃降级',
   bundled_market_fallback: '内置活跃样本',
