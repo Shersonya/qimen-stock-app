@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
+import { EstimatedProgressNotice } from '@/components/EstimatedProgressNotice';
 import { ErrorNotice } from '@/components/ErrorNotice';
 import { ExpandedPalaceGrid } from '@/components/ExpandedPalaceGrid';
 import { PlumResult } from '@/components/PlumResult';
@@ -180,7 +181,13 @@ export function DiagnosisReportPageClient({
       {error ? <ErrorNotice error={error} title="诊断加载失败" /> : null}
       {isLoading && !result ? (
         <div className="workbench-card">
-          <p className="text-sm text-[var(--text-secondary)]">正在生成个股五步推演报告...</p>
+          <EstimatedProgressNotice
+            description="正在起局并生成五步诊断报告，排盘、吉格分析和综合建议会在结果返回后一次性展开。"
+            expectedDurationMs={3000}
+            expectedRangeLabel="1-4 秒"
+            testId="diagnosis-progress"
+            title="个股诊断生成中"
+          />
         </div>
       ) : null}
 

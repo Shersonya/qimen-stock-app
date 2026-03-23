@@ -159,6 +159,33 @@ describe('ScreenPageClient', () => {
     );
   });
 
+  it('shows estimated progress while loading the mobile preview board', async () => {
+    const user = userEvent.setup();
+    const deferred = createDeferredPromise<ReturnType<typeof getDemoQimenResponse>>();
+
+    mockMatchMedia(true);
+    mockedRequestQimenAnalysis.mockReturnValueOnce(
+      deferred.promise as ReturnType<typeof mockedRequestQimenAnalysis>,
+    );
+
+    renderInWorkbench(<ScreenPageClient />);
+
+    fireEvent.keyDown(window, { key: 'F5' });
+    expect(await screen.findByTestId('screen-result-mobile-list')).toBeInTheDocument();
+
+    const corePatternButton = screen.getByRole('button', {
+      name: '[COMPOSITE]真诈格(离9宫)、[A]青龙返首(坎1宫)',
+    });
+
+    await user.click(corePatternButton);
+
+    expect(await screen.findByTestId('screen-preview-progress')).toHaveTextContent('预计 1-3 秒');
+
+    deferred.resolve(getDemoQimenResponse('000001'));
+
+    expect(await screen.findByTestId('screen-preview-mobile-layout')).toBeInTheDocument();
+  });
+
   it('shows estimated progress on the first screen request before results return', async () => {
     const deferred = createDeferredPromise<ReturnType<typeof getDemoMarketScreenResponse>>();
 

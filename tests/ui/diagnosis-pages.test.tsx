@@ -32,6 +32,17 @@ jest.mock('@/lib/client-api', () => ({
 
 const mockedRequestQimenAnalysis = jest.mocked(requestQimenAnalysis);
 
+function createDeferredPromise<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((nextResolve, nextReject) => {
+    resolve = nextResolve;
+    reject = nextReject;
+  });
+
+  return { promise, resolve, reject };
+}
+
 describe('Diagnosis pages', () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -119,5 +130,21 @@ describe('Diagnosis pages', () => {
     await user.click(screen.getAllByTestId('diagnosis-mobile-palace')[6]!);
 
     expect(screen.getByTestId('diagnosis-mobile-detail-card')).toHaveTextContent('失效: 击刑');
+  });
+
+  it('shows estimated progress before the diagnosis request resolves', async () => {
+    const deferred = createDeferredPromise<ReturnType<typeof getDemoQimenResponse>>();
+
+    mockedRequestQimenAnalysis.mockReturnValueOnce(
+      deferred.promise as ReturnType<typeof mockedRequestQimenAnalysis>,
+    );
+
+    renderInWorkbench(<DiagnosisReportPageClient stockCode="600519" />);
+
+    expect(await screen.findByTestId('diagnosis-progress')).toHaveTextContent('预计 1-4 秒');
+
+    deferred.resolve(getDemoQimenResponse('600519'));
+
+    expect(await screen.findByText('全局定调')).toBeInTheDocument();
   });
 });

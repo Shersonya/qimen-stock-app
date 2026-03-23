@@ -850,7 +850,14 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
             ) : null}
 
             {isPreviewLoading ? (
-              <p className="mt-5 text-sm text-[var(--text-secondary)]">正在加载该股的奇门盘...</p>
+              <EstimatedProgressNotice
+                className="mt-5"
+                description="正在生成该股的奇门盘与宫位注释，预览会在分析完成后自动展开。"
+                expectedDurationMs={2500}
+                expectedRangeLabel="1-3 秒"
+                testId="screen-preview-progress"
+                title="奇门盘预览加载中"
+              />
             ) : null}
 
             {previewPayload ? (
