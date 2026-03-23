@@ -177,6 +177,7 @@ export function PalaceCard({
         : 'min-h-[10.5rem] sm:min-h-[22rem]';
   const patternNames = annotation?.patternNames ?? [];
   const invalidReasonLabel = annotation?.invalidReasons.join('/') ?? '';
+  const topEvilPatternLabel = annotation?.topEvilPatterns.join('/') ?? '';
   const detailChips = formatPalaceDetails(palace);
   const compactDoorGodRows = [
     { label: '门', value: palace.door },
@@ -185,6 +186,7 @@ export function PalaceCard({
   const expandedDetailRows = buildExpandedDetailRows(palace);
   const shouldRenderCompact = detailMode === 'compact' || detailMode === 'adaptive';
   const shouldRenderExpanded = detailMode === 'expanded' || detailMode === 'adaptive';
+  const shouldShowExpandedAnnotationDetails = detailMode === 'expanded';
 
   function handleCardClick() {
     if (!isInteractive) {
@@ -378,7 +380,11 @@ export function PalaceCard({
             ) : null}
 
             {patternNames.length > 0 ? (
-              <div className="hidden flex-wrap gap-2 border-t border-[var(--border-soft)] pt-2 sm:flex">
+              <div
+                className={`flex-wrap gap-2 border-t border-[var(--border-soft)] pt-2 ${
+                  shouldShowExpandedAnnotationDetails ? 'flex' : 'hidden sm:flex'
+                }`}
+              >
                 {patternNames.map((patternName) => (
                   <button
                     className="rounded-full border border-[var(--border-strong)] bg-black/10 px-2.5 py-1 text-xs text-[var(--text-primary)] transition hover:border-[var(--accent-soft)]"
@@ -396,8 +402,22 @@ export function PalaceCard({
             ) : null}
 
             {invalidReasonLabel ? (
-              <p className="hidden border-t border-[var(--border-soft)] pt-2 text-xs leading-6 text-[var(--text-muted)] sm:block">
+              <p
+                className={`border-t border-[var(--border-soft)] pt-2 text-xs leading-6 text-[var(--text-muted)] ${
+                  shouldShowExpandedAnnotationDetails ? 'block' : 'hidden sm:block'
+                }`}
+              >
                 失效: {invalidReasonLabel}
+              </p>
+            ) : null}
+
+            {topEvilPatternLabel ? (
+              <p
+                className={`border-t border-[var(--border-soft)] pt-2 text-xs leading-6 text-[var(--text-muted)] ${
+                  shouldShowExpandedAnnotationDetails ? 'block' : 'hidden sm:block'
+                }`}
+              >
+                凶格: {topEvilPatternLabel}
               </p>
             ) : null}
           </>

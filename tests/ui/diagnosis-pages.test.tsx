@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { DiagnosisReportPageClient } from '@/components/DiagnosisReportPageClient';
@@ -100,6 +100,8 @@ describe('Diagnosis pages', () => {
   });
 
   it('renders the mobile palace explorer on compact screens', async () => {
+    const user = userEvent.setup();
+
     setViewportWidth(375);
 
     renderInWorkbench(<DiagnosisReportPageClient stockCode="600519" />);
@@ -108,5 +110,14 @@ describe('Diagnosis pages', () => {
     expect(screen.getByTestId('diagnosis-mobile-overview')).toBeInTheDocument();
     expect(screen.getByTestId('diagnosis-mobile-detail-card')).toBeInTheDocument();
     expect(screen.queryByTestId('diagnosis-palace-grid')).not.toBeInTheDocument();
+
+    await user.click(screen.getAllByTestId('diagnosis-mobile-palace')[0]!);
+
+    const detailCard = screen.getByTestId('diagnosis-mobile-detail-card');
+    expect(within(detailCard).getByRole('button', { name: '真诈格' })).toBeInTheDocument();
+
+    await user.click(screen.getAllByTestId('diagnosis-mobile-palace')[6]!);
+
+    expect(screen.getByTestId('diagnosis-mobile-detail-card')).toHaveTextContent('失效: 击刑');
   });
 });
