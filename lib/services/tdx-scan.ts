@@ -1,3 +1,4 @@
+import { MOCK_STOCKS } from '@/data/stocks';
 import type {
   TdxScanRequest,
   TdxScanResponse,
@@ -6,6 +7,7 @@ import type {
 import { ERROR_CODES, type Market } from '@/lib/contracts/qimen';
 import { AppError } from '@/lib/errors';
 import { filterLimitUpStocks } from '@/lib/services/limit-up';
+import { isStStockName } from '@/lib/services/stock-data';
 import { calculateTdxIndicators } from '@/lib/tdx/engine';
 import type { ExtendedKLineBar } from '@/lib/tdx/types';
 import {
@@ -55,6 +57,14 @@ type ScanUniverse = {
   source: TdxScanUniverseSource;
 };
 
+const LOCAL_SCAN_UNIVERSE: ScanUniverseStock[] = MOCK_STOCKS
+  .filter((item) => !isStStockName(item.name))
+  .map((item) => ({
+    code: item.code,
+    name: item.name,
+    market: item.market,
+  }));
+
 let historyCache = new Map<string, HistoryCacheEntry>();
 let scanCache = new Map<string, ScanCacheEntry>();
 
@@ -102,6 +112,13 @@ function buildHistoryRange() {
 }
 
 async function getScanUniverse(): Promise<ScanUniverse> {
+  if (LOCAL_SCAN_UNIVERSE.length > 0) {
+    return {
+      source: 'local_stock_universe',
+      items: LOCAL_SCAN_UNIVERSE,
+    };
+  }
+
   try {
     const pool = await getMarketStockPool();
     const cacheMeta = getMarketStockPoolCacheMeta();
@@ -163,7 +180,11 @@ function buildResponseMeta(
 ): TdxScanResponse['meta'] {
   let notice: string | undefined;
 
-  if (snapshot.universeSource === 'limit_up_fallback') {
+  if (snapshot.universeSource === 'local_stock_universe') {
+    notice = cached
+      ? '当前展示的是 10 分钟内缓存结果，扫描宇宙来自本地全市场股票快照。'
+      : '当前扫描直接使用本地全市场股票快照，已跳过实时市场池预处理以缩短首扫耗时。';
+  } else if (snapshot.universeSource === 'limit_up_fallback') {
     notice = cached
       ? '主市场池暂不可用，当前展示的是最近涨停活跃股降级结果，并命中了 10 分钟内缓存。'
       : '主市场池暂不可用，已自动切换到最近涨停活跃股宇宙继续扫描。';
