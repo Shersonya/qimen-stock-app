@@ -4,7 +4,7 @@ import {
   type LimitUpStock,
 } from '@/lib/contracts/strategy';
 import { getBundledLimitUpSnapshot } from '@/lib/fallback-data/limit-up';
-import { isStStockName } from '@/lib/services/stock-data';
+import { getStockListingInfo, isStStockName } from '@/lib/services/stock-data';
 import { getStockDailyHistory } from '@/lib/services/stock-history';
 import { mapWithConcurrency } from '@/lib/utils/async';
 import {
@@ -18,11 +18,11 @@ const DEFAULT_PAGE_SIZE = 50;
 const MAX_PAGE_SIZE = 200;
 const CACHE_TTL_MS = 30 * 60 * 1000;
 const HISTORY_FETCH_BUFFER_DAYS = 120;
-const CONCURRENCY_LIMIT = 6;
+const CONCURRENCY_LIMIT = 12;
 const MIN_NEW_STOCK_TRADING_DAYS = 60;
 const LIMIT_UP_POOL_ENDPOINT = 'https://push2ex.eastmoney.com/getTopicZTPool';
 const LIMIT_UP_POOL_PAGE_SIZE = 200;
-const LIMIT_UP_POOL_CONCURRENCY = 4;
+const LIMIT_UP_POOL_CONCURRENCY = 6;
 
 type EastMoneyLimitUpPoolItem = {
   c?: string;
@@ -427,9 +427,22 @@ async function getRecentTradingDates(lookbackDays: number) {
     end: toCompactDateString(historyWindow.end) ?? undefined,
   });
 
-  return tradingCalendar
-    .map((item) => item.tradeDate)
-    .slice(-lookbackDays);
+  return tradingCalendar.map((item) => item.tradeDate);
+}
+
+function hasEnoughTradingDaysSinceListing(
+  listingDate: string,
+  tradingCalendar: string[],
+) {
+  let tradingDays = 0;
+
+  for (const tradeDate of tradingCalendar) {
+    if (tradeDate >= listingDate) {
+      tradingDays += 1;
+    }
+  }
+
+  return tradingDays >= MIN_NEW_STOCK_TRADING_DAYS;
 }
 
 function aggregateLimitUpCandidates(
@@ -494,36 +507,31 @@ async function finalizeLimitUpCandidate(
   candidate: AggregatedLimitUpCandidate,
   options: {
     excludeNewStock: boolean;
-    historyWindow: { beg: string; end: string };
+    tradingCalendar: string[];
   },
 ): Promise<LimitUpStock | null> {
-  let latestClose = candidate.latestPoolClose;
-  let latestVolume = candidate.latestPoolVolume;
-  let historyLength = 0;
-
-  try {
-    const history = (await getStockDailyHistory(candidate.stockCode, candidate.market, {
-      beg: toCompactDateString(options.historyWindow.beg) ?? undefined,
-      end: toCompactDateString(options.historyWindow.end) ?? undefined,
-    }))
-      .slice()
-      .sort((left, right) => left.tradeDate.localeCompare(right.tradeDate));
-
-    historyLength = history.length;
-
-    const latestBar = history.at(-1);
-
-    if (latestBar) {
-      latestClose = latestBar.close;
-      latestVolume = latestBar.volume;
-    }
-  } catch {
-    if (options.excludeNewStock) {
-      return null;
-    }
+  if (!options.excludeNewStock) {
+    return {
+      stockCode: candidate.stockCode,
+      stockName: candidate.stockName,
+      market: candidate.market,
+      limitUpDates: candidate.limitUpDates,
+      limitUpCount: candidate.limitUpDates.length,
+      firstLimitUpDate: candidate.limitUpDates[0]!,
+      lastLimitUpDate: candidate.limitUpDates[candidate.limitUpDates.length - 1]!,
+      latestClose: candidate.latestPoolClose,
+      latestVolume: candidate.latestPoolVolume,
+      sector: candidate.sector,
+    };
   }
 
-  if (options.excludeNewStock && !hasEnoughTradingDays(historyLength)) {
+  try {
+    const listingInfo = await getStockListingInfo(candidate.stockCode);
+
+    if (!hasEnoughTradingDaysSinceListing(listingInfo.listingDate, options.tradingCalendar)) {
+      return null;
+    }
+  } catch {
     return null;
   }
 
@@ -535,8 +543,8 @@ async function finalizeLimitUpCandidate(
     limitUpCount: candidate.limitUpDates.length,
     firstLimitUpDate: candidate.limitUpDates[0]!,
     lastLimitUpDate: candidate.limitUpDates[candidate.limitUpDates.length - 1]!,
-    latestClose,
-    latestVolume,
+    latestClose: candidate.latestPoolClose,
+    latestVolume: candidate.latestPoolVolume,
     sector: candidate.sector,
   };
 }
@@ -572,9 +580,22 @@ export async function filterLimitUpStocks(
     return buildPagedResponse(cached.response, page, pageSize);
   }
 
-  const historyWindow = getHistoryWindow(lookbackDays);
   try {
-    const tradingDates = await getRecentTradingDates(lookbackDays);
+    const tradingCalendar = await getRecentTradingDates(lookbackDays);
+    const tradingDates = tradingCalendar.slice(-lookbackDays);
+    if (tradingCalendar.length < lookbackDays || tradingDates.length === 0) {
+      return buildBundledLimitUpResponse({
+        lookbackDays,
+        minLimitUpCount,
+        excludeST,
+        excludeKechuang,
+        excludeNewStock,
+        sortBy,
+        sortOrder,
+        page,
+        pageSize,
+      });
+    }
     const poolsByDate = await mapWithConcurrency(
       tradingDates,
       LIMIT_UP_POOL_CONCURRENCY,
@@ -586,14 +607,27 @@ export async function filterLimitUpStocks(
     const candidates = aggregateLimitUpCandidates(poolsByDate, {
       excludeST,
       excludeKechuang,
-    });
+    }).filter((candidate) => candidate.limitUpDates.length >= minLimitUpCount);
+    if (candidates.length === 0) {
+      return buildBundledLimitUpResponse({
+        lookbackDays,
+        minLimitUpCount,
+        excludeST,
+        excludeKechuang,
+        excludeNewStock,
+        sortBy,
+        sortOrder,
+        page,
+        pageSize,
+      });
+    }
     const items = await mapWithConcurrency(
       candidates,
       CONCURRENCY_LIMIT,
       async (candidate) => {
         return finalizeLimitUpCandidate(candidate, {
           excludeNewStock,
-          historyWindow,
+          tradingCalendar,
         });
       },
     );
@@ -605,7 +639,7 @@ export async function filterLimitUpStocks(
 
     const response: CachedLimitUpResult['response'] = {
       total: filteredItems.length,
-      filterDate: tradingDates.at(-1) ?? historyWindow.end,
+      filterDate: tradingDates.at(-1) ?? getHistoryWindow(lookbackDays).end,
       lookbackDays,
       items: filteredItems,
       meta: {

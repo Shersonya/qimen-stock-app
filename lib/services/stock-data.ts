@@ -18,6 +18,7 @@ const EASTMONEY_SURVEY_ENDPOINT =
 const EASTMONEY_SUGGEST_ENDPOINT =
   'https://searchapi.eastmoney.com/api/suggest/get';
 const EASTMONEY_SUGGEST_TOKEN = 'D43BF722C8E33BDC906FB84D85E326E8';
+const STOCK_LISTING_CACHE_TTL_MS = 4 * 60 * 60 * 1000;
 
 type EastMoneyResponse = {
   status?: number;
@@ -50,8 +51,20 @@ type EastMoneySuggestResponse = {
   };
 };
 
+type StockListingCacheEntry = {
+  expiresAt: number;
+  value?: StockListingData;
+  promise?: Promise<StockListingData>;
+};
+
+let stockListingCache = new Map<string, StockListingCacheEntry>();
+
 export function isStStockName(stockName: string): boolean {
   return /^(ST|\*ST|SST|S\*ST)/i.test(stockName.trim());
+}
+
+export function resetStockListingCacheForTests() {
+  stockListingCache = new Map();
 }
 
 function validateStockCode(stockCode: string): string {
@@ -264,6 +277,17 @@ export async function getStockListingInfo(
   stockCode: string,
 ): Promise<StockListingData> {
   const normalizedCode = validateStockCode(stockCode);
+  const cached = stockListingCache.get(normalizedCode);
+
+  if (cached?.value && Date.now() < cached.expiresAt) {
+    return cached.value;
+  }
+
+  if (cached?.promise) {
+    return cached.promise;
+  }
+
+  const promise = (async () => {
   const directSurveyPayload = await fetchSurvey(normalizedCode);
   const directSurveyCode = directSurveyPayload ? extractSurveyCode(directSurveyPayload) : null;
   const directSurveyName = directSurveyPayload ? extractSurveyName(directSurveyPayload) : null;
@@ -335,4 +359,22 @@ export async function getStockListingInfo(
     listingTime: DEFAULT_LISTING_TIME,
     timeSource: DEFAULT_TIME_SOURCE,
   };
+  })().catch((error) => {
+    stockListingCache.delete(normalizedCode);
+    throw error;
+  });
+
+  stockListingCache.set(normalizedCode, {
+    expiresAt: Date.now() + STOCK_LISTING_CACHE_TTL_MS,
+    promise,
+  });
+
+  const result = await promise;
+
+  stockListingCache.set(normalizedCode, {
+    expiresAt: Date.now() + STOCK_LISTING_CACHE_TTL_MS,
+    value: result,
+  });
+
+  return result;
 }

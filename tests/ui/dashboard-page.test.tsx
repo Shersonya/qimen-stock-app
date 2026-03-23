@@ -3,6 +3,15 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { DashboardPageClient } from '@/components/DashboardPageClient';
 import { requestMarketDashboard } from '@/lib/client-api';
 import { getDemoMarketDashboardResponse } from '@/lib/demo-fixtures';
+import {
+  WORKSPACE_SETTINGS_STORAGE_KEY,
+  createDefaultWorkspaceSettings,
+  serializeWorkspaceSettings,
+} from '@/lib/workspace-settings';
+import {
+  getDefaultMarketDashboardRequest,
+  serializeMarketDashboardRequest,
+} from '@/lib/market-dashboard-request';
 import { renderInWorkbench } from '@/tests/ui/render-workbench';
 
 const mockPush = jest.fn();
@@ -65,6 +74,44 @@ describe('DashboardPageClient', () => {
 
     await waitFor(() => {
       expect(mockedRequestMarketDashboard).toHaveBeenCalled();
+    });
+  });
+
+  it('renders server-provided dashboard data without refetching the default request', async () => {
+    const initialData = getDemoMarketDashboardResponse();
+    const defaultRequest = getDefaultMarketDashboardRequest();
+
+    renderInWorkbench(
+      <DashboardPageClient
+        initialData={initialData}
+        initialRequestKey={serializeMarketDashboardRequest(defaultRequest)}
+      />,
+    );
+
+    expect(screen.getByText('有吉气')).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(mockedRequestMarketDashboard).not.toHaveBeenCalled();
+    });
+  });
+
+  it('refetches after hydration when the workspace settings differ from the server snapshot', async () => {
+    const customSettings = createDefaultWorkspaceSettings();
+    customSettings.risk.excludeTopEvilPatterns = false;
+    window.localStorage.setItem(
+      WORKSPACE_SETTINGS_STORAGE_KEY,
+      serializeWorkspaceSettings(customSettings),
+    );
+
+    renderInWorkbench(
+      <DashboardPageClient
+        initialData={getDemoMarketDashboardResponse()}
+        initialRequestKey={serializeMarketDashboardRequest(getDefaultMarketDashboardRequest())}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(mockedRequestMarketDashboard).toHaveBeenCalledTimes(1);
     });
   });
 });
