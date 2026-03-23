@@ -18,7 +18,7 @@ export const ERROR_CODES = {
 } as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
-export type Market = 'SH' | 'SZ' | 'CYB';
+export type Market = 'SH' | 'SZ' | 'CYB' | 'STAR' | 'BJ';
 export type TimeSource = 'actual' | 'default';
 
 export type StockListingData = {

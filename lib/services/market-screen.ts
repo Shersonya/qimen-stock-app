@@ -21,13 +21,15 @@ import {
   comparePatternLevelCount,
 } from '@/lib/qimen/pattern-report';
 import { getBundledMarketScreenSnapshot } from '@/lib/fallback-data/market-screen';
+import { getMarketFromCurrentAStockCode } from '@/lib/markets';
 import { isStStockName } from '@/lib/services/stock-data';
+import { mapWithConcurrency } from '@/lib/utils/async';
 
-const MARKET_POOL_ENDPOINT =
-  'https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=10000&po=1&np=1&fltt=2&invt=2&fid=f12&fs=m:1+t:2,m:0+t:6,m:0+t:80&fields=f12,f14,f26,f100';
 const MARKET_CACHE_TTL_MS = 30 * 60 * 1000;
 const MARKET_POOL_MAX_ATTEMPTS = 3;
 const MARKET_POOL_RETRY_DELAY_MS = 250;
+const MARKET_POOL_PAGE_SIZE = 100;
+const MARKET_POOL_PAGE_CONCURRENCY = 4;
 const DEFAULT_PAGE_SIZE = 50;
 const MAX_PAGE_SIZE = 200;
 
@@ -40,8 +42,14 @@ type EastMoneyMarketPoolItem = {
 
 type EastMoneyMarketPoolResponse = {
   data?: {
+    total?: number;
     diff?: EastMoneyMarketPoolItem[];
   };
+};
+
+type EastMoneyMarketPoolPage = {
+  total: number;
+  items: EastMoneyMarketPoolItem[];
 };
 
 type ScreenableStock = MarketScreenResultItem['stock'];
@@ -173,29 +181,14 @@ function formatListingDate(raw: number | string | undefined): string | null {
   return `${normalized.slice(0, 4)}-${normalized.slice(4, 6)}-${normalized.slice(6, 8)}`;
 }
 
-function resolveMarket(code: string): Market {
-  if (/^[69]/.test(code)) {
-    return 'SH';
-  }
-
-  if (/^3/.test(code)) {
-    return 'CYB';
-  }
-
-  if (/^[02]/.test(code)) {
-    return 'SZ';
-  }
-
-  throw new AppError(ERROR_CODES.UNSUPPORTED_MARKET, 400);
-}
-
 function parseMarketPoolItem(item: EastMoneyMarketPoolItem): ScreenableStock | null {
   const code = item.f12?.trim();
   const name = item.f14?.trim();
   const listingDate = formatListingDate(item.f26);
   const sector = item.f100?.trim() || null;
+  const market = code ? getMarketFromCurrentAStockCode(code) : null;
 
-  if (!code || !name || !listingDate) {
+  if (!code || !name || !listingDate || !market) {
     return null;
   }
 
@@ -206,7 +199,7 @@ function parseMarketPoolItem(item: EastMoneyMarketPoolItem): ScreenableStock | n
   return {
     code,
     name,
-    market: resolveMarket(code),
+    market,
     listingDate,
     sector,
   };
@@ -218,12 +211,30 @@ function wait(delayMs: number) {
   });
 }
 
-async function fetchMarketPool(): Promise<EastMoneyMarketPoolItem[]> {
+function createMarketPoolEndpoint(page: number) {
+  const params = new URLSearchParams({
+    pn: String(page),
+    pz: String(MARKET_POOL_PAGE_SIZE),
+    po: '1',
+    np: '1',
+    fltt: '2',
+    invt: '2',
+    fid: 'f12',
+    fs: 'm:1+t:2,m:0+t:6,m:0+t:80',
+    fields: 'f12,f14,f26,f100',
+  });
+
+  params.set('fs', 'm:1+t:2,m:1+t:23,m:0+t:6,m:0+t:80,m:0+t:81');
+
+  return `https://push2delay.eastmoney.com/api/qt/clist/get?${params.toString()}`;
+}
+
+async function fetchMarketPoolPage(page: number): Promise<EastMoneyMarketPoolPage> {
   for (let attempt = 1; attempt <= MARKET_POOL_MAX_ATTEMPTS; attempt += 1) {
     let response: Response;
 
     try {
-      response = await fetch(MARKET_POOL_ENDPOINT, {
+      response = await fetch(createMarketPoolEndpoint(page), {
         cache: 'no-store',
         headers: {
           accept: 'application/json,text/plain,*/*',
@@ -250,7 +261,10 @@ async function fetchMarketPool(): Promise<EastMoneyMarketPoolItem[]> {
     try {
       const payload = (await response.json()) as EastMoneyMarketPoolResponse;
 
-      return payload.data?.diff ?? [];
+      return {
+        total: Number(payload.data?.total) || 0,
+        items: payload.data?.diff ?? [],
+      };
     } catch {
       if (attempt < MARKET_POOL_MAX_ATTEMPTS) {
         await wait(MARKET_POOL_RETRY_DELAY_MS * attempt);
@@ -262,6 +276,30 @@ async function fetchMarketPool(): Promise<EastMoneyMarketPoolItem[]> {
   }
 
   throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
+}
+
+async function fetchMarketPool(): Promise<EastMoneyMarketPoolItem[]> {
+  const firstPage = await fetchMarketPoolPage(1);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(Math.max(firstPage.total, firstPage.items.length) / MARKET_POOL_PAGE_SIZE),
+  );
+
+  if (totalPages === 1) {
+    return firstPage.items;
+  }
+
+  const remainingPages = Array.from(
+    { length: totalPages - 1 },
+    (_unused, index) => index + 2,
+  );
+  const remainingItems = await mapWithConcurrency(
+    remainingPages,
+    MARKET_POOL_PAGE_CONCURRENCY,
+    async (page) => (await fetchMarketPoolPage(page)).items,
+  );
+
+  return [firstPage.items, ...remainingItems].flat();
 }
 
 function getRatingRank(rating: QimenStockRating) {

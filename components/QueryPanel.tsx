@@ -43,6 +43,7 @@ export function QueryPanel({
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const rawCode = inputValue.trim();
 
     if (selectedStock) {
       onSearchErrorMessageChange(null);
@@ -53,6 +54,12 @@ export function QueryPanel({
     const resolution = resolveStock(inputValue);
 
     if (!resolution.isConfident) {
+      if (/^\d{6}$/.test(rawCode)) {
+        onSearchErrorMessageChange(null);
+        await onSubmit(rawCode);
+        return;
+      }
+
       onSearchErrorMessageChange(resolution.errorMessage);
       return;
     }

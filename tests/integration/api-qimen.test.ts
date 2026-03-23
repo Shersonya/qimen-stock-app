@@ -544,12 +544,12 @@ describe('POST /api/qimen', () => {
     expect(body.error.code).toBe(ERROR_CODES.INVALID_STOCK_CODE);
   });
 
-  it('returns 400 for unsupported markets such as STAR Market stocks', async () => {
+  it('returns 400 when the upstream stock lookup reports an unsupported market', async () => {
     mockedGetStockListingInfo.mockRejectedValueOnce(
       new AppError(ERROR_CODES.UNSUPPORTED_MARKET, 400),
     );
 
-    const response = await POST(createRequest({ stockCode: '688981' }));
+    const response = await POST(createRequest({ stockCode: '111111' }));
     const body = await response.json();
 
     expect(response.status).toBe(400);

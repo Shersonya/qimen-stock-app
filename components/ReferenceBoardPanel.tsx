@@ -97,7 +97,11 @@ export function ReferenceBoardPanel({
         className={`mt-4 ${isMobileExpanded ? 'block' : 'hidden md:block'}`}
         data-testid="reference-content-panel"
       >
-        <div aria-label="市场切换" className="mb-4 grid grid-cols-3 gap-2.5" role="tablist">
+        <div
+          aria-label="市场切换"
+          className="mb-4 grid grid-cols-2 gap-2.5 sm:grid-cols-5"
+          role="tablist"
+        >
           {MARKET_OPTIONS.map((option) => {
             const isActive = option.value === selectedMarket;
 

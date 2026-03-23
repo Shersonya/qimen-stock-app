@@ -12,6 +12,10 @@ function getMarketLabel(market: QimenApiSuccessResponse['stock']['market']) {
       return '深市主板';
     case 'CYB':
       return '创业板';
+    case 'STAR':
+      return '科创板';
+    case 'BJ':
+      return '北交所';
     default:
       return market;
   }

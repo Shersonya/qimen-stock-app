@@ -1,3 +1,4 @@
+import type { Market } from '@/lib/contracts/qimen';
 import payload from '@/data/market-screen-fallback.generated.json';
 
 export type BundledMarketScreenSnapshot = {
@@ -7,7 +8,7 @@ export type BundledMarketScreenSnapshot = {
     stock: {
       code: string;
       name: string;
-      market: 'SH' | 'SZ' | 'CYB';
+      market: Market;
       listingDate: string;
       sector?: string | null;
     };

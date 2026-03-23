@@ -197,7 +197,61 @@ describe('getStockDailyHistory', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(4);
     expect(requestUrl).toContain('web.ifzq.gtimg.cn');
-    expect(requestUrl).toContain('param=sz000001,day,,,800,qfq');
+    expect(requestUrl).toContain('param=sz000001,day,,,5000,qfq');
+  });
+
+  it('uses board-specific fallback prefixes for STAR and BJ history requests', async () => {
+    fetchMock
+      .mockRejectedValueOnce(new Error('eastmoney-1'))
+      .mockRejectedValueOnce(new Error('eastmoney-2'))
+      .mockRejectedValueOnce(new Error('eastmoney-3'))
+      .mockResolvedValueOnce(
+        jsonResponse({
+          code: 0,
+          data: {
+            sh688981: {
+              qfqday: [
+                ['2026-03-18', '105.00', '106.00', '107.00', '104.50', '123000', {}, '1.2', '2345.67', ''],
+              ],
+            },
+          },
+        }),
+      );
+
+    await expect(getStockDailyHistory('688981', 'STAR')).resolves.toHaveLength(1);
+
+    const fourthCall = fetchMock.mock.calls[3]?.[0];
+    const starRequestUrl =
+      typeof fourthCall === 'string' ? fourthCall : fourthCall?.toString() ?? '';
+
+    expect(starRequestUrl).toContain('param=sh688981,day,,,5000,qfq');
+
+    resetStockHistoryStateForTests();
+    fetchMock.mockReset();
+    fetchMock
+      .mockRejectedValueOnce(new Error('eastmoney-4'))
+      .mockRejectedValueOnce(new Error('eastmoney-5'))
+      .mockRejectedValueOnce(new Error('eastmoney-6'))
+      .mockResolvedValueOnce(
+        jsonResponse({
+          code: 0,
+          data: {
+            bj920047: {
+              qfqday: [
+                ['2026-03-18', '24.50', '24.80', '25.10', '24.20', '91000', {}, '1.1', '1678.90', ''],
+              ],
+            },
+          },
+        }),
+      );
+
+    await expect(getStockDailyHistory('920047', 'BJ')).resolves.toHaveLength(1);
+
+    const fourthBjCall = fetchMock.mock.calls[3]?.[0];
+    const bjRequestUrl =
+      typeof fourthBjCall === 'string' ? fourthBjCall : fourthBjCall?.toString() ?? '';
+
+    expect(bjRequestUrl).toContain('param=bj920047,day,,,5000,qfq');
   });
 
   it('falls back to the sina endpoint when eastmoney history is unavailable', async () => {

@@ -1,5 +1,6 @@
 /** @jest-environment node */
 
+import type { Market } from '@/lib/contracts/qimen';
 import {
   filterLimitUpStocks,
   isLimitUp,
@@ -36,7 +37,7 @@ function createHistory(args: {
   startDate: string;
   length: number;
   stockCode: string;
-  market: 'SH' | 'SZ' | 'CYB';
+  market: Market;
   limitUpIndices?: number[];
   closeBase?: number;
 }): HistoryBar[] {
@@ -49,7 +50,7 @@ function createHistory(args: {
     closeBase = 10,
   } = args;
   const limitUpSet = new Set(limitUpIndices);
-  const ratio = market === 'CYB' || stockCode.startsWith('688') ? 1.199 : 1.099;
+  const ratio = market === 'CYB' || market === 'STAR' ? 1.199 : 1.099;
   let previousClose = closeBase;
 
   return Array.from({ length }, (_unused, index) => {
@@ -345,7 +346,7 @@ describe('limit-up screening', () => {
         });
       }
 
-      if (stockCode === '688001' && market === 'SH') {
+      if (stockCode === '688001' && market === 'STAR') {
         return createHistory({
           startDate: '2025-12-01',
           length: 65,

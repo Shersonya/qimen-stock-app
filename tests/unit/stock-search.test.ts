@@ -14,7 +14,15 @@ import { MOCK_STOCKS } from '@/data/stocks';
 
 describe('stockSearch', () => {
   it('loads a complete local A-share pool instead of a tiny demo list', () => {
-    expect(MOCK_STOCKS.length).toBeGreaterThan(4000);
+    expect(MOCK_STOCKS.length).toBeGreaterThan(5500);
+    expect(findStockByCode('688981')).toMatchObject({
+      code: '688981',
+      market: 'STAR',
+    });
+    expect(findStockByCode('920047')).toMatchObject({
+      code: '920047',
+      market: 'BJ',
+    });
   });
 
   it('prioritizes exact code matches above other suggestions', () => {
@@ -31,6 +39,14 @@ describe('stockSearch', () => {
     expect(searchStocks('茅台')[0]).toMatchObject({
       code: '600519',
       name: '贵州茅台',
+    });
+    expect(searchStocks('中芯')[0]).toMatchObject({
+      code: '688981',
+      name: '中芯国际',
+    });
+    expect(searchStocks('诺思兰')[0]).toMatchObject({
+      code: '920047',
+      name: '诺思兰德',
     });
 
     const broadCodeResults = searchStocks('300');

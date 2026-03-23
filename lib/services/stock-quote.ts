@@ -3,6 +3,7 @@ import {
   type Market,
 } from '@/lib/contracts/qimen';
 import { AppError } from '@/lib/errors';
+import { getEastMoneySecIdPrefix } from '@/lib/markets';
 
 const EASTMONEY_QUOTE_ENDPOINT =
   'https://push2.eastmoney.com/api/qt/stock/get';
@@ -12,10 +13,6 @@ type EastMoneyQuoteResponse = {
     f46?: number | string;
   };
 };
-
-function getSecIdPrefix(market: Market): '0' | '1' {
-  return market === 'SH' ? '1' : '0';
-}
 
 export function normalizeOpenPrice(
   rawOpenPrice: number | string | undefined | null,
@@ -40,7 +37,7 @@ export async function getStockOpenPrice(
   stockCode: string,
   market: Market,
 ): Promise<string | null> {
-  const secid = `${getSecIdPrefix(market)}.${stockCode}`;
+  const secid = `${getEastMoneySecIdPrefix(market)}.${stockCode}`;
   const url = `${EASTMONEY_QUOTE_ENDPOINT}?secid=${secid}&fields=f46`;
 
   let response: Response;

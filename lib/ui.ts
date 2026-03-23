@@ -1,4 +1,5 @@
 import type { Market, QimenPalace } from '@/lib/contracts/qimen';
+import { getSupportedMarketFromStockCode } from '@/lib/markets';
 
 export type BoardViewState = 'idle' | 'loading' | 'ready';
 
@@ -26,12 +27,26 @@ export const MARKET_OPTIONS: Array<{
     shortLabel: '创业板',
     description: '成长风格更强，适合观察题材势能。',
   },
+  {
+    value: 'STAR',
+    label: '科创板',
+    shortLabel: '科创板',
+    description: '科创属性更强，适合观察硬科技主线与高弹性轮动。',
+  },
+  {
+    value: 'BJ',
+    label: '北交所',
+    shortLabel: '北交所',
+    description: '小盘活跃度更高，适合观察专精特新与高波动节奏。',
+  },
 ] as const;
 
 export const SAMPLE_CODES_BY_MARKET: Record<Market, string[]> = {
   SH: ['600519', '601318', '600036'],
   SZ: ['000001', '000333', '002594'],
   CYB: ['300750', '300059', '300308'],
+  STAR: ['688981', '688041', '688111'],
+  BJ: ['920047', '920670', '920992'],
 };
 
 export function getMarketLabel(market: Market) {
@@ -58,6 +73,10 @@ export function getReferenceBoardKeyFromMarket(market: Market) {
       return 'sh';
     case 'SZ':
       return 'sz';
+    case 'STAR':
+      return 'sh';
+    case 'BJ':
+      return 'sz';
     case 'CYB':
     default:
       return 'cyb';
@@ -65,21 +84,7 @@ export function getReferenceBoardKeyFromMarket(market: Market) {
 }
 
 export function getMarketFromStockCode(stockCode: string): Market | null {
-  const normalizedCode = stockCode.trim();
-
-  if (/^[69]/.test(normalizedCode)) {
-    return 'SH';
-  }
-
-  if (/^3/.test(normalizedCode)) {
-    return 'CYB';
-  }
-
-  if (/^[02]/.test(normalizedCode)) {
-    return 'SZ';
-  }
-
-  return null;
+  return getSupportedMarketFromStockCode(stockCode);
 }
 
 export function getDefaultPalaceIndex(palaces: QimenPalace[]) {

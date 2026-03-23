@@ -45,6 +45,7 @@ export function DiagnosisSearchPageClient() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const rawCode = inputValue.trim();
 
     if (selectedStock) {
       openDiagnosis(selectedStock.code);
@@ -54,6 +55,12 @@ export function DiagnosisSearchPageClient() {
     const resolution = resolveStock(inputValue);
 
     if (!resolution.isConfident) {
+      if (/^\d{6}$/.test(rawCode)) {
+        setSearchErrorMessage(null);
+        openDiagnosis(rawCode);
+        return;
+      }
+
       setSearchErrorMessage(resolution.errorMessage);
       return;
     }

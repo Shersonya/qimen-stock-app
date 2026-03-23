@@ -310,6 +310,14 @@ function buildBundledLimitUpResponse(args: {
 }
 
 function resolveMarket(stockCode: string, marketFlag: number | undefined): LimitUpStock['market'] {
+  if (/^920/.test(stockCode)) {
+    return 'BJ';
+  }
+
+  if (/^688/.test(stockCode)) {
+    return 'STAR';
+  }
+
   if (/^3/.test(stockCode)) {
     return 'CYB';
   }

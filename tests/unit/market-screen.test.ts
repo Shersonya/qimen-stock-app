@@ -1,6 +1,6 @@
 /** @jest-environment node */
 
-import { ERROR_CODES } from '@/lib/contracts/qimen';
+import { ERROR_CODES, type Market } from '@/lib/contracts/qimen';
 import {
   getMarketStockPool,
   resetMarketStockPoolCacheForTests,
@@ -47,7 +47,7 @@ function createWindow(
 function createSnapshot(stock: {
   code: string;
   name: string;
-  market: 'SH' | 'SZ' | 'CYB';
+  market: Market;
   listingDate: string;
 }) {
   return {
@@ -161,6 +161,44 @@ describe('market-screen service', () => {
     expect(pool.map((item) => item.stock.code)).toEqual(['000001', '300750', '600519']);
     expect(mockedAnalyzeStockForMarketScreen).toHaveBeenCalledTimes(3);
     expect(pool[0]?.patternSummary?.totalScore).toBe(36);
+  });
+
+  it('paginates through the upstream market pool instead of stopping at page 1', async () => {
+    const firstPageItems = Array.from({ length: 100 }, (_unused, index) => ({
+      f12: String(600000 + index).padStart(6, '0'),
+      f14: `样本股${index + 1}`,
+      f26: '20010827',
+    }));
+
+    fetchMock
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            total: 102,
+            diff: firstPageItems,
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            total: 102,
+            diff: [
+              { f12: '300750', f14: '宁德时代', f26: '20180611' },
+              { f12: '600112', f14: '*ST天成', f26: '19971127' },
+            ],
+          },
+        }),
+      );
+    mockedAnalyzeStockForMarketScreen.mockImplementation((stock) => createSnapshot(stock));
+    mockedEvaluateQimenAuspiciousPatterns.mockImplementation(() => createPatternEvaluation());
+
+    const pool = await getMarketStockPool();
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(pool).toHaveLength(101);
+    expect(pool.some((item) => item.stock.code === '300750')).toBe(true);
+    expect(pool.some((item) => item.stock.code === '600112')).toBe(false);
   });
 
   it('retries transient upstream failures before succeeding', async () => {

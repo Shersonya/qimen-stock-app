@@ -25,6 +25,7 @@ import {
   writeAllPools,
   writeAllSnapshots,
 } from '@/lib/storage/pool-storage';
+import { getSupportedMarketFromStockCode } from '@/lib/markets';
 import { getShanghaiDateString } from '@/lib/utils/date';
 
 const VALID_ADD_REASONS = new Set<PoolStock['addReason']>([
@@ -65,22 +66,7 @@ function nowIsoString(date = now()) {
 }
 
 function isMarket(value: unknown): value is Market {
-  return value === 'SH' || value === 'SZ' || value === 'CYB';
-}
-
-function deriveMarketFromStockCode(stockCode: string): Market | null {
-  switch (stockCode.slice(0, 1)) {
-    case '3':
-      return 'CYB';
-    case '6':
-    case '9':
-      return 'SH';
-    case '0':
-    case '2':
-      return 'SZ';
-    default:
-      return null;
-  }
+  return value === 'SH' || value === 'SZ' || value === 'CYB' || value === 'STAR' || value === 'BJ';
 }
 
 function normalizeText(value: unknown) {
@@ -111,7 +97,7 @@ export function normalizeStockCode(value: unknown) {
 
 export function normalizeMarket(value: unknown, stockCode?: string) {
   if (stockCode) {
-    return deriveMarketFromStockCode(stockCode);
+    return getSupportedMarketFromStockCode(stockCode);
   }
 
   if (isMarket(value)) {

@@ -3,7 +3,7 @@ import type {
   TdxScanResponse,
   TdxScanUniverseSource,
 } from '@/lib/contracts/strategy';
-import { ERROR_CODES } from '@/lib/contracts/qimen';
+import { ERROR_CODES, type Market } from '@/lib/contracts/qimen';
 import { AppError } from '@/lib/errors';
 import { filterLimitUpStocks } from '@/lib/services/limit-up';
 import { calculateTdxIndicators } from '@/lib/tdx/engine';
@@ -47,7 +47,7 @@ type ScanCacheEntry = {
 type ScanUniverseStock = {
   code: string;
   name: string;
-  market: 'SH' | 'SZ' | 'CYB';
+  market: Market;
 };
 
 type ScanUniverse = {

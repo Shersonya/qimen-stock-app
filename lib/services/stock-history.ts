@@ -4,6 +4,11 @@ import {
 } from '@/lib/contracts/qimen';
 import { AppError } from '@/lib/errors';
 import {
+  getEastMoneySecIdPrefix,
+  getSinaMarketPrefix,
+  getTencentMarketPrefix,
+} from '@/lib/markets';
+import {
   getDateRangeLength,
   normalizeDateString,
 } from '@/lib/utils/date';
@@ -15,7 +20,7 @@ const TENCENT_HISTORY_ENDPOINT =
 const SINA_HISTORY_ENDPOINT = 'https://quotes.sina.cn/cn/api/jsonp_v2.php';
 const HISTORY_FETCH_RETRY_COUNT = 3;
 const HISTORY_FETCH_RETRY_DELAY_MS = 250;
-const TENCENT_HISTORY_MAX_COUNT = 800;
+const TENCENT_HISTORY_MAX_COUNT = 5000;
 const EASTMONEY_FAILURE_COOLDOWN_MS = 5 * 60 * 1000;
 const DEFAULT_SINA_DATA_LENGTH = 480;
 const MAX_SINA_DATA_LENGTH = 1000;
@@ -103,16 +108,8 @@ function delay(ms: number) {
   });
 }
 
-function getSecIdPrefix(market: Market): '0' | '1' {
-  return market === 'SH' ? '1' : '0';
-}
-
-function getTencentSecIdPrefix(market: Market): 'sh' | 'sz' {
-  return market === 'SH' ? 'sh' : 'sz';
-}
-
 function getSinaSymbol(stockCode: string, market: Market) {
-  return `${market === 'SH' ? 'sh' : 'sz'}${stockCode}`;
+  return `${getSinaMarketPrefix(market)}${stockCode}`;
 }
 
 function normalizeHistoryNumber(value: string | undefined): number | null {
@@ -349,7 +346,7 @@ async function fetchTencentHistory(
   market: Market,
   options: Required<HistoryOptions>,
 ) {
-  const secid = `${getTencentSecIdPrefix(market)}${stockCode}`;
+  const secid = `${getTencentMarketPrefix(market)}${stockCode}`;
   const url = `${TENCENT_HISTORY_ENDPOINT}?param=${secid},day,,,${TENCENT_HISTORY_MAX_COUNT},qfq`;
   const response = await fetch(url, {
     cache: 'no-store',
@@ -416,7 +413,7 @@ export async function getStockDailyHistory(
     beg: normalizeHistoryDateParam(options.beg, '20240101'),
     end: normalizeHistoryDateParam(options.end, '20500101'),
   };
-  const secid = `${getSecIdPrefix(market)}.${stockCode}`;
+  const secid = `${getEastMoneySecIdPrefix(market)}.${stockCode}`;
   const params = new URLSearchParams({
     secid,
     fields1: 'f1,f2,f3,f4,f5,f6',

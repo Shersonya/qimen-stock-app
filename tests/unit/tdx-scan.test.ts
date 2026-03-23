@@ -1,7 +1,7 @@
 /** @jest-environment node */
 
 import { scanTdxSignals, resetTdxScanCacheForTests } from '@/lib/services/tdx-scan';
-import { ERROR_CODES } from '@/lib/contracts/qimen';
+import { ERROR_CODES, type Market } from '@/lib/contracts/qimen';
 import { AppError } from '@/lib/errors';
 import { filterLimitUpStocks } from '@/lib/services/limit-up';
 import { getMarketStockPool } from '@/lib/services/market-screen';
@@ -75,7 +75,7 @@ function createIndicator(args: {
 function createMarketItem(
   code: string,
   name: string,
-  market: 'SH' | 'SZ' | 'CYB',
+  market: Market,
 ) {
   return {
     stock: {
