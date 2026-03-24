@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import type { StockSearchItem } from '@/data/stocks';
 import { StockSearchInput } from '@/components/StockSearchInput';
-import { SAMPLE_CODES_BY_MARKET } from '@/lib/ui';
+import { buildDiagnosisPath, SAMPLE_CODES_BY_MARKET } from '@/lib/ui';
 import {
   findStockByCode,
   formatStockDisplay,
@@ -31,7 +31,7 @@ export function DiagnosisSearchPageClient() {
 
     writeRecentStockCodes(nextRecentCodes);
     setRecentStockCodes(nextRecentCodes);
-    router.push(`/diagnosis/${stockCode}`);
+    router.push(buildDiagnosisPath(stockCode, '/diagnosis'));
   }
 
   function handleLaunch(stockCode: string) {

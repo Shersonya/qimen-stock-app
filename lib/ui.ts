@@ -92,3 +92,15 @@ export function getDefaultPalaceIndex(palaces: QimenPalace[]) {
 
   return centerPalaceIndex >= 0 ? centerPalaceIndex : 0;
 }
+
+export function buildDiagnosisPath(stockCode: string, fromPath?: string) {
+  const params = new URLSearchParams();
+
+  if (fromPath) {
+    params.set('from', fromPath);
+  }
+
+  const query = params.toString();
+
+  return query ? `/diagnosis/${stockCode}?${query}` : `/diagnosis/${stockCode}`;
+}

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 import { EstimatedProgressNotice } from '@/components/EstimatedProgressNotice';
@@ -11,6 +12,7 @@ import type {
   ApiError,
   MarketDashboardResponse,
 } from '@/lib/contracts/qimen';
+import { buildDiagnosisPath } from '@/lib/ui';
 import { toApiError } from '@/lib/utils/api-error';
 
 function StatusCard({
@@ -200,6 +202,7 @@ function QuickActions() {
 }
 
 export function DashboardPageClient() {
+  const pathname = usePathname();
   const { patternConfigOverride, riskConfigOverride } = useWorkspaceSettings();
   const [data, setData] = useState<MarketDashboardResponse | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
@@ -319,7 +322,10 @@ export function DashboardPageClient() {
                         <p className="font-semibold text-[var(--text-primary)]">
                           {item.rating} / {item.totalScore}
                         </p>
-                        <Link className="mystic-chip mt-2 inline-flex" href={`/diagnosis/${item.code}`}>
+                        <Link
+                          className="mystic-chip mt-2 inline-flex"
+                          href={buildDiagnosisPath(item.code, pathname)}
+                        >
                           查看诊断
                         </Link>
                       </div>

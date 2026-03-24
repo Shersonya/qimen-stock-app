@@ -50,13 +50,13 @@ describe('DashboardPageClient', () => {
     const navLinks = within(nav).getAllByRole('link');
 
     expect(navLinks).toHaveLength(6);
-    expect(navLinks.map((link) => link.textContent)).toEqual([
-      '📈市场仪表盘',
-      '🔍吉格筛选',
-      '🎯策略选股',
-      '📋股票池',
-      '📊个股诊断',
-      '⚙️系统设置',
+    expect(navLinks.map((link) => link.getAttribute('aria-label'))).toEqual([
+      '市场仪表盘',
+      '吉格筛选',
+      '策略选股',
+      '股票池',
+      '个股诊断',
+      '系统设置',
     ]);
 
     expect(screen.getByTestId('dashboard-heat-chart')).toBeInTheDocument();

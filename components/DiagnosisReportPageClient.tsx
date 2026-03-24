@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 import { EstimatedProgressNotice } from '@/components/EstimatedProgressNotice';
@@ -24,6 +25,25 @@ import {
   writeRecentStockCodes,
 } from '@/lib/recent-stocks';
 import { useIsMobileViewport } from '@/components/useIsMobileViewport';
+
+const RETURN_TARGET_LABELS = {
+  '/': '仪表盘',
+  '/dashboard': '仪表盘',
+  '/screen': '筛选页',
+  '/strategy': '策略页',
+  '/stock-pool': '股票池',
+  '/diagnosis': '诊断入口',
+} as const;
+
+type ReturnTargetPath = keyof typeof RETURN_TARGET_LABELS;
+
+function resolveReturnTargetPath(value: string | null): ReturnTargetPath | null {
+  if (!value) {
+    return null;
+  }
+
+  return value in RETURN_TARGET_LABELS ? (value as ReturnTargetPath) : null;
+}
 
 function downloadPrintDocument(title: string, html: string) {
   const frame = document.createElement('iframe');
@@ -100,6 +120,8 @@ export function DiagnosisReportPageClient({
 }: {
   stockCode: string;
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { patternConfigOverride } = useWorkspaceSettings();
   const [result, setResult] = useState<QimenApiSuccessResponse | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
@@ -108,6 +130,11 @@ export function DiagnosisReportPageClient({
   const [auxiliaryTab, setAuxiliaryTab] = useState<'report' | 'auxiliary'>('report');
   const [selectedMarket, setSelectedMarket] = useState<Market>('SH');
   const isMobileViewport = useIsMobileViewport();
+  const returnTargetPath = useMemo(
+    () => resolveReturnTargetPath(searchParams.get('from')),
+    [searchParams],
+  );
+  const returnTargetLabel = returnTargetPath ? RETURN_TARGET_LABELS[returnTargetPath] : null;
 
   useEffect(() => {
     let cancelled = false;
@@ -204,6 +231,22 @@ export function DiagnosisReportPageClient({
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
+              {returnTargetPath ? (
+                <button
+                  className="mystic-chip"
+                  onClick={() => router.push(returnTargetPath)}
+                  type="button"
+                >
+                  返回{returnTargetLabel}
+                </button>
+              ) : null}
+              <button
+                className="mystic-button-secondary"
+                onClick={() => router.push('/diagnosis')}
+                type="button"
+              >
+                继续诊断其他股票
+              </button>
               <button
                 className="mystic-button-secondary"
                 onClick={() =>

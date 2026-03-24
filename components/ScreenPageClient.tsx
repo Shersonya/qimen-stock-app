@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { EstimatedProgressNotice } from '@/components/EstimatedProgressNotice';
@@ -19,7 +20,7 @@ import type {
   QimenApiSuccessResponse,
 } from '@/lib/contracts/qimen';
 import { QIMEN_PATTERN_LIBRARY } from '@/lib/contracts/qimen';
-import { getMarketLabel } from '@/lib/ui';
+import { buildDiagnosisPath, getMarketLabel } from '@/lib/ui';
 import { toApiError } from '@/lib/utils/api-error';
 
 type PreviewState = {
@@ -37,6 +38,7 @@ const VIEWPORT_HEIGHT = 540;
 const MOBILE_VIEWPORT_QUERY = '(max-width: 767px)';
 
 export function ScreenPageClient({ autostart = false }: PageProps) {
+  const pathname = usePathname();
   const {
     patternConfigOverride,
     riskConfigOverride,
@@ -614,12 +616,12 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
                     >
                       {item.patternSummary?.corePatternsLabel || '--'}
                     </button>
-                    <Link
-                      className="mystic-button-secondary"
-                      href={`/diagnosis/${item.stock.code}`}
-                      target="_blank"
-                    >
-                      深度诊断
+                      <Link
+                        className="mystic-button-secondary"
+                        href={buildDiagnosisPath(item.stock.code, pathname)}
+                        target="_blank"
+                      >
+                        深度诊断
                     </Link>
                   </div>
                 </article>
@@ -730,7 +732,7 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
                       <div className="flex flex-wrap gap-2">
                         <Link
                           className="mystic-button-secondary"
-                          href={`/diagnosis/${item.stock.code}`}
+                          href={buildDiagnosisPath(item.stock.code, pathname)}
                           target="_blank"
                         >
                           深度诊断

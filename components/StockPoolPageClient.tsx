@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 import { BatchDiagnosisPanel } from '@/components/BatchDiagnosisPanel';
@@ -34,6 +35,7 @@ import {
   addToPool,
 } from '@/lib/services/stock-pool';
 import { toApiError } from '@/lib/utils/api-error';
+import { buildDiagnosisPath } from '@/lib/ui';
 
 type StockPoolPageClientProps = {
   demoMode?: boolean;
@@ -133,6 +135,7 @@ function createSnapshotComparison(
 export function StockPoolPageClient({
   demoMode = false,
 }: StockPoolPageClientProps) {
+  const pathname = usePathname();
   const [pools, setPools] = useState<StockPool[]>([]);
   const [activePool, setActivePoolState] = useState<StockPool | null>(null);
   const [snapshots, setSnapshots] = useState<PoolSnapshot[]>([]);
@@ -518,6 +521,7 @@ export function StockPoolPageClient({
           {mobileSection === 'manager' ? (
             <PoolManagerPanel
               activePool={activePool}
+              getDiagnosisHref={(stockCode) => buildDiagnosisPath(stockCode, pathname)}
               importValue={importValue}
               isDiagnosing={isRunningDiagnosis}
               isImportOpen={isImportOpen}
@@ -686,6 +690,7 @@ export function StockPoolPageClient({
           <div className="mt-6">
             <PoolManagerPanel
               activePool={activePool}
+              getDiagnosisHref={(stockCode) => buildDiagnosisPath(stockCode, pathname)}
               importValue={importValue}
               isDiagnosing={isRunningDiagnosis}
               isImportOpen={isImportOpen}

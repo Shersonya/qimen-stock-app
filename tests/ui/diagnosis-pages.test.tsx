@@ -9,6 +9,7 @@ import { renderInWorkbench } from '@/tests/ui/render-workbench';
 
 const mockPush = jest.fn();
 const mockPathname = jest.fn(() => '/diagnosis');
+const mockSearchParams = jest.fn(() => new URLSearchParams());
 
 function setViewportWidth(width: number) {
   Object.defineProperty(window, 'innerWidth', {
@@ -22,6 +23,7 @@ function setViewportWidth(width: number) {
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
   usePathname: () => mockPathname(),
+  useSearchParams: () => mockSearchParams(),
 }));
 
 jest.mock('@/lib/client-api', () => ({
@@ -48,6 +50,7 @@ describe('Diagnosis pages', () => {
     window.localStorage.clear();
     mockPush.mockReset();
     mockPathname.mockReturnValue('/diagnosis');
+    mockSearchParams.mockReturnValue(new URLSearchParams());
     mockedRequestQimenAnalysis.mockReset();
     mockedRequestQimenAnalysis.mockResolvedValue(getDemoQimenResponse('600519'));
     setViewportWidth(1024);
@@ -60,7 +63,7 @@ describe('Diagnosis pages', () => {
 
     await user.click(screen.getByRole('button', { name: '打开诊断报告' }));
 
-    expect(mockPush).toHaveBeenCalledWith('/diagnosis/600519');
+    expect(mockPush).toHaveBeenCalledWith('/diagnosis/600519?from=%2Fdiagnosis');
   });
 
   it('renders the five-step report, auxiliary view, and PDF export flow', async () => {
@@ -146,5 +149,21 @@ describe('Diagnosis pages', () => {
     deferred.resolve(getDemoQimenResponse('600519'));
 
     expect(await screen.findByText('全局定调')).toBeInTheDocument();
+  });
+
+  it('shows explicit return actions on the diagnosis report page', async () => {
+    const user = userEvent.setup();
+
+    mockSearchParams.mockReturnValue(new URLSearchParams('from=/screen'));
+
+    renderInWorkbench(<DiagnosisReportPageClient stockCode="600519" />);
+
+    expect(await screen.findByText('全局定调')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '返回筛选页' }));
+    expect(mockPush).toHaveBeenCalledWith('/screen');
+
+    await user.click(screen.getByRole('button', { name: '继续诊断其他股票' }));
+    expect(mockPush).toHaveBeenCalledWith('/diagnosis');
   });
 });

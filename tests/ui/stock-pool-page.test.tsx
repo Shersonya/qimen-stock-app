@@ -154,6 +154,36 @@ describe('StockPoolPageClient', () => {
     expect(within(snapshotPanel).getByText(/当前新增/)).toBeInTheDocument();
   });
 
+  it('exposes a real diagnosis link for each pooled stock and keeps rating refresh separate', async () => {
+    const user = userEvent.setup();
+
+    createPool('诊断跳转池', [
+      {
+        stockCode: '600519',
+        stockName: '贵州茅台',
+        market: 'SH',
+        addReason: 'manual',
+        addDate: '2026-03-21',
+      },
+    ]);
+
+    renderInWorkbench(<StockPoolPageClient />);
+
+    const poolTable = await screen.findByTestId('stock-pool-table');
+    const diagnosisLink = within(poolTable).getByRole('link', { name: '诊断' });
+
+    expect(diagnosisLink).toHaveAttribute('href', '/diagnosis/600519?from=%2Fstock-pool');
+
+    await user.click(within(poolTable).getByRole('button', { name: '刷新评级' }));
+
+    await waitFor(() => {
+      expect(mockedRequestBatchDiagnosis).toHaveBeenCalledWith({
+        stockCodes: ['600519'],
+        poolId: getActivePool()?.id,
+      });
+    });
+  });
+
   it('switches between mobile stock-pool sections without long scrolling', async () => {
     const user = userEvent.setup();
 
@@ -171,8 +201,14 @@ describe('StockPoolPageClient', () => {
     expect(screen.getByTestId('stock-pool-mobile-section-caption')).toHaveTextContent(
       '股票池 · 增删、导入、快照',
     );
-    expect(screen.getByTestId('stock-pool-mobile-stock-list')).toBeInTheDocument();
+    const mobileList = screen.getByTestId('stock-pool-mobile-stock-list');
+    expect(mobileList).toBeInTheDocument();
     expect(screen.queryByTestId('stock-pool-table')).not.toBeInTheDocument();
+    expect(within(mobileList).getAllByRole('link', { name: '诊断' })[0]).toHaveAttribute(
+      'href',
+      expect.stringContaining('?from=%2Fstock-pool'),
+    );
+    expect(within(mobileList).getAllByRole('button', { name: '刷新评级' })[0]).toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: /批量诊断/ }));
 

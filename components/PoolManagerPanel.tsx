@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import type { StockPool } from '@/lib/contracts/strategy';
 
 type PoolManagerPanelProps = {
@@ -11,6 +13,7 @@ type PoolManagerPanelProps = {
   importValue: string;
   isImportOpen?: boolean;
   isDiagnosing?: boolean;
+  getDiagnosisHref: (stockCode: string) => string;
   onNewPoolNameChange: (value: string) => void;
   onCreatePool: () => void;
   onSelectPool: (poolId: string) => void;
@@ -75,6 +78,7 @@ export function PoolManagerPanel({
   importValue,
   isImportOpen = false,
   isDiagnosing = false,
+  getDiagnosisHref,
   onNewPoolNameChange,
   onCreatePool,
   onSelectPool,
@@ -264,13 +268,19 @@ export function PoolManagerPanel({
                       </div>
 
                       <div className="mt-4 flex flex-wrap gap-2">
-                        <button
+                        <Link
                           className="mystic-button-secondary"
+                          href={getDiagnosisHref(stock.stockCode)}
+                        >
+                          诊断
+                        </Link>
+                        <button
+                          className="mystic-chip"
                           disabled={isDiagnosing}
                           onClick={() => onRunStockDiagnosis(stock.stockCode)}
                           type="button"
                         >
-                          诊断
+                          刷新评级
                         </button>
                         <button
                           className="mystic-chip"
@@ -330,13 +340,19 @@ export function PoolManagerPanel({
                           <td>{formatDiagnosisLabel(stock)}</td>
                           <td>
                             <div className="flex flex-wrap gap-2">
+                              <Link
+                                className="mystic-button-secondary"
+                                href={getDiagnosisHref(stock.stockCode)}
+                              >
+                                诊断
+                              </Link>
                               <button
                                 className="mystic-chip"
                                 disabled={isDiagnosing}
                                 onClick={() => onRunStockDiagnosis(stock.stockCode)}
                                 type="button"
                               >
-                                诊断
+                                刷新评级
                               </button>
                               <button
                                 className="mystic-chip"
