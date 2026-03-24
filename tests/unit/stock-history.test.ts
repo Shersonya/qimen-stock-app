@@ -117,13 +117,40 @@ describe('getStockDailyHistory', () => {
   });
 
   it('normalizes hyphenated date options before calling eastmoney', async () => {
-    fetchMock.mockResolvedValueOnce(
-      jsonResponse({
-        data: {
-          klines: [],
-        },
-      }),
-    );
+    fetchMock
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            klines: [],
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            klines: [],
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            klines: [],
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          code: 0,
+          data: {
+            sz000001: {
+              qfqday: [
+                ['2026-03-18', '10.10', '10.30', '10.50', '10.00', '120000', {}, '1.5', '2345.67', ''],
+              ],
+            },
+          },
+        }),
+      );
 
     await getStockDailyHistory('000001', 'SZ', {
       beg: '2026-02-01',
@@ -198,6 +225,55 @@ describe('getStockDailyHistory', () => {
     expect(fetchMock).toHaveBeenCalledTimes(4);
     expect(requestUrl).toContain('web.ifzq.gtimg.cn');
     expect(requestUrl).toContain('param=sz000001,day,,,5000,qfq');
+  });
+
+  it('falls back when eastmoney responds with empty kline payloads', async () => {
+    fetchMock
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            klines: [],
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            klines: [],
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            klines: [],
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          code: 0,
+          data: {
+            sz000001: {
+              qfqday: [
+                ['2026-03-18', '10.10', '10.30', '10.50', '10.00', '120000', {}, '1.5', '2345.67', ''],
+              ],
+            },
+          },
+        }),
+      );
+
+    await expect(getStockDailyHistory('000001', 'SZ')).resolves.toEqual([
+      {
+        tradeDate: '2026-03-18',
+        open: 10.1,
+        close: 10.3,
+        high: 10.5,
+        low: 10,
+        volume: 120000,
+        amount: 23456700,
+      },
+    ]);
   });
 
   it('uses board-specific fallback prefixes for STAR and BJ history requests', async () => {
@@ -287,6 +363,64 @@ describe('getStockDailyHistory', () => {
         volume: 3031859,
         amount: 440489698533,
       },
+      {
+        tradeDate: '2026-03-20',
+        open: 1452.96,
+        high: 1462.5,
+        low: 1439,
+        close: 1445,
+        volume: 2613234,
+        amount: 377612313000,
+      },
+    ]);
+  });
+
+  it('falls back to sina when upstream providers only return empty history payloads', async () => {
+    fetchMock
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            klines: [],
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            klines: [],
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            klines: [],
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          code: 0,
+          data: {
+            sh600519: {
+              qfqday: [],
+            },
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          "/*<script>location.href='//sina.com';</script>*/\nvar _history=([{\"day\":\"2026-03-20\",\"open\":\"1452.960\",\"high\":\"1462.500\",\"low\":\"1439.000\",\"close\":\"1445.000\",\"volume\":\"2613234\"}]);",
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/javascript',
+            },
+          },
+        ),
+      );
+
+    await expect(getStockDailyHistory('600519', 'SH')).resolves.toEqual([
       {
         tradeDate: '2026-03-20',
         open: 1452.96,

@@ -24,6 +24,7 @@ const SCAN_CONCURRENCY = 6;
 const HISTORY_LOOKBACK_BARS = 180;
 const FALLBACK_SCAN_LOOKBACK_DAYS = 5;
 const FALLBACK_SCAN_UNIVERSE_SIZE = 200;
+const FAILURE_LOG_LIMIT = 10;
 
 type HistoryCacheEntry = {
   expiresAt: number;
@@ -262,12 +263,15 @@ async function buildScanSnapshot(
   scanDate: string,
 ): Promise<ScanCacheSnapshot> {
   const universe = await getScanUniverse();
+  let historyFailureCount = 0;
+  let insufficientHistoryCount = 0;
 
   const settled = await mapWithConcurrency(universe.items, SCAN_CONCURRENCY, async (item) => {
     try {
       const bars = await loadHistory(item);
 
       if (bars.length < 120) {
+        insufficientHistoryCount += 1;
         return null;
       }
 
@@ -330,10 +334,30 @@ async function buildScanSnapshot(
         volumeRatio: Number(latest.X_14),
       };
     } catch (error) {
-      console.warn(`[TDX Scan] Failed to process ${item.code}:`, error);
+      historyFailureCount += 1;
+
+      if (historyFailureCount <= FAILURE_LOG_LIMIT) {
+        console.warn(`[TDX Scan] Failed to process ${item.code}:`, error);
+      } else if (historyFailureCount === FAILURE_LOG_LIMIT + 1) {
+        console.warn(
+          `[TDX Scan] Additional history failures suppressed after ${FAILURE_LOG_LIMIT} samples.`,
+        );
+      }
+
       return null;
     }
   });
+
+  const processedHistoryCount =
+    universe.items.length - historyFailureCount - insufficientHistoryCount;
+
+  if (processedHistoryCount === 0 && historyFailureCount > 0) {
+    throw new AppError(
+      ERROR_CODES.DATA_SOURCE_ERROR,
+      502,
+      '历史行情服务暂不可用，当前无法完成策略扫描。',
+    );
+  }
 
   const items = settled
     .filter((item): item is NonNullable<typeof item> => Boolean(item))

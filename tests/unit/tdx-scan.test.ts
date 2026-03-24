@@ -200,6 +200,27 @@ describe('tdx scan service', () => {
     );
   });
 
+  it('throws a data source error when every stock history request fails', async () => {
+    mockedGetMarketStockPool.mockResolvedValue([
+      createMarketItem('600001', '样本A', 'SH'),
+      createMarketItem('300001', '样本B', 'CYB'),
+    ]);
+    mockedGetStockDailyHistory
+      .mockRejectedValueOnce(new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502))
+      .mockRejectedValueOnce(new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502));
+
+    await expect(
+      scanTdxSignals({
+        signalType: 'both',
+        page: 1,
+        pageSize: 10,
+      }),
+    ).rejects.toMatchObject({
+      code: ERROR_CODES.DATA_SOURCE_ERROR,
+      statusCode: 502,
+    });
+  });
+
   it('applies signal strength and trend filters', async () => {
     mockedGetMarketStockPool.mockResolvedValue([
       createMarketItem('600001', '样本A', 'SH'),

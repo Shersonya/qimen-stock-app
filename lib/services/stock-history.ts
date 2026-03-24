@@ -22,6 +22,8 @@ const HISTORY_FETCH_RETRY_COUNT = 3;
 const HISTORY_FETCH_RETRY_DELAY_MS = 250;
 const TENCENT_HISTORY_MAX_COUNT = 5000;
 const EASTMONEY_FAILURE_COOLDOWN_MS = 5 * 60 * 1000;
+const TENCENT_FAILURE_COOLDOWN_MS = 5 * 60 * 1000;
+const SINA_FAILURE_COOLDOWN_MS = 5 * 60 * 1000;
 const DEFAULT_SINA_DATA_LENGTH = 480;
 const MAX_SINA_DATA_LENGTH = 1000;
 
@@ -67,9 +69,13 @@ type HistoryOptions = {
 };
 
 let eastMoneyDisabledUntil = 0;
+let tencentDisabledUntil = 0;
+let sinaDisabledUntil = 0;
 
 export function resetStockHistoryStateForTests() {
   eastMoneyDisabledUntil = 0;
+  tencentDisabledUntil = 0;
+  sinaDisabledUntil = 0;
 }
 
 function normalizeHistoryDateParam(value: string | undefined, fallback: string): string {
@@ -325,9 +331,15 @@ async function fetchEastMoneyHistory(url: string) {
 
       eastMoneyDisabledUntil = 0;
 
-      return (payload.data?.klines ?? [])
+      const items = (payload.data?.klines ?? [])
         .map(parseHistoryKlineRow)
         .filter((item): item is StockHistoryPoint => Boolean(item));
+
+      if (items.length === 0) {
+        throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
+      }
+
+      return items;
     } catch {
       if (attempt >= HISTORY_FETCH_RETRY_COUNT) {
         eastMoneyDisabledUntil = Date.now() + EASTMONEY_FAILURE_COOLDOWN_MS;
@@ -346,31 +358,48 @@ async function fetchTencentHistory(
   market: Market,
   options: Required<HistoryOptions>,
 ) {
-  const secid = `${getTencentMarketPrefix(market)}${stockCode}`;
-  const url = `${TENCENT_HISTORY_ENDPOINT}?param=${secid},day,,,${TENCENT_HISTORY_MAX_COUNT},qfq`;
-  const response = await fetch(url, {
-    cache: 'no-store',
-    headers: {
-      accept: 'application/json,text/plain,*/*',
-      'user-agent':
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-    },
-  });
-
-  if (!response.ok) {
+  if (Date.now() < tencentDisabledUntil) {
     throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
   }
 
-  const payload = (await response.json()) as TencentHistoryResponse;
-  const record = payload.data?.[secid];
-  const rows = record?.qfqday ?? record?.day ?? [];
-  const beg = compactDateToDashed(options.beg);
-  const end = compactDateToDashed(options.end);
+  try {
+    const secid = `${getTencentMarketPrefix(market)}${stockCode}`;
+    const url = `${TENCENT_HISTORY_ENDPOINT}?param=${secid},day,,,${TENCENT_HISTORY_MAX_COUNT},qfq`;
+    const response = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        accept: 'application/json,text/plain,*/*',
+        'user-agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+      },
+    });
 
-  return rows
-    .map((row) => (Array.isArray(row) ? parseTencentHistoryRow(row) : null))
-    .filter((item): item is StockHistoryPoint => Boolean(item))
-    .filter((item) => item.tradeDate >= beg && item.tradeDate <= end);
+    if (!response.ok) {
+      throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
+    }
+
+    const payload = (await response.json()) as TencentHistoryResponse;
+    const record = payload.data?.[secid];
+    const rows = record?.qfqday ?? record?.day ?? [];
+    const beg = compactDateToDashed(options.beg);
+    const end = compactDateToDashed(options.end);
+
+    const items = rows
+      .map((row) => (Array.isArray(row) ? parseTencentHistoryRow(row) : null))
+      .filter((item): item is StockHistoryPoint => Boolean(item))
+      .filter((item) => item.tradeDate >= beg && item.tradeDate <= end);
+
+    if (items.length === 0) {
+      throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
+    }
+
+    tencentDisabledUntil = 0;
+
+    return items;
+  } catch {
+    tencentDisabledUntil = Date.now() + TENCENT_FAILURE_COOLDOWN_MS;
+    throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
+  }
 }
 
 async function fetchSinaHistory(
@@ -378,30 +407,47 @@ async function fetchSinaHistory(
   market: Market,
   options: HistoryOptions,
 ) {
-  const datalen = getSinaDataLength(options);
-  const url =
-    `${SINA_HISTORY_ENDPOINT}/var%20_history=` +
-    `/CN_MarketDataService.getKLineData?symbol=${getSinaSymbol(stockCode, market)}` +
-    `&scale=240&ma=no&datalen=${datalen}`;
-  const response = await fetch(url, {
-    cache: 'no-store',
-    headers: {
-      accept: '*/*',
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error('sina_history_unavailable');
+  if (Date.now() < sinaDisabledUntil) {
+    throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
   }
 
-  const text = await response.text();
-  const parsed = parseSinaHistoryJsonp(text);
+  try {
+    const datalen = getSinaDataLength(options);
+    const url =
+      `${SINA_HISTORY_ENDPOINT}/var%20_history=` +
+      `/CN_MarketDataService.getKLineData?symbol=${getSinaSymbol(stockCode, market)}` +
+      `&scale=240&ma=no&datalen=${datalen}`;
+    const response = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        accept: '*/*',
+      },
+    });
 
-  if (!parsed) {
-    throw new Error('sina_history_invalid_payload');
+    if (!response.ok) {
+      throw new Error('sina_history_unavailable');
+    }
+
+    const text = await response.text();
+    const parsed = parseSinaHistoryJsonp(text);
+
+    if (!parsed) {
+      throw new Error('sina_history_invalid_payload');
+    }
+
+    const items = filterHistoryByDateRange(parsed, options);
+
+    if (items.length === 0) {
+      throw new Error('sina_history_empty_payload');
+    }
+
+    sinaDisabledUntil = 0;
+
+    return items;
+  } catch {
+    sinaDisabledUntil = Date.now() + SINA_FAILURE_COOLDOWN_MS;
+    throw new AppError(ERROR_CODES.DATA_SOURCE_ERROR, 502);
   }
-
-  return filterHistoryByDateRange(parsed, options);
 }
 
 export async function getStockDailyHistory(
