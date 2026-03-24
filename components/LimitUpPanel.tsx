@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 
 import { EstimatedProgressNotice } from '@/components/EstimatedProgressNotice';
 import { ErrorNotice } from '@/components/ErrorNotice';
+import { useIsMobileViewport } from '@/components/useIsMobileViewport';
 import { requestLimitUp } from '@/lib/client-api';
 import type { ApiError } from '@/lib/contracts/qimen';
 import type {
@@ -68,6 +69,7 @@ export function LimitUpPanel({
   const [result, setResult] = useState<LimitUpFilterResponse | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isMobileViewport = useIsMobileViewport();
 
   const sortedItems = useMemo(() => {
     if (!result) {
@@ -370,55 +372,113 @@ export function LimitUpPanel({
         ) : null}
 
         {result ? (
-          <div className="mt-5 overflow-x-auto rounded-[1.2rem] border border-white/10">
-            <table className="workbench-settings-table" data-testid="limit-up-result-table">
-              <thead>
-                <tr>
-                  <th>代码</th>
-                  <th>名称</th>
-                  <th>板块</th>
-                  <th>
-                    <button className="workbench-link-button" type="button" onClick={() => changeSort('limitUpCount')}>
-                      涨停次数 {sortKey === 'limitUpCount' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
+          isMobileViewport ? (
+            <div className="mt-5 space-y-3" data-testid="limit-up-result-mobile-list">
+              {sortedItems.map((item, index) => (
+                <article
+                  className="rounded-[1.25rem] border border-[var(--border-soft)] bg-[var(--surface-overlay)] px-4 py-4"
+                  key={`${item.stockCode}-${item.lastLimitUpDate}`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm text-[var(--text-muted)]">#{index + 1}</p>
+                      <p className="text-lg font-semibold text-[var(--text-primary)]">
+                        {item.stockName}
+                      </p>
+                      <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                        {item.stockCode} · {item.market}
+                      </p>
+                      <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                        {item.sector ?? '未填写板块'}
+                      </p>
+                    </div>
+                    <button
+                      className="mystic-button-secondary px-4 py-2 text-sm"
+                      disabled={!onAddStock || poolStockCodeSet.has(item.stockCode)}
+                      onClick={() => onAddStock?.(item)}
+                      type="button"
+                    >
+                      {poolStockCodeSet.has(item.stockCode) ? '已在池中' : '加入股票池'}
                     </button>
-                  </th>
-                  <th>
-                    <button className="workbench-link-button" type="button" onClick={() => changeSort('lastLimitUpDate')}>
-                      最近涨停 {sortKey === 'lastLimitUpDate' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
-                    </button>
-                  </th>
-                  <th>
-                    <button className="workbench-link-button" type="button" onClick={() => changeSort('latestClose')}>
-                      最新收盘 {sortKey === 'latestClose' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
-                    </button>
-                  </th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedItems.map((item) => (
-                  <tr key={`${item.stockCode}-${item.lastLimitUpDate}`}>
-                    <td>{item.stockCode}</td>
-                    <td>{item.stockName}</td>
-                    <td>{item.sector ?? '未填写'}</td>
-                    <td>{item.limitUpCount}</td>
-                    <td>{item.lastLimitUpDate}</td>
-                    <td>{item.latestClose.toFixed(2)}</td>
-                    <td>
-                      <button
-                        className="mystic-chip"
-                        disabled={!onAddStock || poolStockCodeSet.has(item.stockCode)}
-                        onClick={() => onAddStock?.(item)}
-                        type="button"
-                      >
-                        {poolStockCodeSet.has(item.stockCode) ? '已在股票池' : '加入股票池'}
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="mystic-chip">涨停 {item.limitUpCount} 次</span>
+                    <span className="mystic-chip">最近 {item.lastLimitUpDate}</span>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-white/10 bg-black/10 px-3 py-3">
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                        最新收盘
+                      </p>
+                      <p className="mt-2 text-base font-semibold text-[var(--text-primary)]">
+                        {item.latestClose.toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-black/10 px-3 py-3">
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                        排序字段
+                      </p>
+                      <p className="mt-2 text-base font-semibold text-[var(--text-primary)]">
+                        {SORT_LABELS[sortKey]}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-5 overflow-x-auto rounded-[1.2rem] border border-white/10">
+              <table className="workbench-settings-table" data-testid="limit-up-result-table">
+                <thead>
+                  <tr>
+                    <th>代码</th>
+                    <th>名称</th>
+                    <th>板块</th>
+                    <th>
+                      <button className="workbench-link-button" type="button" onClick={() => changeSort('limitUpCount')}>
+                        涨停次数 {sortKey === 'limitUpCount' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
                       </button>
-                    </td>
+                    </th>
+                    <th>
+                      <button className="workbench-link-button" type="button" onClick={() => changeSort('lastLimitUpDate')}>
+                        最近涨停 {sortKey === 'lastLimitUpDate' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
+                      </button>
+                    </th>
+                    <th>
+                      <button className="workbench-link-button" type="button" onClick={() => changeSort('latestClose')}>
+                        最新收盘 {sortKey === 'latestClose' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
+                      </button>
+                    </th>
+                    <th>操作</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {sortedItems.map((item) => (
+                    <tr key={`${item.stockCode}-${item.lastLimitUpDate}`}>
+                      <td>{item.stockCode}</td>
+                      <td>{item.stockName}</td>
+                      <td>{item.sector ?? '未填写'}</td>
+                      <td>{item.limitUpCount}</td>
+                      <td>{item.lastLimitUpDate}</td>
+                      <td>{item.latestClose.toFixed(2)}</td>
+                      <td>
+                        <button
+                          className="mystic-chip"
+                          disabled={!onAddStock || poolStockCodeSet.has(item.stockCode)}
+                          onClick={() => onAddStock?.(item)}
+                          type="button"
+                        >
+                          {poolStockCodeSet.has(item.stockCode) ? '已在股票池' : '加入股票池'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
         ) : (
           <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-[var(--text-secondary)]">
             还没有筛选结果。先配置条件并执行筛选，结果表会在这里显示。

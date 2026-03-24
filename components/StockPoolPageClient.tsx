@@ -433,19 +433,24 @@ export function StockPoolPageClient({
     {
       id: 'manager' as const,
       label: '股票池',
+      shortLabel: '股票池',
       hint: '增删、导入、快照',
     },
     {
       id: 'diagnosis' as const,
       label: '批量诊断',
+      shortLabel: '诊断',
       hint: '执行与对比',
     },
     {
       id: 'history' as const,
       label: '历史留痕',
+      shortLabel: '留痕',
       hint: '剔除与快照',
     },
   ];
+  const activeMobileSection =
+    mobileSectionItems.find((item) => item.id === mobileSection) ?? mobileSectionItems[0];
 
   return (
     <section className="workbench-page" data-testid="stock-pool-page">
@@ -477,11 +482,16 @@ export function StockPoolPageClient({
             <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
               先选区块，再做操作
             </h3>
-            <div className="mt-4 grid grid-cols-3 gap-2" role="tablist" aria-label="股票池移动分区">
+            <div
+              className="mt-4 flex gap-2 overflow-x-auto pb-1"
+              role="tablist"
+              aria-label="股票池移动分区"
+            >
               {mobileSectionItems.map((item) => (
                 <button
+                  aria-label={item.label}
                   aria-selected={mobileSection === item.id}
-                  className={`workbench-tab flex h-full min-h-[4.75rem] w-full items-start justify-start ${
+                  className={`workbench-tab min-w-[5.4rem] flex-none px-4 py-3 text-center ${
                     mobileSection === item.id ? 'is-active' : ''
                   }`}
                   key={item.id}
@@ -489,14 +499,19 @@ export function StockPoolPageClient({
                   role="tab"
                   type="button"
                 >
-                  <div className="text-left">
-                    <div className="text-sm font-semibold">{item.label}</div>
-                    <div className="mt-1 text-xs leading-5 text-[var(--text-muted)]">
-                      {item.hint}
-                    </div>
-                  </div>
+                  <span className="text-sm font-semibold">{item.shortLabel}</span>
                 </button>
               ))}
+            </div>
+            <div
+              className="mt-3 rounded-[1.15rem] border border-white/10 bg-black/10 px-4 py-3 text-sm text-[var(--text-secondary)]"
+              data-testid="stock-pool-mobile-section-caption"
+            >
+              <span className="font-semibold text-[var(--text-primary)]">
+                {activeMobileSection.label}
+              </span>
+              {' · '}
+              {activeMobileSection.hint}
             </div>
           </section>
 
@@ -506,6 +521,7 @@ export function StockPoolPageClient({
               importValue={importValue}
               isDiagnosing={isRunningDiagnosis}
               isImportOpen={isImportOpen}
+              mobileMode={isMobileViewport}
               newPoolName={newPoolName}
               onCreatePool={handleCreatePool}
               onDeletePool={handleDeletePool}

@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { ScreenPageClient } from '@/components/ScreenPageClient';
@@ -206,5 +206,23 @@ describe('ScreenPageClient', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('screen-progress')).not.toBeInTheDocument();
     });
+  });
+
+  it('renders the advanced pattern drawer as stacked mobile cards on mobile', async () => {
+    const user = userEvent.setup();
+
+    mockMatchMedia(true);
+    renderInWorkbench(<ScreenPageClient />);
+
+    await user.click(screen.getByRole('button', { name: '高级权重设置' }));
+
+    const dialog = await screen.findByRole('dialog');
+    const mobileList = within(dialog).getByTestId('screen-advanced-mobile-list');
+
+    expect(mobileList).toBeInTheDocument();
+    expect(within(mobileList).getAllByRole('checkbox').length).toBeGreaterThan(0);
+    expect(within(mobileList).getAllByRole('spinbutton').length).toBeGreaterThan(0);
+    expect(within(mobileList).getAllByRole('combobox').length).toBeGreaterThan(0);
+    expect(within(dialog).queryByRole('table')).not.toBeInTheDocument();
   });
 });

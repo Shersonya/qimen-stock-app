@@ -24,19 +24,19 @@ describe('WorkbenchShell', () => {
     setViewportWidth(1024);
   });
 
-  it('renders six desktop navigation items', () => {
+  it('renders a single six-item primary nav on desktop', () => {
     renderInWorkbench(<div />);
 
     expect(screen.getAllByRole('link')).toHaveLength(6);
     expect(screen.getByRole('button', { name: '快捷键帮助' })).toBeInTheDocument();
   });
 
-  it('renders six mobile navigation items without the desktop sidebar', () => {
+  it('keeps a single six-item primary nav on mobile without duplicating links', () => {
     setViewportWidth(375);
 
     renderInWorkbench(<div />);
 
     expect(screen.getAllByRole('link')).toHaveLength(6);
-    expect(screen.queryByRole('button', { name: '快捷键帮助' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '快捷键帮助' })).toBeInTheDocument();
   });
 });

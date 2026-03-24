@@ -5,42 +5,47 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 import { useWorkspaceSettings } from '@/components/providers/WorkspaceSettingsProvider';
-import { useIsMobileViewport } from '@/components/useIsMobileViewport';
 
 const NAV_ITEMS = [
   {
     href: '/',
     label: '市场仪表盘',
+    shortLabel: '仪表盘',
     icon: '📈',
     matches: ['/', '/dashboard'],
   },
   {
     href: '/screen',
     label: '吉格筛选',
+    shortLabel: '筛选',
     icon: '🔍',
     matches: ['/screen'],
   },
   {
     href: '/strategy',
     label: '策略选股',
+    shortLabel: '策略',
     icon: '🎯',
     matches: ['/strategy'],
   },
   {
     href: '/stock-pool',
     label: '股票池',
+    shortLabel: '股票池',
     icon: '📋',
     matches: ['/stock-pool'],
   },
   {
     href: '/diagnosis',
     label: '个股诊断',
+    shortLabel: '诊断',
     icon: '📊',
     matches: ['/diagnosis'],
   },
   {
     href: '/settings',
     label: '系统设置',
+    shortLabel: '设置',
     icon: '⚙️',
     matches: ['/settings'],
   },
@@ -75,7 +80,6 @@ export function WorkbenchShell({
   const pathname = usePathname();
   const { settings } = useWorkspaceSettings();
   const [isShortcutHelpOpen, setIsShortcutHelpOpen] = useState(false);
-  const isMobileViewport = useIsMobileViewport(1024);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -125,47 +129,14 @@ export function WorkbenchShell({
 
   return (
     <div className="workbench-shell" style={shellStyle}>
-      {!isMobileViewport ? (
-        <aside className="workbench-sidebar">
-          <div className="workbench-brand">
-            <p className="mystic-section-label">奇门量化分析系统</p>
-            <h1>奇门量化工作台</h1>
-            <p>聚焦吉格筛选与个股深度诊断的垂直分析界面。</p>
-          </div>
+      <aside className="workbench-sidebar" data-testid="workbench-sidebar">
+        <div className="workbench-brand">
+          <p className="mystic-section-label">奇门量化分析系统</p>
+          <h1>奇门量化工作台</h1>
+          <p>聚焦吉格筛选与个股深度诊断的垂直分析界面。</p>
+        </div>
 
-          <nav aria-label="主导航" className="workbench-nav">
-            {NAV_ITEMS.map((item) => {
-              const isActive = item.matches.some((match) =>
-                match === '/'
-                  ? pathname === '/' || pathname === '/dashboard'
-                  : pathname.startsWith(match),
-              );
-
-              return (
-                <Link
-                  className={`workbench-nav-link ${isActive ? 'is-active' : ''}`}
-                  href={item.href}
-                  key={item.href}
-                >
-                  <span aria-hidden="true">{item.icon}</span>
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-
-          <button
-            className="workbench-shortcut-button"
-            onClick={() => setIsShortcutHelpOpen(true)}
-            type="button"
-          >
-            快捷键帮助
-          </button>
-        </aside>
-      ) : null}
-
-      {isMobileViewport ? (
-        <div className="workbench-mobile-nav">
+        <nav aria-label="主导航" className="workbench-nav" data-testid="workbench-primary-nav">
           {NAV_ITEMS.map((item) => {
             const isActive = item.matches.some((match) =>
               match === '/'
@@ -175,17 +146,31 @@ export function WorkbenchShell({
 
             return (
               <Link
-                className={`workbench-mobile-link ${isActive ? 'is-active' : ''}`}
+                aria-label={item.label}
+                className={`workbench-nav-link ${isActive ? 'is-active' : ''}`}
                 href={item.href}
                 key={item.href}
               >
-                <span aria-hidden="true">{item.icon}</span>
-                <span>{item.label}</span>
+                <span aria-hidden="true" className="workbench-nav-icon">
+                  {item.icon}
+                </span>
+                <span className="workbench-nav-label-full">{item.label}</span>
+                <span aria-hidden="true" className="workbench-nav-label-short">
+                  {item.shortLabel}
+                </span>
               </Link>
             );
           })}
-        </div>
-      ) : null}
+        </nav>
+
+        <button
+          className="workbench-shortcut-button"
+          onClick={() => setIsShortcutHelpOpen(true)}
+          type="button"
+        >
+          快捷键帮助
+        </button>
+      </aside>
 
       <main className="workbench-content">{children}</main>
 

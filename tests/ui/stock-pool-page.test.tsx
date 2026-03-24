@@ -158,21 +158,35 @@ describe('StockPoolPageClient', () => {
     const user = userEvent.setup();
 
     setViewportWidth(375);
-    renderInWorkbench(<StockPoolPageClient />);
+    renderInWorkbench(<StockPoolPageClient demoMode />);
 
     expect(await screen.findByTestId('stock-pool-mobile-layout')).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /股票池/ })).toHaveAttribute(
       'aria-selected',
       'true',
     );
+    await waitFor(() => {
+      expect(screen.getByTestId('pool-manager-panel')).toHaveTextContent('核心观察池');
+    });
+    expect(screen.getByTestId('stock-pool-mobile-section-caption')).toHaveTextContent(
+      '股票池 · 增删、导入、快照',
+    );
+    expect(screen.getByTestId('stock-pool-mobile-stock-list')).toBeInTheDocument();
+    expect(screen.queryByTestId('stock-pool-table')).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: /批量诊断/ }));
 
+    expect(screen.getByTestId('stock-pool-mobile-section-caption')).toHaveTextContent(
+      '批量诊断 · 执行与对比',
+    );
     expect(screen.getByTestId('batch-diagnosis-panel')).toBeInTheDocument();
     expect(screen.queryByTestId('stock-pool-table')).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: /历史留痕/ }));
 
+    expect(screen.getByTestId('stock-pool-mobile-section-caption')).toHaveTextContent(
+      '历史留痕 · 剔除与快照',
+    );
     expect(screen.getByTestId('removed-stocks-panel')).toBeInTheDocument();
     expect(screen.getByTestId('snapshot-panel')).toBeInTheDocument();
   });

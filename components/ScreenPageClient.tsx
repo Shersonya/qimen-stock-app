@@ -955,67 +955,141 @@ export function ScreenPageClient({ autostart = false }: PageProps) {
               </button>
             </div>
             <div className="mt-5 overflow-x-auto">
-              <table className="workbench-settings-table">
-                <thead>
-                  <tr>
-                    <th>启用</th>
-                    <th>吉格</th>
-                    <th>权重</th>
-                    <th>等级</th>
-                  </tr>
-                </thead>
-                <tbody>
+              {isMobileViewport ? (
+                <div className="space-y-4" data-testid="screen-advanced-mobile-list">
                   {QIMEN_PATTERN_LIBRARY.map((item) => (
-                    <tr key={item.name}>
-                      <td>
-                        <input
-                          checked={settings.patternMap[item.name].enabled}
-                          onChange={(event) =>
-                            updatePatternSetting(item.name, {
-                              enabled: event.target.checked,
-                            })
-                          }
-                          type="checkbox"
-                        />
-                      </td>
-                      <td>{item.name}</td>
-                      <td>
-                        <input
-                          className="mystic-input workbench-mini-input"
-                          inputMode="numeric"
-                          onChange={(event) =>
-                            updatePatternSetting(item.name, {
-                              weight: Number(event.target.value) || 0,
-                            })
-                          }
-                          type="number"
-                          value={settings.patternMap[item.name].weight}
-                        />
-                      </td>
-                      <td>
-                        <select
-                          className="mystic-select"
-                          onChange={(event) =>
-                            updatePatternSetting(item.name, {
-                              level: event.target.value as
-                                | 'COMPOSITE'
-                                | 'A'
-                                | 'B'
-                                | 'C',
-                            })
-                          }
-                          value={settings.patternMap[item.name].level}
-                        >
-                          <option value="COMPOSITE">COMPOSITE</option>
-                          <option value="A">A</option>
-                          <option value="B">B</option>
-                          <option value="C">C</option>
-                        </select>
-                      </td>
-                    </tr>
+                    <article
+                      className="rounded-[1.25rem] border border-[var(--border-soft)] bg-[var(--surface-overlay)] px-4 py-4"
+                      key={item.name}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="mystic-section-label">{item.name}</p>
+                          <p className="mt-2 text-base leading-6 text-[var(--text-secondary)]">
+                            {item.meaning}
+                          </p>
+                        </div>
+                        <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+                          <input
+                            checked={settings.patternMap[item.name].enabled}
+                            onChange={(event) =>
+                              updatePatternSetting(item.name, {
+                                enabled: event.target.checked,
+                              })
+                            }
+                            type="checkbox"
+                          />
+                          启用
+                        </label>
+                      </div>
+
+                      <div className="mt-4 grid gap-3">
+                        <label className="block">
+                          <span className="mb-2 block text-sm text-[var(--text-secondary)]">
+                            权重
+                          </span>
+                          <input
+                            className="mystic-input workbench-mini-input"
+                            inputMode="numeric"
+                            onChange={(event) =>
+                              updatePatternSetting(item.name, {
+                                weight: Number(event.target.value) || 0,
+                              })
+                            }
+                            type="number"
+                            value={settings.patternMap[item.name].weight}
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="mb-2 block text-sm text-[var(--text-secondary)]">
+                            等级
+                          </span>
+                          <select
+                            className="mystic-select w-full"
+                            onChange={(event) =>
+                              updatePatternSetting(item.name, {
+                                level: event.target.value as
+                                  | 'COMPOSITE'
+                                  | 'A'
+                                  | 'B'
+                                  | 'C',
+                              })
+                            }
+                            value={settings.patternMap[item.name].level}
+                          >
+                            <option value="COMPOSITE">COMPOSITE</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                          </select>
+                        </label>
+                      </div>
+                    </article>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              ) : (
+                <table className="workbench-settings-table">
+                  <thead>
+                    <tr>
+                      <th>启用</th>
+                      <th>吉格</th>
+                      <th>权重</th>
+                      <th>等级</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {QIMEN_PATTERN_LIBRARY.map((item) => (
+                      <tr key={item.name}>
+                        <td>
+                          <input
+                            checked={settings.patternMap[item.name].enabled}
+                            onChange={(event) =>
+                              updatePatternSetting(item.name, {
+                                enabled: event.target.checked,
+                              })
+                            }
+                            type="checkbox"
+                          />
+                        </td>
+                        <td>{item.name}</td>
+                        <td>
+                          <input
+                            className="mystic-input workbench-mini-input"
+                            inputMode="numeric"
+                            onChange={(event) =>
+                              updatePatternSetting(item.name, {
+                                weight: Number(event.target.value) || 0,
+                              })
+                            }
+                            type="number"
+                            value={settings.patternMap[item.name].weight}
+                          />
+                        </td>
+                        <td>
+                          <select
+                            className="mystic-select"
+                            onChange={(event) =>
+                              updatePatternSetting(item.name, {
+                                level: event.target.value as
+                                  | 'COMPOSITE'
+                                  | 'A'
+                                  | 'B'
+                                  | 'C',
+                              })
+                            }
+                            value={settings.patternMap[item.name].level}
+                          >
+                            <option value="COMPOSITE">COMPOSITE</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
             <div className="mt-4">
               <Link className="mystic-chip" href="/settings">

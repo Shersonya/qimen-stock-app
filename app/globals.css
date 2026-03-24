@@ -352,8 +352,7 @@ body::before {
     gap: 0.75rem;
   }
 
-  .workbench-nav-link,
-  .workbench-mobile-link {
+  .workbench-nav-link {
     display: flex;
     align-items: center;
     gap: 0.8rem;
@@ -367,13 +366,20 @@ body::before {
   }
 
   .workbench-nav-link:hover,
-  .workbench-mobile-link:hover,
-  .workbench-nav-link.is-active,
-  .workbench-mobile-link.is-active {
+  .workbench-nav-link.is-active {
     border-color: rgba(216, 179, 90, 0.32);
     background: linear-gradient(180deg, rgba(216, 179, 90, 0.14), rgba(38, 53, 74, 0.16));
     color: var(--text-primary);
     transform: translateY(-1px);
+  }
+
+  .workbench-nav-icon {
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .workbench-nav-label-short {
+    display: none;
   }
 
   .workbench-shortcut-button {
@@ -384,10 +390,6 @@ body::before {
     color: var(--text-secondary);
     padding: 0.9rem 1rem;
     text-align: left;
-  }
-
-  .workbench-mobile-nav {
-    display: none;
   }
 
   .workbench-content {
@@ -724,28 +726,64 @@ body::before {
     }
 
     .workbench-sidebar {
-      display: none;
-    }
-
-    .workbench-mobile-nav {
       position: sticky;
       top: 0;
       z-index: 40;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 0.4rem;
+      min-height: auto;
+      gap: 0.8rem;
+      border-right: none;
       border-bottom: 1px solid rgba(120, 146, 177, 0.14);
       background: rgba(10, 14, 20, 0.96);
-      padding: 0.65rem;
+      padding:
+        calc(env(safe-area-inset-top, 0px) + 0.65rem)
+        0.75rem
+        0.85rem;
       backdrop-filter: blur(18px);
     }
 
-    .workbench-mobile-link {
+    .workbench-brand {
+      display: none;
+    }
+
+    .workbench-nav {
+      display: flex;
+      gap: 0.55rem;
+      overflow-x: auto;
+      padding-bottom: 0.1rem;
+      scrollbar-width: none;
+    }
+
+    .workbench-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .workbench-nav-link {
+      flex: 0 0 auto;
+      min-width: 4.85rem;
       flex-direction: column;
       justify-content: center;
-      padding: 0.62rem 0.4rem;
+      gap: 0.35rem;
+      padding: 0.72rem 0.8rem;
       text-align: center;
+      font-size: 0.78rem;
+    }
+
+    .workbench-nav-label-full {
+      display: none;
+    }
+
+    .workbench-nav-label-short {
+      display: block;
       font-size: 0.72rem;
+      letter-spacing: 0.04em;
+    }
+
+    .workbench-shortcut-button {
+      margin-top: 0;
+      align-self: flex-end;
+      border-style: solid;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.82rem;
     }
 
     .workbench-content {

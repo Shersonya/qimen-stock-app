@@ -6,6 +6,7 @@ type PoolManagerPanelProps = {
   pools: StockPool[];
   activePool: StockPool | null;
   selectedCodes: string[];
+  mobileMode?: boolean;
   newPoolName: string;
   importValue: string;
   isImportOpen?: boolean;
@@ -69,6 +70,7 @@ export function PoolManagerPanel({
   pools,
   activePool,
   selectedCodes,
+  mobileMode = false,
   newPoolName,
   importValue,
   isImportOpen = false,
@@ -207,74 +209,151 @@ export function PoolManagerPanel({
 
           {activePool?.stocks.length ? (
             <>
-              <div className="mt-4 overflow-x-auto rounded-3xl border border-white/10 bg-black/10">
-                <table className="workbench-settings-table" data-testid="stock-pool-table">
-                  <thead>
-                    <tr>
-                      <th>
+              {mobileMode ? (
+                <div className="mt-4 space-y-3" data-testid="stock-pool-mobile-stock-list">
+                  {activePool.stocks.map((stock, index) => (
+                    <article
+                      className="rounded-[1.25rem] border border-[var(--border-soft)] bg-[var(--surface-overlay)] px-4 py-4"
+                      key={stock.stockCode}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm text-[var(--text-muted)]">#{index + 1}</p>
+                          <p className="text-lg font-semibold text-[var(--text-primary)]">
+                            {stock.stockName}
+                          </p>
+                          <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                            {stock.stockCode} · {stock.market}
+                          </p>
+                        </div>
                         <input
-                          aria-label="全选股票"
-                          checked={allSelected}
-                          onChange={onToggleAll}
+                          aria-label={`选择 ${stock.stockCode}`}
+                          checked={selectedSet.has(stock.stockCode)}
+                          onChange={() => onToggleStock(stock.stockCode)}
                           type="checkbox"
                         />
-                      </th>
-                      <th>代码</th>
-                      <th>名称</th>
-                      <th>来源</th>
-                      <th>加入日</th>
-                      <th>诊断评级</th>
-                      <th>操作</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activePool.stocks.map((stock) => (
-                      <tr key={stock.stockCode}>
-                        <td>
+                      </div>
+
+                      <div className="mt-4 grid gap-3">
+                        <div className="rounded-2xl border border-white/10 bg-black/10 px-3 py-3">
+                          <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                            加入来源
+                          </p>
+                          <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
+                            {formatAddReason(stock)}
+                          </p>
+                        </div>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div className="rounded-2xl border border-white/10 bg-black/10 px-3 py-3">
+                            <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                              加入日
+                            </p>
+                            <p className="mt-2 text-base font-semibold text-[var(--text-primary)]">
+                              {stock.addDate}
+                            </p>
+                          </div>
+                          <div className="rounded-2xl border border-white/10 bg-black/10 px-3 py-3">
+                            <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                              诊断评级
+                            </p>
+                            <p className="mt-2 text-base font-semibold text-[var(--text-primary)]">
+                              {formatDiagnosisLabel(stock)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <button
+                          className="mystic-button-secondary"
+                          disabled={isDiagnosing}
+                          onClick={() => onRunStockDiagnosis(stock.stockCode)}
+                          type="button"
+                        >
+                          诊断
+                        </button>
+                        <button
+                          className="mystic-chip"
+                          disabled={isDiagnosing}
+                          onClick={() => onRemoveStock(stock.stockCode)}
+                          type="button"
+                        >
+                          剔除
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-4 overflow-x-auto rounded-3xl border border-white/10 bg-black/10">
+                  <table className="workbench-settings-table" data-testid="stock-pool-table">
+                    <thead>
+                      <tr>
+                        <th>
                           <input
-                            aria-label={`选择 ${stock.stockCode}`}
-                            checked={selectedSet.has(stock.stockCode)}
-                            onChange={() => onToggleStock(stock.stockCode)}
+                            aria-label="全选股票"
+                            checked={allSelected}
+                            onChange={onToggleAll}
                             type="checkbox"
                           />
-                        </td>
-                        <td>{stock.stockCode}</td>
-                        <td>
-                          <div className="font-semibold text-[var(--text-primary)]">
-                            {stock.stockName}
-                          </div>
-                          <div className="mt-1 text-xs text-[var(--text-muted)]">
-                            {stock.market}
-                          </div>
-                        </td>
-                        <td>{formatAddReason(stock)}</td>
-                        <td>{stock.addDate}</td>
-                        <td>{formatDiagnosisLabel(stock)}</td>
-                        <td>
-                          <div className="flex flex-wrap gap-2">
-                            <button
-                              className="mystic-chip"
-                              disabled={isDiagnosing}
-                              onClick={() => onRunStockDiagnosis(stock.stockCode)}
-                              type="button"
-                            >
-                              诊断
-                            </button>
-                            <button
-                              className="mystic-chip"
-                              disabled={isDiagnosing}
-                              onClick={() => onRemoveStock(stock.stockCode)}
-                              type="button"
-                            >
-                              剔除
-                            </button>
-                          </div>
-                        </td>
+                        </th>
+                        <th>代码</th>
+                        <th>名称</th>
+                        <th>来源</th>
+                        <th>加入日</th>
+                        <th>诊断评级</th>
+                        <th>操作</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {activePool.stocks.map((stock) => (
+                        <tr key={stock.stockCode}>
+                          <td>
+                            <input
+                              aria-label={`选择 ${stock.stockCode}`}
+                              checked={selectedSet.has(stock.stockCode)}
+                              onChange={() => onToggleStock(stock.stockCode)}
+                              type="checkbox"
+                            />
+                          </td>
+                          <td>{stock.stockCode}</td>
+                          <td>
+                            <div className="font-semibold text-[var(--text-primary)]">
+                              {stock.stockName}
+                            </div>
+                            <div className="mt-1 text-xs text-[var(--text-muted)]">
+                              {stock.market}
+                            </div>
+                          </td>
+                          <td>{formatAddReason(stock)}</td>
+                          <td>{stock.addDate}</td>
+                          <td>{formatDiagnosisLabel(stock)}</td>
+                          <td>
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                className="mystic-chip"
+                                disabled={isDiagnosing}
+                                onClick={() => onRunStockDiagnosis(stock.stockCode)}
+                                type="button"
+                              >
+                                诊断
+                              </button>
+                              <button
+                                className="mystic-chip"
+                                disabled={isDiagnosing}
+                                onClick={() => onRemoveStock(stock.stockCode)}
+                                type="button"
+                              >
+                                剔除
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
 
               <div className="mt-4 flex flex-wrap gap-2">
                 <button

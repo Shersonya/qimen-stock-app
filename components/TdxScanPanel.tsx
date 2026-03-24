@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 
 import { EstimatedProgressNotice } from '@/components/EstimatedProgressNotice';
 import { ErrorNotice } from '@/components/ErrorNotice';
+import { useIsMobileViewport } from '@/components/useIsMobileViewport';
 import { requestTdxScan } from '@/lib/client-api';
 import type { ApiError } from '@/lib/contracts/qimen';
 import type { TdxScanRequest, TdxScanResponse } from '@/lib/contracts/strategy';
@@ -68,6 +69,7 @@ export function TdxScanPanel({
   const [result, setResult] = useState<TdxScanResponse | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isMobileViewport = useIsMobileViewport();
 
   const sortedItems = useMemo(() => {
     if (!result) {
@@ -378,69 +380,136 @@ export function TdxScanPanel({
         ) : null}
 
         {result ? (
-          <div className="mt-5 overflow-x-auto rounded-[1.2rem] border border-white/10">
-            <table className="workbench-settings-table" data-testid="tdx-result-table">
-              <thead>
-                <tr>
-                  <th>代码</th>
-                  <th>名称</th>
-                  <th>信号</th>
-                  <th>
-                    <button className="workbench-link-button" type="button" onClick={() => changeSort('signalStrength')}>
-                      强度 {sortKey === 'signalStrength' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
+          isMobileViewport ? (
+            <div className="mt-5 space-y-3" data-testid="tdx-result-mobile-list">
+              {sortedItems.map((item, index) => (
+                <article
+                  className="rounded-[1.25rem] border border-[var(--border-soft)] bg-[var(--surface-overlay)] px-4 py-4"
+                  key={`${item.stockCode}-${item.signalDate}`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm text-[var(--text-muted)]">#{index + 1}</p>
+                      <p className="text-lg font-semibold text-[var(--text-primary)]">
+                        {item.stockName}
+                      </p>
+                      <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                        {item.stockCode} · {item.market}
+                      </p>
+                      <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                        信号日 {item.signalDate}
+                      </p>
+                    </div>
+                    <button
+                      className="mystic-button-secondary px-4 py-2 text-sm"
+                      disabled={!onAddStock || poolStockCodeSet.has(item.stockCode)}
+                      onClick={() => onAddStock?.(item)}
+                      type="button"
+                    >
+                      {poolStockCodeSet.has(item.stockCode) ? '已在池中' : '加入股票池'}
                     </button>
-                  </th>
-                  <th>
-                    <button className="workbench-link-button" type="button" onClick={() => changeSort('trueCGain')}>
-                      真C涨幅 {sortKey === 'trueCGain' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
-                    </button>
-                  </th>
-                  <th>
-                    <button className="workbench-link-button" type="button" onClick={() => changeSort('biasRate')}>
-                      乖离率 {sortKey === 'biasRate' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
-                    </button>
-                  </th>
-                  <th>
-                    <button className="workbench-link-button" type="button" onClick={() => changeSort('volumeRatio')}>
-                      量比 {sortKey === 'volumeRatio' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
-                    </button>
-                  </th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedItems.map((item) => (
-                  <tr key={`${item.stockCode}-${item.signalDate}`}>
-                    <td>{item.stockCode}</td>
-                    <td>
-                      <div className="font-semibold text-[var(--text-primary)]">{item.stockName}</div>
-                      <div className="mt-1 text-xs text-[var(--text-muted)]">{item.market}</div>
-                    </td>
-                    <td>
-                      <div className="flex flex-wrap gap-2">
-                        {item.meiZhu ? <span className="mystic-chip">美柱</span> : null}
-                        {item.meiYangYang ? <span className="mystic-chip">美阳阳</span> : null}
-                      </div>
-                    </td>
-                    <td>{item.signalStrength.toFixed(2)}</td>
-                    <td>{item.trueCGain.toFixed(2)}%</td>
-                    <td>{item.biasRate.toFixed(2)}%</td>
-                    <td>{item.volumeRatio.toFixed(2)}</td>
-                    <td>
-                      <button
-                        className="mystic-chip"
-                        disabled={!onAddStock || poolStockCodeSet.has(item.stockCode)}
-                        onClick={() => onAddStock?.(item)}
-                        type="button"
-                      >
-                        {poolStockCodeSet.has(item.stockCode) ? '已在股票池' : '加入股票池'}
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {item.meiZhu ? <span className="mystic-chip">美柱</span> : null}
+                    {item.meiYangYang ? <span className="mystic-chip">美阳阳</span> : null}
+                    <span className="mystic-chip">强度 {item.signalStrength.toFixed(2)}</span>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-2xl border border-white/10 bg-black/10 px-3 py-3">
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                        真C涨幅
+                      </p>
+                      <p className="mt-2 text-base font-semibold text-[var(--text-primary)]">
+                        {item.trueCGain.toFixed(2)}%
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-black/10 px-3 py-3">
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                        乖离率
+                      </p>
+                      <p className="mt-2 text-base font-semibold text-[var(--text-primary)]">
+                        {item.biasRate.toFixed(2)}%
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-black/10 px-3 py-3">
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                        量比
+                      </p>
+                      <p className="mt-2 text-base font-semibold text-[var(--text-primary)]">
+                        {item.volumeRatio.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-5 overflow-x-auto rounded-[1.2rem] border border-white/10">
+              <table className="workbench-settings-table" data-testid="tdx-result-table">
+                <thead>
+                  <tr>
+                    <th>代码</th>
+                    <th>名称</th>
+                    <th>信号</th>
+                    <th>
+                      <button className="workbench-link-button" type="button" onClick={() => changeSort('signalStrength')}>
+                        强度 {sortKey === 'signalStrength' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
                       </button>
-                    </td>
+                    </th>
+                    <th>
+                      <button className="workbench-link-button" type="button" onClick={() => changeSort('trueCGain')}>
+                        真C涨幅 {sortKey === 'trueCGain' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
+                      </button>
+                    </th>
+                    <th>
+                      <button className="workbench-link-button" type="button" onClick={() => changeSort('biasRate')}>
+                        乖离率 {sortKey === 'biasRate' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
+                      </button>
+                    </th>
+                    <th>
+                      <button className="workbench-link-button" type="button" onClick={() => changeSort('volumeRatio')}>
+                        量比 {sortKey === 'volumeRatio' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
+                      </button>
+                    </th>
+                    <th>操作</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {sortedItems.map((item) => (
+                    <tr key={`${item.stockCode}-${item.signalDate}`}>
+                      <td>{item.stockCode}</td>
+                      <td>
+                        <div className="font-semibold text-[var(--text-primary)]">{item.stockName}</div>
+                        <div className="mt-1 text-xs text-[var(--text-muted)]">{item.market}</div>
+                      </td>
+                      <td>
+                        <div className="flex flex-wrap gap-2">
+                          {item.meiZhu ? <span className="mystic-chip">美柱</span> : null}
+                          {item.meiYangYang ? <span className="mystic-chip">美阳阳</span> : null}
+                        </div>
+                      </td>
+                      <td>{item.signalStrength.toFixed(2)}</td>
+                      <td>{item.trueCGain.toFixed(2)}%</td>
+                      <td>{item.biasRate.toFixed(2)}%</td>
+                      <td>{item.volumeRatio.toFixed(2)}</td>
+                      <td>
+                        <button
+                          className="mystic-chip"
+                          disabled={!onAddStock || poolStockCodeSet.has(item.stockCode)}
+                          onClick={() => onAddStock?.(item)}
+                          type="button"
+                        >
+                          {poolStockCodeSet.has(item.stockCode) ? '已在股票池' : '加入股票池'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
         ) : (
           <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-[var(--text-secondary)]">
             还没有扫描结果。先配置条件并执行扫描，结果表会在这里显示。

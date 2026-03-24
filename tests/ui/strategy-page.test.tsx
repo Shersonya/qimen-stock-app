@@ -30,6 +30,15 @@ jest.mock('@/lib/utils/date', () => {
 const mockedRequestTdxScan = jest.mocked(requestTdxScan);
 const mockedRequestLimitUp = jest.mocked(requestLimitUp);
 
+function setViewportWidth(width: number) {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    value: width,
+    writable: true,
+  });
+  window.dispatchEvent(new Event('resize'));
+}
+
 function createDeferredPromise<T>() {
   let resolve!: (value: T) => void;
   let reject!: (reason?: unknown) => void;
@@ -67,6 +76,7 @@ describe('StrategyPageClient', () => {
     mockPathname.mockReturnValue('/strategy');
     mockedRequestTdxScan.mockReset();
     mockedRequestLimitUp.mockReset();
+    setViewportWidth(1024);
     mockedRequestTdxScan.mockImplementation(async (payload) => createTdxResponse(payload.page ?? 1));
     mockedRequestLimitUp.mockImplementation(async (payload) => createLimitUpResponse(payload.page ?? 1));
   });
@@ -257,5 +267,36 @@ describe('StrategyPageClient', () => {
     limitUpDeferred.resolve(createLimitUpResponse(1));
 
     expect(await screen.findByTestId('limit-up-result-table')).toBeInTheDocument();
+  });
+
+  it('renders mobile-native result cards for both strategy tabs', async () => {
+    const user = userEvent.setup();
+
+    setViewportWidth(375);
+    renderInWorkbench(<StrategyPageClient demoMode />);
+
+    expect(screen.getByTestId('strategy-mobile-tab-caption')).toHaveTextContent(
+      'TDX 逐行翻译 + 全市场扫描',
+    );
+
+    await user.click(screen.getByRole('button', { name: '开始扫描' }));
+
+    const tdxMobileList = await screen.findByTestId('tdx-result-mobile-list');
+
+    expect(tdxMobileList).toBeInTheDocument();
+    expect(screen.queryByTestId('tdx-result-table')).not.toBeInTheDocument();
+    expect(within(tdxMobileList).getAllByText('信号日 2026-03-20').length).toBeGreaterThan(0);
+
+    await user.click(screen.getByRole('tab', { name: /涨停板筛选/ }));
+    expect(screen.getByTestId('strategy-mobile-tab-caption')).toHaveTextContent(
+      '近 30 日涨停信号 + 股票池入口',
+    );
+    await user.click(screen.getByRole('button', { name: '执行筛选' }));
+
+    const limitUpMobileList = await screen.findByTestId('limit-up-result-mobile-list');
+
+    expect(limitUpMobileList).toBeInTheDocument();
+    expect(screen.queryByTestId('limit-up-result-table')).not.toBeInTheDocument();
+    expect(within(limitUpMobileList).getAllByText('涨停 3 次').length).toBeGreaterThan(0);
   });
 });

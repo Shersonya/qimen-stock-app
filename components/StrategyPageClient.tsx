@@ -20,16 +20,22 @@ type StrategyTab = 'tdx' | 'limitUp';
 const STRATEGY_TABS: Array<{
   id: StrategyTab;
   label: string;
+  mobileLabel: string;
+  mobileHint: string;
   caption: string;
 }> = [
   {
     id: 'tdx',
     label: '通达信美柱美阳阳',
+    mobileLabel: 'TDX 扫描',
+    mobileHint: '全市场',
     caption: 'TDX 逐行翻译 + 全市场扫描',
   },
   {
     id: 'limitUp',
     label: '涨停板筛选',
+    mobileLabel: '涨停回溯',
+    mobileHint: '近 30 日',
     caption: '近 30 日涨停信号 + 股票池入口',
   },
 ];
@@ -38,6 +44,7 @@ export function StrategyPageClient({ demoMode = false }: StrategyPageClientProps
   const [activeTab, setActiveTab] = useState<StrategyTab>('tdx');
   const [activePool, setActivePool] = useState(() => getActivePool());
   const [toastMessage, setToastMessage] = useToast();
+  const activeTabMeta = STRATEGY_TABS.find((item) => item.id === activeTab) ?? STRATEGY_TABS[0];
 
   function ensureActivePool() {
     return getActivePool() ?? createPool('策略观察池', []);
@@ -114,7 +121,7 @@ export function StrategyPageClient({ demoMode = false }: StrategyPageClientProps
       <div className="mt-6">
         <div
           aria-label="策略工作台切换"
-          className="flex flex-wrap gap-3 rounded-[1.5rem] border border-white/10 bg-white/5 p-2"
+          className="grid grid-cols-2 gap-2 rounded-[1.5rem] border border-white/10 bg-white/5 p-2 sm:flex sm:flex-wrap sm:gap-3"
           role="tablist"
         >
           {STRATEGY_TABS.map((tab) => {
@@ -122,20 +129,35 @@ export function StrategyPageClient({ demoMode = false }: StrategyPageClientProps
 
             return (
               <button
+                aria-label={tab.label}
                 aria-controls={`${tab.id}-panel`}
                 aria-selected={isActive}
-                className={`workbench-tab flex-1 text-left ${isActive ? 'is-active' : ''}`}
+                className={`workbench-tab min-h-[4.5rem] px-4 py-3 text-left sm:flex-1 sm:px-4 sm:py-[0.7rem] ${isActive ? 'is-active' : ''}`}
                 id={`${tab.id}-tab`}
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 role="tab"
                 type="button"
               >
-                <span className="block text-base font-semibold">{tab.label}</span>
-                <span className="mt-1 block text-xs leading-5 text-current/70">{tab.caption}</span>
+                <span className="block sm:hidden">
+                  <span className="block text-sm font-semibold">{tab.mobileLabel}</span>
+                  <span className="mt-1 block text-[0.72rem] leading-4 text-current/70">
+                    {tab.mobileHint}
+                  </span>
+                </span>
+                <span className="hidden sm:block">
+                  <span className="block text-base font-semibold">{tab.label}</span>
+                  <span className="mt-1 block text-xs leading-5 text-current/70">{tab.caption}</span>
+                </span>
               </button>
             );
           })}
+        </div>
+        <div
+          className="mt-3 rounded-[1.15rem] border border-white/10 bg-black/10 px-4 py-3 text-sm text-[var(--text-secondary)] sm:hidden"
+          data-testid="strategy-mobile-tab-caption"
+        >
+          {activeTabMeta.caption}
         </div>
 
         <div className="mt-6">
