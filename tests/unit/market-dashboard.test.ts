@@ -5,6 +5,7 @@ import { AppError } from '@/lib/errors';
 import { getMarketDashboard } from '@/lib/services/market-dashboard';
 import { evaluateQimenAuspiciousPatterns } from '@/lib/qimen/auspicious-patterns';
 import { generateQimenChart } from '@/lib/qimen/engine';
+import { getDragonHeadMonitor } from '@/lib/services/dragon-head';
 import {
   getMarketStockPool,
   getMarketStockPoolCacheMeta,
@@ -13,6 +14,7 @@ import {
 jest.mock('@/lib/qimen/engine');
 jest.mock('@/lib/qimen/auspicious-patterns');
 jest.mock('@/lib/services/market-screen');
+jest.mock('@/lib/services/dragon-head');
 
 const mockedGenerateQimenChart = jest.mocked(generateQimenChart);
 const mockedEvaluateQimenAuspiciousPatterns = jest.mocked(
@@ -20,6 +22,7 @@ const mockedEvaluateQimenAuspiciousPatterns = jest.mocked(
 );
 const mockedGetMarketStockPool = jest.mocked(getMarketStockPool);
 const mockedGetMarketStockPoolCacheMeta = jest.mocked(getMarketStockPoolCacheMeta);
+const mockedGetDragonHeadMonitor = jest.mocked(getDragonHeadMonitor);
 
 describe('market dashboard service', () => {
   beforeEach(() => {
@@ -27,6 +30,54 @@ describe('market dashboard service', () => {
     mockedEvaluateQimenAuspiciousPatterns.mockReset();
     mockedGetMarketStockPool.mockReset();
     mockedGetMarketStockPoolCacheMeta.mockReset();
+    mockedGetDragonHeadMonitor.mockReset();
+    mockedGetDragonHeadMonitor.mockResolvedValue({
+      asOf: '2026-03-19T10:00:00.000Z',
+      aiAdviceEnabled: true,
+      summary: '测试龙头摘要',
+      trendSwitch: {
+        instruction: 'STAY',
+        newThemeFirstBoardCount: 0,
+        newThemeAverageStrength: 0,
+        oldLeaderStrength: 0,
+        oldLeaderWeakDays: 0,
+        topBoardStrength: 0,
+        themeTurnoverGrowthPct: 0,
+        summary: '测试切换摘要',
+      },
+      positionAllocation: {
+        newLeaderPercent: 0,
+        oldCorePercent: 0,
+        topBoardPercent: 0,
+        forcedFlat: true,
+        reason: '测试仓位',
+      },
+      circuitBreaker: {
+        triggered: false,
+        reasons: [],
+        metrics: {
+          limitDownCount: 0,
+          yesterdayLimitUpAvgReturn: 0,
+          maxBoardHeight: 5,
+        },
+      },
+      newTheme: {
+        label: '新题材',
+        averageStrength: 0,
+        firstBoardCount: 0,
+      },
+      oldTheme: {
+        label: '老题材',
+        leaderStrength: 0,
+        weakDays: 0,
+      },
+      topBoard: {
+        label: '最高标',
+        strength: 0,
+      },
+      sourceStatus: [],
+      manualReviewChecklist: [],
+    });
   });
 
   it('aggregates signal, heat, sectors, and cache metadata for the dashboard', async () => {
@@ -179,6 +230,7 @@ describe('market dashboard service', () => {
       totalScore: 36,
     });
     expect(result.cache.cached).toBe(true);
+    expect(result.dragonHead.summary).toBe('测试龙头摘要');
   });
 
   it('degrades gracefully when the market stock pool source is temporarily unavailable', async () => {

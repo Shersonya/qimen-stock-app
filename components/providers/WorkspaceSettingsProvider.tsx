@@ -10,6 +10,7 @@ import {
 
 import {
   WORKSPACE_SETTINGS_STORAGE_KEY,
+  buildDragonHeadConfigOverride,
   buildPatternConfigOverride,
   buildRiskConfigOverride,
   createDefaultWorkspaceSettings,
@@ -27,6 +28,7 @@ type WorkspaceSettingsContextValue = {
   importSettings: (rawValue: string) => { ok: true } | { ok: false; message: string };
   patternConfigOverride: ReturnType<typeof buildPatternConfigOverride>;
   riskConfigOverride: ReturnType<typeof buildRiskConfigOverride>;
+  dragonHeadConfigOverride: ReturnType<typeof buildDragonHeadConfigOverride>;
 };
 
 const WorkspaceSettingsContext = createContext<WorkspaceSettingsContextValue | null>(
@@ -90,6 +92,7 @@ export function WorkspaceSettingsProvider({
       },
       patternConfigOverride: buildPatternConfigOverride(settings),
       riskConfigOverride: buildRiskConfigOverride(settings),
+      dragonHeadConfigOverride: buildDragonHeadConfigOverride(settings),
     };
   }, [hydrated, settings]);
 

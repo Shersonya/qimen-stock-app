@@ -37,6 +37,7 @@ describe('SettingsPageClient', () => {
     expect(screen.getByTestId('settings-pattern-table')).toBeInTheDocument();
     expect(screen.getByTestId('settings-risk-panel')).toBeInTheDocument();
     expect(screen.getByTestId('settings-visual-panel')).toBeInTheDocument();
+    expect(screen.getByTestId('settings-dragon-head-panel')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: '导出配置' }));
 
@@ -45,6 +46,7 @@ describe('SettingsPageClient', () => {
 
     expect(exportDialog).toHaveTextContent('复制当前 JSON');
     expect(exportTextbox.value).toContain('"patternMap"');
+    expect(exportTextbox.value).toContain('"dragonHead"');
 
     fireEvent.keyDown(window, { key: 'Escape' });
 
@@ -55,13 +57,15 @@ describe('SettingsPageClient', () => {
     await user.clear(importTextbox);
     fireEvent.change(importTextbox, {
       target: {
-        value: '{"risk":{"minRatingDefault":"S"},"visual":{"boardAccentColor":"#ffffff"}}',
+        value:
+          '{"risk":{"minRatingDefault":"S"},"visual":{"boardAccentColor":"#ffffff"},"dragonHead":{"circuitBreaker":{"limitDownCount":66}}}',
       },
     });
     await user.click(screen.getByRole('button', { name: '导入并应用' }));
 
     expect(await screen.findByText('配置已导入并立即生效。')).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: '默认最低评级' })).toHaveValue('S');
+    expect(screen.getByDisplayValue('66')).toBeInTheDocument();
   });
 
   it('renders stacked mobile cards for pattern settings', async () => {

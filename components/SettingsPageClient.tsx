@@ -39,6 +39,19 @@ export function SettingsPageClient() {
     });
   }
 
+  function updateDragonHeadSection<TKey extends keyof typeof settings.dragonHead>(
+    key: TKey,
+    value: (typeof settings.dragonHead)[TKey],
+  ) {
+    setSettings({
+      ...settings,
+      dragonHead: {
+        ...settings.dragonHead,
+        [key]: value,
+      },
+    });
+  }
+
   return (
     <section className="workbench-page">
       <header className="workbench-page-header">
@@ -541,6 +554,217 @@ export function SettingsPageClient() {
                     <option value="minimal">Minimal</option>
                   </select>
                 </label>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section className="workbench-card" data-testid="settings-dragon-head-panel">
+          <p className="mystic-section-label">龙头博弈配置</p>
+          <div className="mt-5 grid gap-4 xl:grid-cols-2">
+            <article className="workbench-card workbench-subcard">
+              <h3 className="text-xl font-semibold text-[var(--text-primary)]">强度权重</h3>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                {([
+                  ['volumeRatio', '量比'],
+                  ['speed10m', '10分钟涨速'],
+                  ['driveRatio', '板块带动比'],
+                  ['sealRatio', '封单金额比'],
+                  ['breakoutFreq', '5分钟突破频次'],
+                ] as const).map(([key, label]) => (
+                  <label className="block" key={key}>
+                    <span className="mb-2 block text-sm text-[var(--text-secondary)]">
+                      {label}
+                    </span>
+                    <input
+                      className="mystic-input"
+                      onChange={(event) =>
+                        updateDragonHeadSection('weights', {
+                          ...settings.dragonHead.weights,
+                          [key]: Number(event.target.value) || 0,
+                        })
+                      }
+                      type="number"
+                      value={settings.dragonHead.weights[key]}
+                    />
+                  </label>
+                ))}
+              </div>
+            </article>
+
+            <article className="workbench-card workbench-subcard">
+              <h3 className="text-xl font-semibold text-[var(--text-primary)]">切换 / 熔断阈值</h3>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <label className="block">
+                  <span className="mb-2 block text-sm text-[var(--text-secondary)]">新主线强度</span>
+                  <input
+                    className="mystic-input"
+                    onChange={(event) =>
+                      updateDragonHeadSection('thresholds', {
+                        ...settings.dragonHead.thresholds,
+                        newLeaderStrong: Number(event.target.value) || 0,
+                      })
+                    }
+                    type="number"
+                    value={settings.dragonHead.thresholds.newLeaderStrong}
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-sm text-[var(--text-secondary)]">老核心强度</span>
+                  <input
+                    className="mystic-input"
+                    onChange={(event) =>
+                      updateDragonHeadSection('thresholds', {
+                        ...settings.dragonHead.thresholds,
+                        oldCoreStrong: Number(event.target.value) || 0,
+                      })
+                    }
+                    type="number"
+                    value={settings.dragonHead.thresholds.oldCoreStrong}
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-sm text-[var(--text-secondary)]">最高标强度</span>
+                  <input
+                    className="mystic-input"
+                    onChange={(event) =>
+                      updateDragonHeadSection('thresholds', {
+                        ...settings.dragonHead.thresholds,
+                        topBoardStrong: Number(event.target.value) || 0,
+                      })
+                    }
+                    type="number"
+                    value={settings.dragonHead.thresholds.topBoardStrong}
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-sm text-[var(--text-secondary)]">最少首板数</span>
+                  <input
+                    className="mystic-input"
+                    onChange={(event) =>
+                      updateDragonHeadSection('thresholds', {
+                        ...settings.dragonHead.thresholds,
+                        minFirstBoardCount: Number(event.target.value) || 0,
+                      })
+                    }
+                    type="number"
+                    value={settings.dragonHead.thresholds.minFirstBoardCount}
+                  />
+                </label>
+                <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] sm:col-span-2">
+                  <input
+                    checked={settings.dragonHead.circuitBreaker.enabled}
+                    onChange={(event) =>
+                      updateDragonHeadSection('circuitBreaker', {
+                        ...settings.dragonHead.circuitBreaker,
+                        enabled: event.target.checked,
+                      })
+                    }
+                    type="checkbox"
+                  />
+                  启用灾难规避熔断
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-sm text-[var(--text-secondary)]">跌停家数阈值</span>
+                  <input
+                    className="mystic-input"
+                    onChange={(event) =>
+                      updateDragonHeadSection('circuitBreaker', {
+                        ...settings.dragonHead.circuitBreaker,
+                        limitDownCount: Number(event.target.value) || 0,
+                      })
+                    }
+                    type="number"
+                    value={settings.dragonHead.circuitBreaker.limitDownCount}
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-sm text-[var(--text-secondary)]">昨日涨停今均幅阈值</span>
+                  <input
+                    className="mystic-input"
+                    onChange={(event) =>
+                      updateDragonHeadSection('circuitBreaker', {
+                        ...settings.dragonHead.circuitBreaker,
+                        yesterdayLimitUpAvgReturn: Number(event.target.value) || 0,
+                      })
+                    }
+                    type="number"
+                    value={settings.dragonHead.circuitBreaker.yesterdayLimitUpAvgReturn}
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-sm text-[var(--text-secondary)]">空间板高度阈值</span>
+                  <input
+                    className="mystic-input"
+                    onChange={(event) =>
+                      updateDragonHeadSection('circuitBreaker', {
+                        ...settings.dragonHead.circuitBreaker,
+                        maxBoardHeight: Number(event.target.value) || 0,
+                      })
+                    }
+                    type="number"
+                    value={settings.dragonHead.circuitBreaker.maxBoardHeight}
+                  />
+                </label>
+              </div>
+            </article>
+          </div>
+
+          <div className="mt-4 grid gap-4 xl:grid-cols-2">
+            <article className="workbench-card workbench-subcard">
+              <h3 className="text-xl font-semibold text-[var(--text-primary)]">人工维护与黑名单</h3>
+              <label className="mt-4 block">
+                <span className="mb-2 block text-sm text-[var(--text-secondary)]">题材关键词库</span>
+                <textarea
+                  className="mystic-input min-h-28 w-full"
+                  onChange={(event) =>
+                    updateDragonHeadSection('manual', {
+                      ...settings.dragonHead.manual,
+                      keywordLibrary: event.target.value
+                        .split('\n')
+                        .map((item) => item.trim())
+                        .filter(Boolean),
+                    })
+                  }
+                  value={settings.dragonHead.manual.keywordLibrary.join('\n')}
+                />
+              </label>
+              <label className="mt-4 block">
+                <span className="mb-2 block text-sm text-[var(--text-secondary)]">黑名单</span>
+                <textarea
+                  className="mystic-input min-h-24 w-full"
+                  onChange={(event) =>
+                    updateDragonHeadSection('manual', {
+                      ...settings.dragonHead.manual,
+                      blacklist: event.target.value
+                        .split('\n')
+                        .map((item) => item.trim())
+                        .filter(Boolean),
+                    })
+                  }
+                  value={settings.dragonHead.manual.blacklist.join('\n')}
+                />
+              </label>
+            </article>
+
+            <article className="workbench-card workbench-subcard">
+              <h3 className="text-xl font-semibold text-[var(--text-primary)]">模板与手册入口</h3>
+              <div className="mt-4 grid gap-3">
+                <a className="mystic-chip justify-center" href="/templates/dragon-head-strategy.json">
+                  下载半自动策略模板 JSON
+                </a>
+                <a className="mystic-chip justify-center" href="/templates/leader-gene-template.csv">
+                  下载龙头基因库模板
+                </a>
+                <a className="mystic-chip justify-center" href="/templates/emotion-cycle-template.csv">
+                  下载情绪周期坐标卡
+                </a>
+                <a className="mystic-chip justify-center" href="/templates/execution-review-template.csv">
+                  下载知行合一验证表
+                </a>
+              </div>
+              <div className="mt-4 rounded-[1rem] border border-white/10 bg-white/5 p-4 text-sm text-[var(--text-secondary)]">
+                每周维护: {settings.dragonHead.manual.weeklyTasks.join(' / ')}
               </div>
             </article>
           </div>

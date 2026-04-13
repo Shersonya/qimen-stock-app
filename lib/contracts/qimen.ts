@@ -1,4 +1,5 @@
 import type { BacktestDirection, BacktestRunResult } from '@/lib/backtest';
+import type { DragonHeadMonitorResponse, DragonHeadSettings } from '@/lib/contracts/dragon-head';
 
 export const DEFAULT_LISTING_TIME = '09:30' as const;
 export const DEFAULT_TIME_SOURCE = 'default' as const;
@@ -529,6 +530,7 @@ export type MarketScreenApiResponse =
 export type MarketDashboardRequest = {
   patternConfigOverride?: QimenPatternConfigOverride;
   riskConfigOverride?: QimenRiskConfigOverride;
+  dragonHeadConfigOverride?: DragonHeadSettings;
 };
 
 export type MarketDashboardResponse = {
@@ -564,6 +566,15 @@ export type MarketDashboardResponse = {
     source?: 'live_market_pool' | 'bundled_limit_up_snapshot';
     notice?: string;
   };
+  dragonHead: Pick<
+    DragonHeadMonitorResponse,
+    | 'aiAdviceEnabled'
+    | 'summary'
+    | 'trendSwitch'
+    | 'circuitBreaker'
+    | 'positionAllocation'
+    | 'sourceStatus'
+  >;
 };
 
 export type MarketDashboardApiResponse =

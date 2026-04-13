@@ -3,8 +3,11 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { DragonHeadPanel } from '@/components/DragonHeadPanel';
 import { LimitUpPanel } from '@/components/LimitUpPanel';
 import { TdxScanPanel } from '@/components/TdxScanPanel';
+import { useWorkspaceSettings } from '@/components/providers/WorkspaceSettingsProvider';
+import type { DragonHeadCandidate, DragonHeadMode } from '@/lib/contracts/dragon-head';
 import type { LimitUpStock, PoolStock } from '@/lib/contracts/strategy';
 import { useToast } from '@/lib/hooks/use-toast';
 import type { TdxScanResult } from '@/lib/tdx/types';
@@ -13,9 +16,10 @@ import { getShanghaiDateString } from '@/lib/utils/date';
 
 type StrategyPageClientProps = {
   demoMode?: boolean;
+  mockMode?: DragonHeadMode;
 };
 
-type StrategyTab = 'tdx' | 'limitUp';
+type StrategyTab = 'dragonHead' | 'tdx' | 'limitUp';
 
 const STRATEGY_TABS: Array<{
   id: StrategyTab;
@@ -24,6 +28,13 @@ const STRATEGY_TABS: Array<{
   mobileHint: string;
   caption: string;
 }> = [
+  {
+    id: 'dragonHead',
+    label: '龙头博弈',
+    mobileLabel: '龙头博弈',
+    mobileHint: '主线切换',
+    caption: '主线切换 + 动态仓位 + 人工复核',
+  },
   {
     id: 'tdx',
     label: '通达信美柱美阳阳',
@@ -40,8 +51,9 @@ const STRATEGY_TABS: Array<{
   },
 ];
 
-export function StrategyPageClient({ demoMode = false }: StrategyPageClientProps) {
-  const [activeTab, setActiveTab] = useState<StrategyTab>('tdx');
+export function StrategyPageClient({ demoMode = false, mockMode }: StrategyPageClientProps) {
+  const { dragonHeadConfigOverride } = useWorkspaceSettings();
+  const [activeTab, setActiveTab] = useState<StrategyTab>('dragonHead');
   const [activePool, setActivePool] = useState(() => getActivePool());
   const [toastMessage, setToastMessage] = useToast();
   const activeTabMeta = STRATEGY_TABS.find((item) => item.id === activeTab) ?? STRATEGY_TABS[0];
@@ -98,19 +110,33 @@ export function StrategyPageClient({ demoMode = false }: StrategyPageClientProps
     };
   }
 
+  function mapDragonHeadStockToPool(item: DragonHeadCandidate): PoolStock {
+    const addDate = getShanghaiDateString();
+
+    return {
+      stockCode: item.stockCode,
+      stockName: item.stockName,
+      market: item.market,
+      addReason: 'dragon_head',
+      addDate,
+      addSource: `龙头博弈 / ${item.strength.score} 分 / ${item.signalTags.join('、')}`,
+      dragonHeadTags: item.signalTags,
+    };
+  }
+
   return (
     <section className="workbench-page" data-testid="strategy-page">
       <header className="workbench-page-header">
         <div>
           <p className="mystic-section-label">策略选股</p>
-          <h2>通达信策略与涨停板筛选的双 Tab 工作台</h2>
+          <h2>龙头博弈、通达信与涨停板的三模块工作台</h2>
           <p>
             现在可以直接把筛选结果加入本地股票池，再切到股票池页继续做批量诊断和快照管理。
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <span className="mystic-chip">{demoMode ? 'Demo 数据已启用' : 'Live API 已就绪'}</span>
-          <span className="mystic-chip">双 Tab</span>
+          <span className="mystic-chip">三模块联动</span>
           <span className="mystic-chip">表单 + 结果表</span>
           <Link className="mystic-chip" href="/stock-pool">
             {activePool ? `${activePool.name} / ${activePool.stocks.length} 只` : '未创建股票池'}
@@ -161,6 +187,22 @@ export function StrategyPageClient({ demoMode = false }: StrategyPageClientProps
         </div>
 
         <div className="mt-6">
+          <div
+            aria-labelledby="dragonHead-tab"
+            className={activeTab === 'dragonHead' ? 'block' : 'hidden'}
+            id="dragonHead-panel"
+            role="tabpanel"
+          >
+            <DragonHeadPanel
+              activePoolName={activePool?.name}
+              demoMode={demoMode}
+              dragonHeadConfig={dragonHeadConfigOverride}
+              mockMode={mockMode}
+              onAddAllStocks={(items) => commitPoolStocks(items.map(mapDragonHeadStockToPool))}
+              onAddStock={(item) => commitPoolStocks([mapDragonHeadStockToPool(item)])}
+              poolStockCodes={activePool?.stocks.map((stock) => stock.stockCode)}
+            />
+          </div>
           <div
             aria-labelledby="tdx-tab"
             className={activeTab === 'tdx' ? 'block' : 'hidden'}

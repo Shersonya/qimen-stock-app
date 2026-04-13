@@ -25,6 +25,14 @@ describe('workspace settings helpers', () => {
       visual: {
         boardAccentColor: '#ffffff',
       },
+      dragonHead: {
+        circuitBreaker: {
+          limitDownCount: 66,
+        },
+        manual: {
+          blacklist: ['被监管个股'],
+        },
+      },
     });
 
     expect(settings.patternMap.青龙返首).toMatchObject({
@@ -35,6 +43,8 @@ describe('workspace settings helpers', () => {
     expect(settings.risk.minRatingDefault).toBe('A');
     expect(settings.risk.invalidatingStates).toEqual(['空亡']);
     expect(settings.visual.boardAccentColor).toBe('#ffffff');
+    expect(settings.dragonHead.circuitBreaker.limitDownCount).toBe(66);
+    expect(settings.dragonHead.manual.blacklist).toEqual(['被监管个股']);
   });
 
   it('serializes settings and builds API override payloads', () => {
@@ -46,12 +56,14 @@ describe('workspace settings helpers', () => {
       weight: 5,
     };
     settings.risk.excludeTopEvilPatterns = false;
+    settings.dragonHead.weights.volumeRatio = 40;
 
     const raw = serializeWorkspaceSettings(settings);
     const patternOverride = buildPatternConfigOverride(settings);
     const riskOverride = buildRiskConfigOverride(settings);
 
     expect(raw).toContain('"青龙返首"');
+    expect(raw).toContain('"dragonHead"');
     expect(patternOverride.patternOverrides?.青龙返首).toEqual({
       enabled: false,
       level: 'C',

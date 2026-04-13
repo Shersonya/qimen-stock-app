@@ -61,6 +61,7 @@ describe('DashboardPageClient', () => {
 
     expect(screen.getByTestId('dashboard-heat-chart')).toBeInTheDocument();
     expect(screen.getByTestId('dashboard-sector-chart')).toBeInTheDocument();
+    expect(screen.getByTestId('dashboard-dragon-head-card')).toHaveTextContent('AI 建议可用');
     expect(screen.getByTestId('dashboard-top-stocks')).toHaveTextContent('平安银行');
     expect(
       screen.getByRole('link', { name: '一键全市场扫描' }),

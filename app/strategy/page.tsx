@@ -7,6 +7,10 @@ export default async function StrategyPage({
 }) {
   const params = await searchParams;
   const demoMode = params.demo === '1';
+  const mockMode =
+    params.mock === 'mock_degraded' || params.mock === 'mock_breaker'
+      ? params.mock
+      : undefined;
 
-  return <StrategyPageClient demoMode={demoMode} />;
+  return <StrategyPageClient demoMode={demoMode} mockMode={mockMode} />;
 }

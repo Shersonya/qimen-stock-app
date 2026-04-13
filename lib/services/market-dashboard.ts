@@ -11,6 +11,7 @@ import {
   getMarketStockPool,
   getMarketStockPoolCacheMeta,
 } from '@/lib/services/market-screen';
+import { getDragonHeadMonitor } from '@/lib/services/dragon-head';
 
 const PALACE_WUXING_MAP: Record<number, string> = {
   1: '水',
@@ -125,6 +126,9 @@ export async function getMarketDashboard(
     cacheMeta.source === 'bundled_limit_up_snapshot'
       ? cacheMeta.notice ?? '当前全市场主样本源不可用，已切换到内置涨停活跃股样本。'
       : null;
+  const dragonHead = await getDragonHeadMonitor({
+    dragonHeadConfigOverride: request.dragonHeadConfigOverride,
+  });
 
   return {
     marketSignal: {
@@ -156,6 +160,14 @@ export async function getMarketDashboard(
       expiresAt: cacheMeta.expiresAt,
       source: cacheMeta.source,
       notice: sourceNotice ?? undefined,
+    },
+    dragonHead: {
+      aiAdviceEnabled: dragonHead.aiAdviceEnabled,
+      summary: dragonHead.summary,
+      trendSwitch: dragonHead.trendSwitch,
+      circuitBreaker: dragonHead.circuitBreaker,
+      positionAllocation: dragonHead.positionAllocation,
+      sourceStatus: dragonHead.sourceStatus,
     },
   };
 }

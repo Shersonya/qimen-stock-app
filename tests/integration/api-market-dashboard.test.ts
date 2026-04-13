@@ -44,6 +44,37 @@ describe('POST /api/market-dashboard', () => {
         cached: true,
         expiresAt: '2026-03-19T10:30:00.000Z',
       },
+      dragonHead: {
+        aiAdviceEnabled: true,
+        summary: '测试龙头摘要',
+        trendSwitch: {
+          instruction: 'STAY',
+          newThemeFirstBoardCount: 0,
+          newThemeAverageStrength: 0,
+          oldLeaderStrength: 0,
+          oldLeaderWeakDays: 0,
+          topBoardStrength: 0,
+          themeTurnoverGrowthPct: 0,
+          summary: '测试切换摘要',
+        },
+        circuitBreaker: {
+          triggered: false,
+          reasons: [],
+          metrics: {
+            limitDownCount: 0,
+            yesterdayLimitUpAvgReturn: 0,
+            maxBoardHeight: 5,
+          },
+        },
+        positionAllocation: {
+          newLeaderPercent: 0,
+          oldCorePercent: 0,
+          topBoardPercent: 0,
+          forcedFlat: true,
+          reason: '测试仓位',
+        },
+        sourceStatus: [],
+      },
     });
 
     const payload = {

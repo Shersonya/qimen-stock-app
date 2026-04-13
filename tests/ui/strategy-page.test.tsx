@@ -2,8 +2,18 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { StrategyPageClient } from '@/components/StrategyPageClient';
-import { requestLimitUp, requestTdxScan } from '@/lib/client-api';
-import { getDemoLimitUpResponse, getDemoTdxScanResponse } from '@/lib/demo-fixtures';
+import {
+  requestDragonHeadCandidates,
+  requestDragonHeadMonitor,
+  requestLimitUp,
+  requestTdxScan,
+} from '@/lib/client-api';
+import {
+  getDemoDragonHeadCandidatesResponse,
+  getDemoDragonHeadMonitorResponse,
+  getDemoLimitUpResponse,
+  getDemoTdxScanResponse,
+} from '@/lib/demo-fixtures';
 import { getActivePool } from '@/lib/services/stock-pool';
 import { renderInWorkbench } from '@/tests/ui/render-workbench';
 
@@ -14,6 +24,8 @@ jest.mock('next/navigation', () => ({
 }));
 
 jest.mock('@/lib/client-api', () => ({
+  requestDragonHeadCandidates: jest.fn(),
+  requestDragonHeadMonitor: jest.fn(),
   requestLimitUp: jest.fn(),
   requestTdxScan: jest.fn(),
 }));
@@ -29,6 +41,8 @@ jest.mock('@/lib/utils/date', () => {
 
 const mockedRequestTdxScan = jest.mocked(requestTdxScan);
 const mockedRequestLimitUp = jest.mocked(requestLimitUp);
+const mockedRequestDragonHeadMonitor = jest.mocked(requestDragonHeadMonitor);
+const mockedRequestDragonHeadCandidates = jest.mocked(requestDragonHeadCandidates);
 
 function setViewportWidth(width: number) {
   Object.defineProperty(window, 'innerWidth', {
@@ -76,15 +90,27 @@ describe('StrategyPageClient', () => {
     mockPathname.mockReturnValue('/strategy');
     mockedRequestTdxScan.mockReset();
     mockedRequestLimitUp.mockReset();
+    mockedRequestDragonHeadMonitor.mockReset();
+    mockedRequestDragonHeadCandidates.mockReset();
     setViewportWidth(1024);
     mockedRequestTdxScan.mockImplementation(async (payload) => createTdxResponse(payload.page ?? 1));
     mockedRequestLimitUp.mockImplementation(async (payload) => createLimitUpResponse(payload.page ?? 1));
+    mockedRequestDragonHeadMonitor.mockResolvedValue(getDemoDragonHeadMonitorResponse());
+    mockedRequestDragonHeadCandidates.mockResolvedValue(getDemoDragonHeadCandidatesResponse());
   });
 
   it('switches between tabs and renders both panels', async () => {
     const user = userEvent.setup();
 
     renderInWorkbench(<StrategyPageClient demoMode />);
+
+    expect(screen.getByRole('tab', { name: /龙头博弈/ })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    expect(screen.getByTestId('dragon-head-panel')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: /通达信美柱美阳阳/ }));
 
     expect(screen.getByRole('tab', { name: /通达信美柱美阳阳/ })).toHaveAttribute(
       'aria-selected',
@@ -103,6 +129,37 @@ describe('StrategyPageClient', () => {
     await user.click(screen.getByRole('tab', { name: /通达信美柱美阳阳/ }));
 
     expect(screen.getByTestId('tdx-scan-panel')).toBeInTheDocument();
+  });
+
+  it('loads dragon-head monitor and adds candidates into the stock pool', async () => {
+    const user = userEvent.setup();
+
+    renderInWorkbench(<StrategyPageClient demoMode mockMode="mock_degraded" />);
+
+    await user.click(screen.getByRole('button', { name: '加载龙头候选' }));
+
+    expect(await screen.findByTestId('dragon-head-monitor-card')).toHaveTextContent('切换指令');
+    expect(screen.getByTestId('dragon-head-candidates-table')).toHaveTextContent('长安汽车');
+    expect(mockedRequestDragonHeadMonitor).toHaveBeenCalledWith(
+      expect.objectContaining({ mode: 'mock_degraded' }),
+    );
+
+    await user.click(
+      within(screen.getByTestId('dragon-head-candidates-table')).getAllByRole('button', {
+        name: '加入股票池',
+      })[0]!,
+    );
+
+    expect(await screen.findByRole('status')).toHaveTextContent('已将 1 只股票加入');
+    expect(getActivePool()?.stocks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          stockCode: '000625',
+          addReason: 'dragon_head',
+          addDate: '2026-03-21',
+        }),
+      ]),
+    );
   });
 
   it('runs TDX scan, sorts results, and pages through results', async () => {
@@ -275,6 +332,11 @@ describe('StrategyPageClient', () => {
     setViewportWidth(375);
     renderInWorkbench(<StrategyPageClient demoMode />);
 
+    expect(screen.getByTestId('strategy-mobile-tab-caption')).toHaveTextContent(
+      '主线切换 + 动态仓位 + 人工复核',
+    );
+
+    await user.click(screen.getByRole('tab', { name: /通达信美柱美阳阳/ }));
     expect(screen.getByTestId('strategy-mobile-tab-caption')).toHaveTextContent(
       'TDX 逐行翻译 + 全市场扫描',
     );

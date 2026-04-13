@@ -201,9 +201,58 @@ function QuickActions() {
   );
 }
 
+function DragonHeadStatusCard({
+  data,
+}: {
+  data: MarketDashboardResponse['dragonHead'];
+}) {
+  return (
+    <article className="workbench-card" data-testid="dashboard-dragon-head-card">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="mystic-section-label">龙头博弈状态</p>
+          <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+            {data.aiAdviceEnabled ? 'AI 建议可用' : 'AI 建议暂停'}
+          </h3>
+          <p className="mt-3 text-sm text-[var(--text-secondary)]">{data.summary}</p>
+        </div>
+        <span className="mystic-chip">指令 {data.trendSwitch.instruction}</span>
+      </div>
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="workbench-stat-tile">
+          <span className="text-sm text-[var(--text-secondary)]">新主线</span>
+          <p className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
+            {data.positionAllocation.newLeaderPercent}%
+          </p>
+        </div>
+        <div className="workbench-stat-tile">
+          <span className="text-sm text-[var(--text-secondary)]">老核心</span>
+          <p className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
+            {data.positionAllocation.oldCorePercent}%
+          </p>
+        </div>
+        <div className="workbench-stat-tile">
+          <span className="text-sm text-[var(--text-secondary)]">最高标</span>
+          <p className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
+            {data.positionAllocation.topBoardPercent}%
+          </p>
+        </div>
+      </div>
+      <div className="mt-4 rounded-[1rem] border border-white/10 bg-white/5 p-4 text-sm text-[var(--text-secondary)]">
+        <p>{data.trendSwitch.summary}</p>
+        <p className="mt-2">
+          熔断 {data.circuitBreaker.triggered ? '已触发' : '未触发'} / 数据源{' '}
+          {data.sourceStatus.filter((item) => item.available).length}/{data.sourceStatus.length}
+        </p>
+      </div>
+    </article>
+  );
+}
+
 export function DashboardPageClient() {
   const pathname = usePathname();
-  const { patternConfigOverride, riskConfigOverride } = useWorkspaceSettings();
+  const { patternConfigOverride, riskConfigOverride, dragonHeadConfigOverride } =
+    useWorkspaceSettings();
   const [data, setData] = useState<MarketDashboardResponse | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -218,6 +267,7 @@ export function DashboardPageClient() {
         const nextData = await requestMarketDashboard({
           patternConfigOverride,
           riskConfigOverride,
+          dragonHeadConfigOverride,
         });
 
         if (!cancelled) {
@@ -241,7 +291,7 @@ export function DashboardPageClient() {
     return () => {
       cancelled = true;
     };
-  }, [patternConfigOverride, riskConfigOverride]);
+  }, [dragonHeadConfigOverride, patternConfigOverride, riskConfigOverride]);
 
   const topStocks = useMemo(() => data?.topStocks ?? [], [data]);
 
@@ -287,6 +337,7 @@ export function DashboardPageClient() {
               </div>
             ) : null}
             <StatusCard data={data.marketSignal} />
+            <DragonHeadStatusCard data={data.dragonHead} />
             <div className="grid gap-6 xl:grid-cols-2">
               <DonutHeatChart counts={data.patternHeat} />
               <SectorBarChart items={data.topSectors} />

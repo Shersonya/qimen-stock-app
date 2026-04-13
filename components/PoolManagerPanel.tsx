@@ -56,6 +56,8 @@ function formatAddReason(pool: StockPool['stocks'][number]) {
       return pool.addSource ?? `涨停 ${pool.limitUpCount ?? 0} 次`;
     case 'tdx_signal':
       return pool.addSource ?? '通达信策略';
+    case 'dragon_head':
+      return pool.addSource ?? `龙头博弈 / ${(pool.dragonHeadTags ?? []).join(' / ') || '候选观察'}`;
     default:
       return pool.addSource ?? '手动加入';
   }

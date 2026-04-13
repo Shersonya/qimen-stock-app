@@ -4,6 +4,12 @@ import type {
   QimenDeepDiagnosisReport,
   QimenStockRating,
 } from '@/lib/contracts/qimen';
+import type {
+  DragonHeadCandidatesRequest,
+  DragonHeadCandidatesResponse,
+  DragonHeadMonitorRequest,
+  DragonHeadMonitorResponse,
+} from '@/lib/contracts/dragon-head';
 import type { TdxScanResult } from '@/lib/tdx/types';
 
 export type TdxScanRequest = {
@@ -91,11 +97,12 @@ export type PoolStock = {
   stockCode: string;
   stockName: string;
   market: Market;
-  addReason: 'limit_up' | 'tdx_signal' | 'manual';
+  addReason: 'limit_up' | 'tdx_signal' | 'dragon_head' | 'manual';
   addDate: string;
   addSource?: string;
   limitUpCount?: number;
   tdxSignalType?: 'meiZhu' | 'meiYangYang' | 'both';
+  dragonHeadTags?: string[];
   diagnosisResult?: PoolStockDiagnosis;
 };
 
@@ -155,3 +162,6 @@ export type ComparisonTableData = {
   sortBy: 'totalScore' | 'rating' | 'successProbability' | 'riskLevel';
   items: ComparisonTableRow[];
 };
+
+export type { DragonHeadMonitorRequest, DragonHeadMonitorResponse };
+export type { DragonHeadCandidatesRequest, DragonHeadCandidatesResponse };

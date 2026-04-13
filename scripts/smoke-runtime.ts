@@ -63,7 +63,7 @@ const smokeCases: SmokeCase[] = [
     kind: 'page',
     name: 'page:/strategy',
     path: '/strategy',
-    expectText: '通达信策略与涨停板筛选的双 Tab 工作台',
+    expectText: '龙头博弈、通达信与涨停板的三模块工作台',
   },
   {
     kind: 'page',
@@ -96,6 +96,43 @@ const smokeCases: SmokeCase[] = [
         universeSize: data.universeSize ?? null,
         cacheSource: cache.source ?? null,
         signal: marketSignal.statusLabel ?? null,
+      };
+    },
+  },
+  {
+    kind: 'api',
+    name: 'api:dragon-head:monitor',
+    path: '/api/dragon-head/monitor',
+    body: {
+      mode: 'mock_complete',
+    },
+    summarize: (payload) => {
+      const data = asRecord(payload);
+      const trendSwitch = asRecord(data.trendSwitch);
+      const circuitBreaker = asRecord(data.circuitBreaker);
+      return {
+        aiAdviceEnabled: data.aiAdviceEnabled ?? null,
+        instruction: trendSwitch.instruction ?? null,
+        breaker: circuitBreaker.triggered ?? null,
+      };
+    },
+  },
+  {
+    kind: 'api',
+    name: 'api:dragon-head:candidates',
+    path: '/api/dragon-head/candidates',
+    body: {
+      mode: 'mock_degraded',
+    },
+    summarize: (payload) => {
+      const data = asRecord(payload);
+      const items = asArray(data.items);
+      const firstItem = asRecord(items[0]);
+      const strength = asRecord(firstItem.strength);
+      return {
+        total: data.total ?? null,
+        first: firstItem.stockCode ?? null,
+        confidence: strength.confidence ?? null,
       };
     },
   },

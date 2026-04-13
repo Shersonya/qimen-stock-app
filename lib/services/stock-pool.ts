@@ -31,6 +31,7 @@ import { getShanghaiDateString } from '@/lib/utils/date';
 const VALID_ADD_REASONS = new Set<PoolStock['addReason']>([
   'limit_up',
   'tdx_signal',
+  'dragon_head',
   'manual',
 ]);
 
@@ -116,7 +117,7 @@ export function normalizeMarket(value: unknown, stockCode?: string) {
 }
 
 export function normalizeAddReason(value: unknown): PoolStock['addReason'] {
-  return value === 'limit_up' || value === 'tdx_signal' || value === 'manual'
+  return value === 'limit_up' || value === 'tdx_signal' || value === 'dragon_head' || value === 'manual'
     ? value
     : 'manual';
 }
@@ -221,6 +222,12 @@ export function normalizePoolStock(
   const addSource = normalizeText(candidate.addSource) || undefined;
   const limitUpCountRaw = Number(candidate.limitUpCount);
   const tdxSignalType = normalizeSignalType(candidate.tdxSignalType);
+  const dragonHeadTags = Array.isArray(candidate.dragonHeadTags)
+    ? candidate.dragonHeadTags
+        .filter((item): item is string => typeof item === 'string')
+        .map((item) => normalizeText(item))
+        .filter(Boolean)
+    : undefined;
   const diagnosisResult = normalizeDiagnosisResult(
     candidate.diagnosisResult,
     stockCode,
@@ -237,6 +244,7 @@ export function normalizePoolStock(
       ? limitUpCountRaw
       : undefined,
     tdxSignalType,
+    dragonHeadTags: dragonHeadTags?.length ? dragonHeadTags : undefined,
     diagnosisResult,
   };
 }

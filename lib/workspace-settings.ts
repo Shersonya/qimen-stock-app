@@ -1,3 +1,11 @@
+import type {
+  DragonHeadCircuitBreakerConfig,
+  DragonHeadFactorKey,
+  DragonHeadSettings,
+  DragonHeadStrategyTemplate,
+  DragonHeadThresholds,
+  DragonHeadWeights,
+} from '@/lib/contracts/dragon-head';
 import {
   PALACE_FLAG_OPTIONS,
   QIMEN_PATTERN_LIBRARY,
@@ -42,6 +50,7 @@ export type WorkspaceSettings = {
   thresholds: QimenPatternThresholds;
   risk: WorkspaceRiskSettings;
   visual: WorkspaceVisualSettings;
+  dragonHead: DragonHeadSettings;
 };
 
 function createDefaultPatternMap(): Record<
@@ -60,6 +69,81 @@ function createDefaultPatternMap(): Record<
     },
     {} as Record<QimenAuspiciousPatternName, WorkspacePatternSetting>,
   );
+}
+
+function createDefaultDragonHeadWeights(): DragonHeadWeights {
+  return {
+    volumeRatio: 30,
+    speed10m: 30,
+    driveRatio: 25,
+    sealRatio: 10,
+    breakoutFreq: 5,
+  };
+}
+
+function createDefaultDragonHeadThresholds(): DragonHeadThresholds {
+  return {
+    newLeaderStrong: 90,
+    oldCoreStrong: 85,
+    weakLine: 80,
+    topBoardStrong: 95,
+    newThemeAverageStrong: 80,
+    oldLeaderWeakThreshold: 70,
+    themeTurnoverGrowthPct: 300,
+    minFirstBoardCount: 3,
+  };
+}
+
+function createDefaultDragonHeadCircuitBreaker(): DragonHeadCircuitBreakerConfig {
+  return {
+    enabled: true,
+    limitDownCount: 50,
+    yesterdayLimitUpAvgReturn: -5,
+    maxBoardHeight: 3,
+  };
+}
+
+function createDefaultDragonHeadStrategyTemplate(): DragonHeadStrategyTemplate {
+  return {
+    deathTrapFilter: {
+      midCapTraits: [
+        '涨幅>7%但非板块前二',
+        '跟风涨停且封单<主力1/10',
+        '板块强度>80但个股强度<65',
+      ],
+    },
+    panicIndexFormula: '(跌停家数×0.3 + 炸板率×0.5 + 沪指跌幅×20) / 3',
+    antiHumanTrainingProtocol: [
+      '连续3笔盈利后强制冷却24h',
+      '单标持仓盈利≥30%时启动阶梯止盈',
+      '连续两次违背系统信号时暂停当日AI建议',
+    ],
+  };
+}
+
+function createDefaultDragonHeadSettings(): DragonHeadSettings {
+  return {
+    weights: createDefaultDragonHeadWeights(),
+    thresholds: createDefaultDragonHeadThresholds(),
+    circuitBreaker: createDefaultDragonHeadCircuitBreaker(),
+    manual: {
+      keywordLibrary: ['低空经济', '机器人', '算力', '卫星互联网'],
+      blacklist: ['被监管个股'],
+      weeklyTasks: [
+        '更新强度计算公式权重',
+        '更新新题材关键词库',
+        '更新黑名单制度',
+      ],
+      manualReviewChecklist: [
+        '政策突发利空需人工复核',
+        '量化资金集体踩踏需人工复核',
+        '龙虎榜席位异动需人工复核',
+        '情绪周期定位需人工复核',
+        '龙头气质识别需人工复核',
+      ],
+    },
+    strategyTemplate: createDefaultDragonHeadStrategyTemplate(),
+  };
 }
 
 export function createDefaultWorkspaceSettings(): WorkspaceSettings {
@@ -90,6 +174,7 @@ export function createDefaultWorkspaceSettings(): WorkspaceSettings {
       boardAccentColor: '#d8b35a',
       boardStyle: 'focused',
     },
+    dragonHead: createDefaultDragonHeadSettings(),
   };
 }
 
@@ -117,6 +202,69 @@ function sanitizeStringArray(value: unknown, fallback: string[]) {
   return value.filter(
     (item): item is string => typeof item === 'string' && item.trim().length > 0,
   );
+}
+
+function sanitizeDragonHeadWeights(
+  value: unknown,
+  defaults: DragonHeadWeights,
+): DragonHeadWeights {
+  const raw = isObject(value) ? value : {};
+
+  return (
+    Object.keys(defaults) as DragonHeadFactorKey[]
+  ).reduce((acc, key) => {
+    acc[key] = toNumber(raw[key], defaults[key]);
+    return acc;
+  }, { ...defaults });
+}
+
+function sanitizeDragonHeadThresholds(
+  value: unknown,
+  defaults: DragonHeadThresholds,
+): DragonHeadThresholds {
+  const raw = isObject(value) ? value : {};
+
+  return {
+    newLeaderStrong: toNumber(raw.newLeaderStrong, defaults.newLeaderStrong),
+    oldCoreStrong: toNumber(raw.oldCoreStrong, defaults.oldCoreStrong),
+    weakLine: toNumber(raw.weakLine, defaults.weakLine),
+    topBoardStrong: toNumber(raw.topBoardStrong, defaults.topBoardStrong),
+    newThemeAverageStrong: toNumber(
+      raw.newThemeAverageStrong,
+      defaults.newThemeAverageStrong,
+    ),
+    oldLeaderWeakThreshold: toNumber(
+      raw.oldLeaderWeakThreshold,
+      defaults.oldLeaderWeakThreshold,
+    ),
+    themeTurnoverGrowthPct: toNumber(
+      raw.themeTurnoverGrowthPct,
+      defaults.themeTurnoverGrowthPct,
+    ),
+    minFirstBoardCount: toNumber(raw.minFirstBoardCount, defaults.minFirstBoardCount),
+  };
+}
+
+function sanitizeDragonHeadStrategyTemplate(
+  value: unknown,
+  defaults: DragonHeadStrategyTemplate,
+): DragonHeadStrategyTemplate {
+  const raw = isObject(value) ? value : {};
+  const rawDeathTrap = isObject(raw.deathTrapFilter) ? raw.deathTrapFilter : {};
+
+  return {
+    deathTrapFilter: {
+      midCapTraits: sanitizeStringArray(
+        rawDeathTrap.midCapTraits,
+        defaults.deathTrapFilter.midCapTraits,
+      ),
+    },
+    panicIndexFormula: toString(raw.panicIndexFormula, defaults.panicIndexFormula),
+    antiHumanTrainingProtocol: sanitizeStringArray(
+      raw.antiHumanTrainingProtocol,
+      defaults.antiHumanTrainingProtocol,
+    ),
+  };
 }
 
 export function sanitizeWorkspaceSettings(value: unknown): WorkspaceSettings {
@@ -153,6 +301,9 @@ export function sanitizeWorkspaceSettings(value: unknown): WorkspaceSettings {
   const risk = isObject(value.risk) ? value.risk : {};
   const visual = isObject(value.visual) ? value.visual : {};
   const rawRatingColors = isObject(visual.ratingColors) ? visual.ratingColors : {};
+  const dragonHead = isObject(value.dragonHead) ? value.dragonHead : {};
+  const defaultDragonHead = defaults.dragonHead;
+  const rawManual = isObject(dragonHead.manual) ? dragonHead.manual : {};
 
   return {
     patternMap,
@@ -221,6 +372,59 @@ export function sanitizeWorkspaceSettings(value: unknown): WorkspaceSettings {
           ? visual.boardStyle
           : defaults.visual.boardStyle,
     },
+    dragonHead: {
+      weights: sanitizeDragonHeadWeights(
+        dragonHead.weights,
+        defaultDragonHead.weights,
+      ),
+      thresholds: sanitizeDragonHeadThresholds(
+        dragonHead.thresholds,
+        defaultDragonHead.thresholds,
+      ),
+      circuitBreaker: {
+        enabled: toBoolean(
+          isObject(dragonHead.circuitBreaker) ? dragonHead.circuitBreaker.enabled : undefined,
+          defaultDragonHead.circuitBreaker.enabled,
+        ),
+        limitDownCount: toNumber(
+          isObject(dragonHead.circuitBreaker)
+            ? dragonHead.circuitBreaker.limitDownCount
+            : undefined,
+          defaultDragonHead.circuitBreaker.limitDownCount,
+        ),
+        yesterdayLimitUpAvgReturn: toNumber(
+          isObject(dragonHead.circuitBreaker)
+            ? dragonHead.circuitBreaker.yesterdayLimitUpAvgReturn
+            : undefined,
+          defaultDragonHead.circuitBreaker.yesterdayLimitUpAvgReturn,
+        ),
+        maxBoardHeight: toNumber(
+          isObject(dragonHead.circuitBreaker)
+            ? dragonHead.circuitBreaker.maxBoardHeight
+            : undefined,
+          defaultDragonHead.circuitBreaker.maxBoardHeight,
+        ),
+      },
+      manual: {
+        keywordLibrary: sanitizeStringArray(
+          rawManual.keywordLibrary,
+          defaultDragonHead.manual.keywordLibrary,
+        ),
+        blacklist: sanitizeStringArray(rawManual.blacklist, defaultDragonHead.manual.blacklist),
+        weeklyTasks: sanitizeStringArray(
+          rawManual.weeklyTasks,
+          defaultDragonHead.manual.weeklyTasks,
+        ),
+        manualReviewChecklist: sanitizeStringArray(
+          rawManual.manualReviewChecklist,
+          defaultDragonHead.manual.manualReviewChecklist,
+        ),
+      },
+      strategyTemplate: sanitizeDragonHeadStrategyTemplate(
+        dragonHead.strategyTemplate,
+        defaultDragonHead.strategyTemplate,
+      ),
+    },
   };
 }
 
@@ -261,4 +465,8 @@ export function buildRiskConfigOverride(
     excludeInvalidCorePalaces: settings.risk.excludeInvalidCorePalaces,
     excludeTopEvilPatterns: settings.risk.excludeTopEvilPatterns,
   };
+}
+
+export function buildDragonHeadConfigOverride(settings: WorkspaceSettings): DragonHeadSettings {
+  return settings.dragonHead;
 }

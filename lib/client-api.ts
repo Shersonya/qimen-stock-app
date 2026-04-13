@@ -1,4 +1,6 @@
 import {
+  getDemoDragonHeadCandidatesResponse,
+  getDemoDragonHeadMonitorResponse,
   getDemoBacktestResponse,
   getDemoBatchDiagnosisResults,
   getDemoLimitUpResponse,
@@ -8,6 +10,12 @@ import {
   getDemoTdxScanResponse,
   isDemoMode,
 } from '@/lib/demo-fixtures';
+import type {
+  DragonHeadCandidatesRequest,
+  DragonHeadCandidatesResponse,
+  DragonHeadMonitorRequest,
+  DragonHeadMonitorResponse,
+} from '@/lib/contracts/dragon-head';
 import {
   ERROR_CODES,
   getErrorMessage,
@@ -139,4 +147,24 @@ export async function requestBatchDiagnosis(
   }
 
   return postJson<PoolStockDiagnosis[]>('/api/batch-diagnosis', request);
+}
+
+export async function requestDragonHeadMonitor(
+  request: DragonHeadMonitorRequest,
+): Promise<DragonHeadMonitorResponse> {
+  if (isDemoMode()) {
+    return getDemoDragonHeadMonitorResponse(request.mode);
+  }
+
+  return postJson<DragonHeadMonitorResponse>('/api/dragon-head/monitor', request);
+}
+
+export async function requestDragonHeadCandidates(
+  request: DragonHeadCandidatesRequest,
+): Promise<DragonHeadCandidatesResponse> {
+  if (isDemoMode()) {
+    return getDemoDragonHeadCandidatesResponse(request.mode);
+  }
+
+  return postJson<DragonHeadCandidatesResponse>('/api/dragon-head/candidates', request);
 }

@@ -5,6 +5,11 @@ import type {
   QimenApiSuccessResponse,
 } from '@/lib/contracts/qimen';
 import type {
+  DragonHeadCandidatesResponse,
+  DragonHeadMode,
+  DragonHeadMonitorResponse,
+} from '@/lib/contracts/dragon-head';
+import type {
   ComparisonTableData,
   LimitUpFilterResponse,
   PoolStockDiagnosis,
@@ -506,6 +511,308 @@ const demoMarketDashboardPayload: MarketDashboardResponse = {
     cached: true,
     expiresAt: '2026-03-18T10:30:00.000Z',
   },
+  dragonHead: {
+    aiAdviceEnabled: true,
+    summary: '新主线候选开始抬升，AI 建议可用，但仍需人工复核政策与席位异动。',
+    trendSwitch: {
+      instruction: 'HOLD_NEW',
+      newThemeFirstBoardCount: 3,
+      newThemeAverageStrength: 86,
+      oldLeaderStrength: 78,
+      oldLeaderWeakDays: 1,
+      topBoardStrength: 92,
+      themeTurnoverGrowthPct: 245,
+      summary: '新题材已形成三只首板共振，但老主线尚未连续两日失效，更适合先持有新线观察。',
+    },
+    circuitBreaker: {
+      triggered: false,
+      reasons: [],
+      metrics: {
+        limitDownCount: 12,
+        yesterdayLimitUpAvgReturn: 2.4,
+        maxBoardHeight: 6,
+      },
+    },
+    positionAllocation: {
+      newLeaderPercent: 30,
+      oldCorePercent: 50,
+      topBoardPercent: 20,
+      forcedFlat: false,
+      reason: '新主线未达到 90 分，但老核心保持 85 分以上，维持老核心主仓。',
+    },
+    sourceStatus: [
+      {
+        provider: 'intradayQuote',
+        asOf: '2026-03-21T10:18:00+08:00',
+        source: 'mock_complete',
+        available: true,
+      },
+      {
+        provider: 'orderBook',
+        asOf: '2026-03-21T10:18:00+08:00',
+        source: 'mock_complete',
+        available: true,
+      },
+      {
+        provider: 'sectorBreadth',
+        asOf: '2026-03-21T10:18:00+08:00',
+        source: 'mock_complete',
+        available: true,
+      },
+      {
+        provider: 'themeFlow',
+        asOf: '2026-03-21T10:18:00+08:00',
+        source: 'mock_complete',
+        available: true,
+      },
+    ],
+  },
+};
+
+const demoDragonHeadMonitorPayload: DragonHeadMonitorResponse = {
+  asOf: '2026-03-21T10:18:00+08:00',
+  aiAdviceEnabled: true,
+  summary: '新主线开始形成接力，当前允许使用 AI 建议，但必须人工复核监管与情绪周期。',
+  trendSwitch: {
+    instruction: 'HOLD_NEW',
+    newThemeFirstBoardCount: 3,
+    newThemeAverageStrength: 86,
+    oldLeaderStrength: 78,
+    oldLeaderWeakDays: 1,
+    topBoardStrength: 92,
+    themeTurnoverGrowthPct: 245,
+    summary: '新题材已有三只首板强度超过 80，但老主线尚未连续两日转弱，维持新线观察而非完全切换。',
+  },
+  positionAllocation: {
+    newLeaderPercent: 30,
+    oldCorePercent: 50,
+    topBoardPercent: 20,
+    forcedFlat: false,
+    reason: '新主线未达到 90 分，但老核心强度仍在 85 以上，优先保留老核心主仓。',
+  },
+  circuitBreaker: {
+    triggered: false,
+    reasons: [],
+    metrics: {
+      limitDownCount: 12,
+      yesterdayLimitUpAvgReturn: 2.4,
+      maxBoardHeight: 6,
+    },
+  },
+  newTheme: {
+    label: '低空经济',
+    averageStrength: 86,
+    firstBoardCount: 3,
+  },
+  oldTheme: {
+    label: '机器人',
+    leaderStrength: 78,
+    weakDays: 1,
+  },
+  topBoard: {
+    label: '空间板',
+    strength: 92,
+  },
+  sourceStatus: demoMarketDashboardPayload.dragonHead.sourceStatus,
+  manualReviewChecklist: [
+    '政策突发利空需人工复核',
+    '量化资金集体踩踏需人工复核',
+    '龙虎榜席位异动需人工复核',
+    '情绪周期定位需人工复核',
+    '龙头气质识别需人工复核',
+  ],
+};
+
+const demoDragonHeadCandidatesPayload: DragonHeadCandidatesResponse = {
+  asOf: '2026-03-21T10:18:00+08:00',
+  total: 3,
+  aiAdviceEnabled: true,
+  summary: '当前共识度最高的龙头候选共有 3 只，强度已按固定 100 分公式汇总。',
+  sourceStatus: demoMarketDashboardPayload.dragonHead.sourceStatus,
+  manualReviewChecklist: demoDragonHeadMonitorPayload.manualReviewChecklist,
+  items: [
+    {
+      stockCode: '000625',
+      stockName: '长安汽车',
+      market: 'SZ',
+      sector: '低空经济',
+      latestPrice: 18.36,
+      latestChangePct: 7.9,
+      boardChangePct: 3.1,
+      limitUpCount: 1,
+      signalTags: ['新题材首板', '板块联动'],
+      isNewThemeLeader: true,
+      isOldCoreLeader: false,
+      isTopBoard: false,
+      canAddToPool: true,
+      reviewFlags: ['需人工复核政策面'],
+      strength: {
+        score: 88.8,
+        formulaVersion: 'dragon-head-v1',
+        confidence: 1,
+        missingFactors: [],
+        sourceStatus: demoMarketDashboardPayload.dragonHead.sourceStatus,
+        factorBreakdown: [
+          { key: 'volumeRatio', label: '量比', weight: 30, rawValue: 2.8, normalized: 0.9, contribution: 27, available: true },
+          { key: 'speed10m', label: '10分钟涨速', weight: 30, rawValue: 0.064, normalized: 0.8, contribution: 24, available: true },
+          { key: 'driveRatio', label: '板块带动比', weight: 25, rawValue: 2.5, normalized: 1, contribution: 25, available: true },
+          { key: 'sealRatio', label: '封单金额比', weight: 10, rawValue: 0.084, normalized: 0.7, contribution: 7, available: true },
+          { key: 'breakoutFreq', label: '5分钟突破频次', weight: 5, rawValue: 6, normalized: 1, contribution: 5, available: true },
+        ],
+      },
+    },
+    {
+      stockCode: '300418',
+      stockName: '昆仑万维',
+      market: 'CYB',
+      sector: '低空经济',
+      latestPrice: 37.24,
+      latestChangePct: 6.2,
+      boardChangePct: 3.1,
+      limitUpCount: 1,
+      signalTags: ['新题材首板'],
+      isNewThemeLeader: true,
+      isOldCoreLeader: false,
+      isTopBoard: false,
+      canAddToPool: true,
+      reviewFlags: ['需人工复核盘口承接'],
+      strength: {
+        score: 84,
+        formulaVersion: 'dragon-head-v1',
+        confidence: 1,
+        missingFactors: [],
+        sourceStatus: demoMarketDashboardPayload.dragonHead.sourceStatus,
+        factorBreakdown: [
+          { key: 'volumeRatio', label: '量比', weight: 30, rawValue: 2.5, normalized: 0.75, contribution: 22.5, available: true },
+          { key: 'speed10m', label: '10分钟涨速', weight: 30, rawValue: 0.056, normalized: 0.7, contribution: 21, available: true },
+          { key: 'driveRatio', label: '板块带动比', weight: 25, rawValue: 2.1, normalized: 1, contribution: 25, available: true },
+          { key: 'sealRatio', label: '封单金额比', weight: 10, rawValue: 0.06, normalized: 0.5, contribution: 5, available: true },
+          { key: 'breakoutFreq', label: '5分钟突破频次', weight: 5, rawValue: 5, normalized: 1, contribution: 5, available: true },
+        ],
+      },
+    },
+    {
+      stockCode: '600487',
+      stockName: '亨通光电',
+      market: 'SH',
+      sector: '机器人',
+      latestPrice: 19.84,
+      latestChangePct: 3.4,
+      boardChangePct: 2.9,
+      limitUpCount: 3,
+      signalTags: ['老主线核心', '空间板'],
+      isNewThemeLeader: false,
+      isOldCoreLeader: true,
+      isTopBoard: true,
+      canAddToPool: true,
+      reviewFlags: ['需人工复核龙虎榜席位'],
+      strength: {
+        score: 92,
+        formulaVersion: 'dragon-head-v1',
+        confidence: 1,
+        missingFactors: [],
+        sourceStatus: demoMarketDashboardPayload.dragonHead.sourceStatus,
+        factorBreakdown: [
+          { key: 'volumeRatio', label: '量比', weight: 30, rawValue: 3, normalized: 1, contribution: 30, available: true },
+          { key: 'speed10m', label: '10分钟涨速', weight: 30, rawValue: 0.072, normalized: 0.9, contribution: 27, available: true },
+          { key: 'driveRatio', label: '板块带动比', weight: 25, rawValue: 2.4, normalized: 1, contribution: 25, available: true },
+          { key: 'sealRatio', label: '封单金额比', weight: 10, rawValue: 0.072, normalized: 0.6, contribution: 6, available: true },
+          { key: 'breakoutFreq', label: '5分钟突破频次', weight: 5, rawValue: 4, normalized: 0.8, contribution: 4, available: true },
+        ],
+      },
+    },
+  ],
+};
+
+const demoDragonHeadDegradedMonitorPayload: DragonHeadMonitorResponse = {
+  ...demoDragonHeadMonitorPayload,
+  summary: '当前仅拿到日线代理数据，10 分钟涨速、封单与题材资金流缺失，评分已降级。',
+  sourceStatus: [
+    {
+      provider: 'intradayQuote',
+      asOf: '2026-03-21T10:18:00+08:00',
+      source: 'daily_proxy',
+      available: true,
+      degradedReason: '仅使用日线量比代理，盘中 10 分钟涨速缺失。',
+    },
+    {
+      provider: 'orderBook',
+      asOf: '2026-03-21T10:18:00+08:00',
+      source: 'unavailable',
+      available: false,
+      degradedReason: '盘口买一金额数据尚未接入。',
+    },
+    {
+      provider: 'sectorBreadth',
+      asOf: '2026-03-21T10:18:00+08:00',
+      source: 'daily_proxy',
+      available: true,
+      degradedReason: '板块带动比使用日线代理。',
+    },
+    {
+      provider: 'themeFlow',
+      asOf: '2026-03-21T10:18:00+08:00',
+      source: 'unavailable',
+      available: false,
+      degradedReason: '题材成交额增速尚未接入实时源。',
+    },
+  ],
+};
+
+const demoDragonHeadDegradedCandidatesPayload: DragonHeadCandidatesResponse = {
+  ...demoDragonHeadCandidatesPayload,
+  summary: '当前为降级评分，缺失因子会记 0 并下调 confidence。',
+  sourceStatus: demoDragonHeadDegradedMonitorPayload.sourceStatus,
+  items: demoDragonHeadCandidatesPayload.items.map((item, index) => ({
+    ...item,
+    reviewFlags: [...item.reviewFlags, '当前为降级评分'],
+    strength: {
+      ...item.strength,
+      score: index === 0 ? 41 : index === 1 ? 36.5 : 52,
+      confidence: 0.45,
+      sourceStatus: demoDragonHeadDegradedMonitorPayload.sourceStatus,
+      missingFactors: ['speed10m', 'sealRatio', 'breakoutFreq'],
+      factorBreakdown: item.strength.factorBreakdown.map((factor) =>
+        factor.key === 'volumeRatio' || factor.key === 'driveRatio'
+          ? { ...factor, proxy: true, note: '使用日线代理数据计算。' }
+          : {
+              ...factor,
+              rawValue: null,
+              normalized: 0,
+              contribution: 0,
+              available: false,
+              note: '实时数据缺失，当前按 0 分处理。',
+            },
+      ),
+    },
+  })),
+};
+
+const demoDragonHeadBreakerMonitorPayload: DragonHeadMonitorResponse = {
+  ...demoDragonHeadMonitorPayload,
+  aiAdviceEnabled: false,
+  summary: '两市风险指标触发熔断，AI 建议已停止，请改为纯人工观察。',
+  positionAllocation: {
+    newLeaderPercent: 0,
+    oldCorePercent: 0,
+    topBoardPercent: 0,
+    forcedFlat: true,
+    reason: '跌停家数、昨日涨停今均幅和空间板高度共同触发熔断。',
+  },
+  circuitBreaker: {
+    triggered: true,
+    reasons: ['两市跌停≥50家', '昨日涨停今均幅≤-5%', '空间板高度≤3板'],
+    metrics: {
+      limitDownCount: 63,
+      yesterdayLimitUpAvgReturn: -6.3,
+      maxBoardHeight: 3,
+    },
+  },
+  trendSwitch: {
+    ...demoDragonHeadMonitorPayload.trendSwitch,
+    instruction: 'STAY',
+    summary: '熔断已生效，主线切换信号暂停使用。',
+  },
 };
 
 const demoTdxScanPayload: TdxScanResponse = {
@@ -764,4 +1071,41 @@ export function getDemoStockPools(): StockPool[] {
 
 export function getDemoComparisonTableData(): ComparisonTableData {
   return demoComparisonTableData;
+}
+
+export function getDemoDragonHeadMonitorResponse(
+  mode?: DragonHeadMode,
+): DragonHeadMonitorResponse {
+  if (mode === 'mock_degraded') {
+    return demoDragonHeadDegradedMonitorPayload;
+  }
+
+  if (mode === 'mock_breaker') {
+    return demoDragonHeadBreakerMonitorPayload;
+  }
+
+  return demoDragonHeadMonitorPayload;
+}
+
+export function getDemoDragonHeadCandidatesResponse(
+  mode?: DragonHeadMode,
+): DragonHeadCandidatesResponse {
+  if (mode === 'mock_degraded') {
+    return demoDragonHeadDegradedCandidatesPayload;
+  }
+
+  if (mode === 'mock_breaker') {
+    return {
+      ...demoDragonHeadDegradedCandidatesPayload,
+      aiAdviceEnabled: false,
+      summary: '当前熔断生效，候选列表只展示观察样本，不建议入池。',
+      items: demoDragonHeadDegradedCandidatesPayload.items.map((item) => ({
+        ...item,
+        canAddToPool: false,
+        reviewFlags: [...item.reviewFlags, '熔断生效，暂停 AI 入池建议'],
+      })),
+    };
+  }
+
+  return demoDragonHeadCandidatesPayload;
 }
