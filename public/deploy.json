@@ -1,5 +1,6 @@
 {
-  "commit": "e10bee7",
-  "deployedAt": "2026-04-23T12:34:10+08:00",
+  "commit": "badb758",
+  "deployedAt": "2026-04-23T14:52:43+08:00",
+  "probe": "edgeone-github-rebind-20260423-145243",
   "platform": "Tencent Cloud EdgeOne Pages"
 }
