@@ -121,6 +121,13 @@ export function StrategyPageClient({ demoMode = false, mockMode }: StrategyPageC
       addDate,
       addSource: `龙头博弈 / ${item.strength.score} 分 / ${item.signalTags.join('、')}`,
       dragonHeadTags: item.signalTags,
+      dragonHeadReview: {
+        strengthScore: item.strength.score,
+        confidence: item.strength.confidence,
+        missingFactors: item.strength.missingFactors,
+        reviewFlags: item.reviewFlags,
+        manualStatus: 'pending',
+      },
     };
   }
 

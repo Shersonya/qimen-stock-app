@@ -184,6 +184,46 @@ describe('StockPoolPageClient', () => {
     });
   });
 
+  it('edits dragon-head manual review state and preserves it in the pool', async () => {
+    const user = userEvent.setup();
+
+    createPool('龙头复核池', [
+      {
+        stockCode: '000625',
+        stockName: '长安汽车',
+        market: 'SZ',
+        addReason: 'dragon_head',
+        addDate: '2026-03-21',
+        addSource: '龙头博弈 / 41 分 / 新题材首板',
+        dragonHeadTags: ['新题材首板'],
+        dragonHeadReview: {
+          strengthScore: 41,
+          confidence: 0.45,
+          missingFactors: ['speed10m', 'sealRatio'],
+          reviewFlags: ['当前为降级评分'],
+          manualStatus: 'pending',
+        },
+      },
+    ]);
+
+    renderInWorkbench(<StockPoolPageClient />);
+
+    const reviewCard = await screen.findByTestId('dragon-head-review-000625');
+
+    expect(reviewCard).toHaveTextContent('龙头 41 分');
+    expect(reviewCard).toHaveTextContent('缺失因子: speed10m / sealRatio');
+
+    await user.selectOptions(screen.getByLabelText('000625 人工复核状态'), 'confirmed');
+    await user.type(screen.getByLabelText('000625 人工复核备注'), '政策与龙虎榜已复核');
+
+    await waitFor(() => {
+      expect(getActivePool()?.stocks[0]?.dragonHeadReview).toMatchObject({
+        manualStatus: 'confirmed',
+        manualNote: '政策与龙虎榜已复核',
+      });
+    });
+  });
+
   it('switches between mobile stock-pool sections without long scrolling', async () => {
     const user = userEvent.setup();
 

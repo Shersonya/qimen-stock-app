@@ -105,6 +105,15 @@ describe('stock-pool service', () => {
             addReason: 'limit_up',
             addDate: '2026-03-19',
             limitUpCount: 2,
+            dragonHeadReview: {
+              strengthScore: 88,
+              confidence: 0.66,
+              missingFactors: ['sealRatio'],
+              reviewFlags: ['需人工复核盘口'],
+              manualStatus: 'confirmed',
+              manualNote: '龙虎榜已核对',
+              reviewedAt: '2026-03-19T09:30:00.000Z',
+            },
           },
         ],
         removedStocks: [
@@ -119,6 +128,15 @@ describe('stock-pool service', () => {
     );
 
     expect(imported.id).toBe('pool_imported');
+    expect(imported.stocks[0]?.dragonHeadReview).toMatchObject({
+      strengthScore: 88,
+      confidence: 0.66,
+      missingFactors: ['sealRatio'],
+      reviewFlags: ['需人工复核盘口'],
+      manualStatus: 'confirmed',
+      manualNote: '龙虎榜已核对',
+    });
+    expect(exportPool(imported.id)).toContain('"manualStatus": "confirmed"');
     expect(getActivePool()?.id).toBe('pool_imported');
 
     const nextPool = createPool('第二个池', []);

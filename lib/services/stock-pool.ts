@@ -138,6 +138,14 @@ export function normalizeSignalType(
     : undefined;
 }
 
+export function normalizeDragonHeadManualStatus(
+  value: unknown,
+): NonNullable<PoolStock['dragonHeadReview']>['manualStatus'] {
+  return value === 'confirmed' || value === 'rejected' || value === 'pending'
+    ? value
+    : 'pending';
+}
+
 export function normalizeDateString(value: unknown, fallback = todayString()) {
   const normalized = normalizeText(value);
 
@@ -148,6 +156,44 @@ export function normalizeTimestamp(value: unknown, fallback = nowIsoString()) {
   const normalized = normalizeText(value);
 
   return Number.isFinite(Date.parse(normalized)) ? normalized : fallback;
+}
+
+function normalizeStringList(value: unknown) {
+  return Array.isArray(value)
+    ? value
+        .filter((item): item is string => typeof item === 'string')
+        .map((item) => normalizeText(item))
+        .filter(Boolean)
+    : [];
+}
+
+export function normalizeDragonHeadReview(
+  value: unknown,
+): PoolStock['dragonHeadReview'] | undefined {
+  if (!value || typeof value !== 'object') {
+    return undefined;
+  }
+
+  const candidate = value as Record<string, unknown>;
+  const strengthScore = Number(candidate.strengthScore);
+  const confidence = Number(candidate.confidence);
+
+  if (!Number.isFinite(strengthScore) || !Number.isFinite(confidence)) {
+    return undefined;
+  }
+
+  const manualNote = normalizeText(candidate.manualNote);
+  const reviewedAt = normalizeText(candidate.reviewedAt);
+
+  return {
+    strengthScore,
+    confidence,
+    missingFactors: normalizeStringList(candidate.missingFactors),
+    reviewFlags: normalizeStringList(candidate.reviewFlags),
+    manualStatus: normalizeDragonHeadManualStatus(candidate.manualStatus),
+    manualNote: manualNote || undefined,
+    reviewedAt: Number.isFinite(Date.parse(reviewedAt)) ? reviewedAt : undefined,
+  };
 }
 
 export function normalizeDiagnosisResult(
@@ -223,11 +269,9 @@ export function normalizePoolStock(
   const limitUpCountRaw = Number(candidate.limitUpCount);
   const tdxSignalType = normalizeSignalType(candidate.tdxSignalType);
   const dragonHeadTags = Array.isArray(candidate.dragonHeadTags)
-    ? candidate.dragonHeadTags
-        .filter((item): item is string => typeof item === 'string')
-        .map((item) => normalizeText(item))
-        .filter(Boolean)
+    ? normalizeStringList(candidate.dragonHeadTags)
     : undefined;
+  const dragonHeadReview = normalizeDragonHeadReview(candidate.dragonHeadReview);
   const diagnosisResult = normalizeDiagnosisResult(
     candidate.diagnosisResult,
     stockCode,
@@ -245,6 +289,7 @@ export function normalizePoolStock(
       : undefined,
     tdxSignalType,
     dragonHeadTags: dragonHeadTags?.length ? dragonHeadTags : undefined,
+    dragonHeadReview,
     diagnosisResult,
   };
 }

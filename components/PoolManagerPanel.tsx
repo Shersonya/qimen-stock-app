@@ -2,7 +2,10 @@
 
 import Link from 'next/link';
 
-import type { StockPool } from '@/lib/contracts/strategy';
+import type {
+  DragonHeadManualReviewStatus,
+  StockPool,
+} from '@/lib/contracts/strategy';
 
 type PoolManagerPanelProps = {
   pools: StockPool[];
@@ -28,6 +31,13 @@ type PoolManagerPanelProps = {
   onRemoveSelected: () => void;
   onRemoveStock: (stockCode: string) => void;
   onRunStockDiagnosis: (stockCode: string) => void;
+  onUpdateDragonHeadReview: (
+    stockCode: string,
+    patch: {
+      manualStatus?: DragonHeadManualReviewStatus;
+      manualNote?: string;
+    },
+  ) => void;
 };
 
 function formatDateLabel(value?: string) {
@@ -71,6 +81,17 @@ function formatDiagnosisLabel(pool: StockPool['stocks'][number]) {
   return `${pool.diagnosisResult.rating} (${pool.diagnosisResult.totalScore})`;
 }
 
+function formatManualStatus(value: DragonHeadManualReviewStatus) {
+  switch (value) {
+    case 'confirmed':
+      return '已确认';
+    case 'rejected':
+      return '已否决';
+    default:
+      return '待复核';
+  }
+}
+
 export function PoolManagerPanel({
   pools,
   activePool,
@@ -95,10 +116,76 @@ export function PoolManagerPanel({
   onRemoveSelected,
   onRemoveStock,
   onRunStockDiagnosis,
+  onUpdateDragonHeadReview,
 }: PoolManagerPanelProps) {
   const selectedSet = new Set(selectedCodes);
   const stockCount = activePool?.stocks.length ?? 0;
   const allSelected = stockCount > 0 && selectedCodes.length === stockCount;
+
+  function renderDragonHeadReview(stock: StockPool['stocks'][number]) {
+    const review = stock.dragonHeadReview;
+
+    if (!review) {
+      return null;
+    }
+
+    return (
+      <div
+        className="mt-3 rounded-2xl border border-white/10 bg-black/10 px-3 py-3"
+        data-testid={`dragon-head-review-${stock.stockCode}`}
+      >
+        <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--text-secondary)]">
+          <span className="mystic-chip">龙头 {review.strengthScore} 分</span>
+          <span className="mystic-chip">confidence {review.confidence}</span>
+          <span className="mystic-chip">{formatManualStatus(review.manualStatus)}</span>
+        </div>
+        <p className="mt-2 text-xs leading-5 text-[var(--text-secondary)]">
+          缺失因子: {review.missingFactors.length ? review.missingFactors.join(' / ') : '无'}
+        </p>
+        <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
+          复核提示: {review.reviewFlags.length ? review.reviewFlags.join(' / ') : '无'}
+        </p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-[8rem,minmax(0,1fr)]">
+          <label className="block">
+            <span className="mb-1 block text-xs text-[var(--text-muted)]">人工状态</span>
+            <select
+              aria-label={`${stock.stockCode} 人工复核状态`}
+              className="mystic-select w-full"
+              onChange={(event) =>
+                onUpdateDragonHeadReview(stock.stockCode, {
+                  manualStatus: event.target.value as DragonHeadManualReviewStatus,
+                })
+              }
+              value={review.manualStatus}
+            >
+              <option value="pending">待复核</option>
+              <option value="confirmed">已确认</option>
+              <option value="rejected">已否决</option>
+            </select>
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-xs text-[var(--text-muted)]">人工备注</span>
+            <input
+              aria-label={`${stock.stockCode} 人工复核备注`}
+              className="mystic-input w-full"
+              onBlur={(event) =>
+                onUpdateDragonHeadReview(stock.stockCode, {
+                  manualNote: event.target.value,
+                })
+              }
+              onChange={(event) =>
+                onUpdateDragonHeadReview(stock.stockCode, {
+                  manualNote: event.target.value,
+                })
+              }
+              placeholder="记录政策、龙虎榜、情绪周期等复核结论"
+              value={review.manualNote ?? ''}
+            />
+          </label>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <section className="workbench-card" data-testid="pool-manager-panel">
@@ -267,6 +354,7 @@ export function PoolManagerPanel({
                             </p>
                           </div>
                         </div>
+                        {renderDragonHeadReview(stock)}
                       </div>
 
                       <div className="mt-4 flex flex-wrap gap-2">
@@ -337,7 +425,10 @@ export function PoolManagerPanel({
                               {stock.market}
                             </div>
                           </td>
-                          <td>{formatAddReason(stock)}</td>
+                          <td>
+                            <div>{formatAddReason(stock)}</div>
+                            {renderDragonHeadReview(stock)}
+                          </td>
                           <td>{stock.addDate}</td>
                           <td>{formatDiagnosisLabel(stock)}</td>
                           <td>

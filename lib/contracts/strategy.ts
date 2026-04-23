@@ -93,6 +93,21 @@ export type PoolStockDiagnosis = {
   summary: string;
 };
 
+export type DragonHeadManualReviewStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'rejected';
+
+export type DragonHeadPoolReview = {
+  strengthScore: number;
+  confidence: number;
+  missingFactors: string[];
+  reviewFlags: string[];
+  manualStatus: DragonHeadManualReviewStatus;
+  manualNote?: string;
+  reviewedAt?: string;
+};
+
 export type PoolStock = {
   stockCode: string;
   stockName: string;
@@ -103,6 +118,7 @@ export type PoolStock = {
   limitUpCount?: number;
   tdxSignalType?: 'meiZhu' | 'meiYangYang' | 'both';
   dragonHeadTags?: string[];
+  dragonHeadReview?: DragonHeadPoolReview;
   diagnosisResult?: PoolStockDiagnosis;
 };
 

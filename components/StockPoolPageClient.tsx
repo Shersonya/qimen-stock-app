@@ -14,6 +14,7 @@ import type { ApiError } from '@/lib/contracts/qimen';
 import type {
   BatchDiagnosisProgress,
   ComparisonTableData,
+  DragonHeadManualReviewStatus,
   PoolStockDiagnosis,
   PoolSnapshot,
   StockPool,
@@ -354,6 +355,36 @@ export function StockPoolPageClient({
     }, `已移除 ${stockCode}。`);
   }
 
+  function handleUpdateDragonHeadReview(
+    stockCode: string,
+    patch: {
+      manualStatus?: DragonHeadManualReviewStatus;
+      manualNote?: string;
+    },
+  ) {
+    if (!activePool) {
+      return;
+    }
+
+    const stock = activePool.stocks.find((item) => item.stockCode === stockCode);
+
+    if (!stock?.dragonHeadReview) {
+      return;
+    }
+
+    const updatedStock = {
+      ...stock,
+      dragonHeadReview: {
+        ...stock.dragonHeadReview,
+        ...patch,
+        reviewedAt: new Date().toISOString(),
+      },
+    };
+
+    addToPool(activePool.id, [updatedStock]);
+    syncPoolState();
+  }
+
   async function runDiagnosis(stockCodes: string[]) {
     if (!activePool || stockCodes.length === 0 || isRunningDiagnosis) {
       return;
@@ -535,6 +566,7 @@ export function StockPoolPageClient({
               onNewPoolNameChange={setNewPoolName}
               onRemoveSelected={handleRemoveSelected}
               onRemoveStock={handleRemoveStock}
+              onUpdateDragonHeadReview={handleUpdateDragonHeadReview}
               onRunStockDiagnosis={(stockCode) => {
                 void runDiagnosis([stockCode]);
               }}
@@ -703,6 +735,7 @@ export function StockPoolPageClient({
               onNewPoolNameChange={setNewPoolName}
               onRemoveSelected={handleRemoveSelected}
               onRemoveStock={handleRemoveStock}
+              onUpdateDragonHeadReview={handleUpdateDragonHeadReview}
               onRunStockDiagnosis={(stockCode) => {
                 void runDiagnosis([stockCode]);
               }}
