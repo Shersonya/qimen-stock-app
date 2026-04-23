@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/generate-deploy-probe.mjs",
     "build": "next build",
     "start": "next start",
     "generate:references": "tsx scripts/generate-reference-boards.ts",

@@ -62,6 +62,7 @@ https://xinyuxia.cn
 - 构建命令：`npm run build`
 - 本地生产启动命令：`npm run start`
 - 当前版本不依赖环境变量，导入后可直接构建
+- `npm run build` 会先自动生成 `public/deploy.json`，用于线上版本验证
 
 ### EdgeOne 发布流程
 
@@ -70,6 +71,25 @@ https://xinyuxia.cn
 3. 框架选择 Next.js，安装命令填写 `npm install`，构建命令填写 `npm run build`。
 4. 绑定正式域名 `xinyuxia.cn`。
 5. 后续发布以 EdgeOne Pages 的构建记录和域名状态为准。
+
+### 重新发布与验证
+
+```bash
+npm run typecheck
+npm run lint
+npm run build
+git add .
+git commit -m "..."
+git push origin main
+```
+
+EdgeOne Pages 会在 `main` 分支更新后自动构建。部署完成后访问：
+
+```text
+https://xinyuxia.cn/deploy.json
+```
+
+确认返回的 `commit`、`shortCommit` 和 `generatedAt` 已更新到本次发布。
 
 ## 测试
 

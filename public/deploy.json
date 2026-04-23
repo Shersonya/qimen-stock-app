@@ -1,6 +1,7 @@
 {
-  "commit": "badb758",
-  "deployedAt": "2026-04-23T14:52:43+08:00",
-  "probe": "edgeone-github-rebind-20260423-145243",
+  "commit": "1f3619d1d3db26c172c85b899e602b7286b978e3",
+  "shortCommit": "1f3619d",
+  "branch": "main",
+  "generatedAt": "2026-04-23T08:45:23.196Z",
   "platform": "Tencent Cloud EdgeOne Pages"
 }
