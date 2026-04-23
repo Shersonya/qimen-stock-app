@@ -36,7 +36,6 @@ function makeDate(baseDate: string, offsetDays: number): string {
 function createHistory(args: {
   startDate: string;
   length: number;
-  stockCode: string;
   market: Market;
   limitUpIndices?: number[];
   closeBase?: number;
@@ -44,7 +43,6 @@ function createHistory(args: {
   const {
     startDate,
     length,
-    stockCode,
     market,
     limitUpIndices = [],
     closeBase = 10,
@@ -128,7 +126,6 @@ describe('limit-up screening', () => {
     const tradingDates = createHistory({
       startDate: '2026-03-01',
       length: 20,
-      stockCode: '000001',
       market: 'SH',
     }).map((item) => item.tradeDate);
     const recentTradingDates = tradingDates.slice(-5);
@@ -164,7 +161,6 @@ describe('limit-up screening', () => {
         return createHistory({
           startDate: '2026-03-01',
           length: 20,
-          stockCode,
           market,
         });
       }
@@ -173,7 +169,6 @@ describe('limit-up screening', () => {
         return createHistory({
           startDate: '2025-12-01',
           length: 65,
-          stockCode,
           market,
           closeBase: 11,
         });
@@ -183,7 +178,6 @@ describe('limit-up screening', () => {
         return createHistory({
           startDate: '2025-12-01',
           length: 65,
-          stockCode,
           market,
           closeBase: 21,
         });
@@ -193,7 +187,6 @@ describe('limit-up screening', () => {
         return createHistory({
           startDate: '2026-01-20',
           length: 59,
-          stockCode,
           market,
         });
       }
@@ -285,7 +278,6 @@ describe('limit-up screening', () => {
         return createHistory({
           startDate: '2026-03-16',
           length: 5,
-          stockCode,
           market,
         });
       }
@@ -294,7 +286,6 @@ describe('limit-up screening', () => {
         return createHistory({
           startDate: '2025-12-01',
           length: 65,
-          stockCode,
           market,
         });
       }
@@ -303,7 +294,6 @@ describe('limit-up screening', () => {
         return createHistory({
           startDate: '2026-01-20',
           length: 59,
-          stockCode,
           market,
         });
       }
@@ -341,7 +331,6 @@ describe('limit-up screening', () => {
         return createHistory({
           startDate: '2026-03-16',
           length: 5,
-          stockCode,
           market,
         });
       }
@@ -350,7 +339,6 @@ describe('limit-up screening', () => {
         return createHistory({
           startDate: '2025-12-01',
           length: 65,
-          stockCode,
           market,
           closeBase: 20,
         });

@@ -11,9 +11,7 @@
     "smoke:runtime": "tsx scripts/smoke-runtime.ts",
     "lint": "eslint . --max-warnings=0",
     "test": "jest --runInBand",
-    "typecheck": "tsc --noEmit",
-    "deploy:preview": "npx vercel deploy -y",
-    "deploy:prod": "npx vercel deploy --prod -y"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@yhjs/dunjia": "1.0.1",

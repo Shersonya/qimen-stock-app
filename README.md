@@ -1,7 +1,5 @@
 # 股票奇门排盘分析工具
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Shersonya/qimen-stock-app)
-
 这是一个基于 Next.js、React、TypeScript 和 TailwindCSS 构建的 Web 工具。输入 A 股股票代码后，系统会查询股票上市日期，使用默认上市时辰 `09:30` 进行时家奇门排盘，并以九宫格形式展示结果。
 
 ## 功能说明
@@ -50,64 +48,28 @@ npm run dev
 
 打开 [http://localhost:3000](http://localhost:3000) 即可使用。
 
-## Vercel 一键部署
+## 部署
 
-这个项目已经整理成可以直接部署到 Vercel 的状态：
-
-- 已提供生产脚本：`npm run build`、`npm run start`
-- 已提供 Vercel 配置文件：`vercel.json`
-- API 路由已显式使用 Node.js runtime，适合服务端请求东方财富数据
-- 当前版本不依赖环境变量，导入后可直接部署
-
-### 最快部署方式
-
-1. 把项目推到 GitHub 仓库。
-2. 打开 Vercel 控制台并导入该仓库。
-3. 保持默认识别的 Next.js 配置即可。
-4. 点击 `Deploy`。
-5. 部署完成后，把生成的 `*.vercel.app` 链接发给朋友。
-
-### 一键导入链接模板
-
-当你把项目推到 GitHub 之后，可以把下面这个链接里的仓库地址替换掉，得到一个可以直接发给朋友或自己保存的 Vercel 一键导入链接：
+当前正式站点部署在腾讯云 EdgeOne：
 
 ```text
-https://vercel.com/new/clone?repository-url=https://github.com/Shersonya/qimen-stock-app
+https://xinyuxia.cn
 ```
 
-### Deploy Button 模板
+项目按 Next.js 应用方式构建和运行：
 
-仓库首页已经可以直接使用下面这个按钮：
+- 安装命令：`npm install`
+- 构建命令：`npm run build`
+- 本地生产启动命令：`npm run start`
+- 当前版本不依赖环境变量，导入后可直接构建
 
-```md
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Shersonya/qimen-stock-app)
+### EdgeOne 发布流程
 
-## 固定部署流程
-
-当前工作区已经完成过一次 `vercel login` 和 `vercel link`，并绑定到
-`shersonya's projects / qimen-stock-app`。
-
-后续发布直接使用下面两个命令即可：
-
-```bash
-npm run deploy:preview
-npm run deploy:prod
-```
-
-- `deploy:preview` 会发布新的预览版本
-- `deploy:prod` 会直接更新正式站点 `qimen-stock-app.vercel.app`
-
-如果后续换了机器或重新克隆仓库，只需要重新执行一次：
-
-```bash
-npx vercel login
-npx vercel link --yes --scope shersonyas-projects --project qimen-stock-app
-```
-```
-
-### 自定义域名
-
-如果后面你要给朋友一个更正式的网址，可以在 Vercel 项目里进入 `Settings -> Domains` 绑定自己的域名。
+1. 把项目推送到 Git 仓库。
+2. 在腾讯云 EdgeOne Pages 中导入该仓库。
+3. 框架选择 Next.js，安装命令填写 `npm install`，构建命令填写 `npm run build`。
+4. 绑定正式域名 `xinyuxia.cn`。
+5. 后续发布以 EdgeOne Pages 的构建记录和域名状态为准。
 
 ## 测试
 
