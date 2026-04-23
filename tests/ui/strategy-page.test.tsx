@@ -95,8 +95,12 @@ describe('StrategyPageClient', () => {
     setViewportWidth(1024);
     mockedRequestTdxScan.mockImplementation(async (payload) => createTdxResponse(payload.page ?? 1));
     mockedRequestLimitUp.mockImplementation(async (payload) => createLimitUpResponse(payload.page ?? 1));
-    mockedRequestDragonHeadMonitor.mockResolvedValue(getDemoDragonHeadMonitorResponse());
-    mockedRequestDragonHeadCandidates.mockResolvedValue(getDemoDragonHeadCandidatesResponse());
+    mockedRequestDragonHeadMonitor.mockImplementation(async (payload) =>
+      getDemoDragonHeadMonitorResponse(payload.mode),
+    );
+    mockedRequestDragonHeadCandidates.mockImplementation(async (payload) =>
+      getDemoDragonHeadCandidatesResponse(payload.mode),
+    );
   });
 
   it('switches between tabs and renders both panels', async () => {
@@ -139,7 +143,15 @@ describe('StrategyPageClient', () => {
     await user.click(screen.getByRole('button', { name: '加载龙头候选' }));
 
     expect(await screen.findByTestId('dragon-head-monitor-card')).toHaveTextContent('切换指令');
+    expect(screen.getByTestId('dragon-head-source-status')).toHaveTextContent('盘中行情');
+    expect(screen.getByTestId('dragon-head-source-status')).toHaveTextContent('代理/降级');
+    expect(screen.getByTestId('dragon-head-source-status')).toHaveTextContent('盘口封单');
+    expect(screen.getByTestId('dragon-head-source-status')).toHaveTextContent('不可用');
     expect(screen.getByTestId('dragon-head-candidates-table')).toHaveTextContent('长安汽车');
+    expect(screen.getByTestId('dragon-head-candidates-table')).toHaveTextContent('严重缺失');
+    expect(screen.getByTestId('dragon-head-candidates-table')).toHaveTextContent(
+      '缺失 3 项，需先人工复核',
+    );
     expect(mockedRequestDragonHeadMonitor).toHaveBeenCalledWith(
       expect.objectContaining({ mode: 'mock_degraded' }),
     );
@@ -160,6 +172,24 @@ describe('StrategyPageClient', () => {
         }),
       ]),
     );
+  });
+
+  it('shows disabled pool reasons when dragon-head circuit breaker is active', async () => {
+    const user = userEvent.setup();
+
+    renderInWorkbench(<StrategyPageClient demoMode mockMode="mock_breaker" />);
+
+    await user.click(screen.getByRole('button', { name: '加载龙头候选' }));
+
+    expect(await screen.findByTestId('dragon-head-monitor-card')).toHaveTextContent('熔断已触发');
+    expect(screen.getByTestId('dragon-head-candidates-table')).toHaveTextContent(
+      '熔断生效，暂停 AI 入池建议',
+    );
+    expect(
+      within(screen.getByTestId('dragon-head-candidates-table')).getAllByRole('button', {
+        name: '加入股票池',
+      })[0],
+    ).toBeDisabled();
   });
 
   it('runs TDX scan, sorts results, and pages through results', async () => {

@@ -9,6 +9,8 @@ import type {
   DragonHeadCandidate,
   DragonHeadMode,
   DragonHeadMonitorResponse,
+  DragonHeadProviderName,
+  DragonHeadProviderStatus,
   DragonHeadSettings,
 } from '@/lib/contracts/dragon-head';
 import type { ApiError } from '@/lib/contracts/qimen';
@@ -28,6 +30,101 @@ function formatProviderStatus(data: DragonHeadMonitorResponse['sourceStatus']) {
   const availableCount = data.filter((item) => item.available).length;
 
   return `数据源 ${availableCount}/${data.length} 可用`;
+}
+
+function getProviderLabel(provider: DragonHeadProviderName) {
+  switch (provider) {
+    case 'intradayQuote':
+      return '盘中行情';
+    case 'orderBook':
+      return '盘口封单';
+    case 'sectorBreadth':
+      return '板块广度';
+    case 'themeFlow':
+      return '题材资金';
+    default:
+      return provider;
+  }
+}
+
+function getProviderState(item: DragonHeadProviderStatus) {
+  if (!item.available) {
+    return {
+      label: '不可用',
+      className: 'border-rose-400/40 bg-rose-500/10 text-rose-100',
+    };
+  }
+
+  if (item.degradedReason) {
+    return {
+      label: '代理/降级',
+      className: 'border-amber-400/40 bg-amber-500/10 text-amber-100',
+    };
+  }
+
+  return {
+    label: '可用',
+    className: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-100',
+  };
+}
+
+function getScoreQuality(item: DragonHeadCandidate) {
+  const missingCount = item.strength.missingFactors.length;
+  const hasProxy = item.strength.factorBreakdown.some((factor) => factor.proxy);
+  const confidence = item.strength.confidence;
+
+  if (confidence <= 0.45 || missingCount >= 3) {
+    return {
+      label: '严重缺失',
+      detail: `缺失 ${missingCount} 项，需先人工复核`,
+      className: 'border-rose-400/40 bg-rose-500/10 text-rose-100',
+    };
+  }
+
+  if (missingCount > 0) {
+    return {
+      label: '降级评分',
+      detail: `缺失 ${missingCount} 项实时因子`,
+      className: 'border-amber-400/40 bg-amber-500/10 text-amber-100',
+    };
+  }
+
+  if (hasProxy) {
+    return {
+      label: '代理评分',
+      detail: '含代理数据，保留复核',
+      className: 'border-sky-400/40 bg-sky-500/10 text-sky-100',
+    };
+  }
+
+  return {
+    label: '完整评分',
+    detail: '关键因子已齐备',
+    className: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-100',
+  };
+}
+
+function getPoolActionReason(
+  item: DragonHeadCandidate,
+  poolCodeSet: Set<string>,
+): string | null {
+  if (poolCodeSet.has(item.stockCode)) {
+    return '已在股票池，无需重复加入。';
+  }
+
+  if (item.canAddToPool) {
+    return null;
+  }
+
+  if (item.reviewFlags.length > 0) {
+    return item.reviewFlags.join(' / ');
+  }
+
+  if (item.strength.missingFactors.length > 0) {
+    return `缺失 ${item.strength.missingFactors.join(' / ')}，暂不建议入池。`;
+  }
+
+  return '当前评分或风控条件未达到入池阈值。';
 }
 
 export function DragonHeadPanel({
@@ -157,6 +254,40 @@ export function DragonHeadPanel({
               <p>{monitor.trendSwitch.summary}</p>
               <p className="mt-2">{formatProviderStatus(monitor.sourceStatus)}</p>
             </div>
+            <div
+              className="mt-4 grid gap-3 sm:grid-cols-2"
+              data-testid="dragon-head-source-status"
+            >
+              {monitor.sourceStatus.map((item) => {
+                const state = getProviderState(item);
+
+                return (
+                  <div
+                    className="rounded-[1rem] border border-white/10 bg-white/5 p-3 text-sm"
+                    key={item.provider}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-[var(--text-primary)]">
+                          {getProviderLabel(item.provider)}
+                        </p>
+                        <p className="mt-1 text-xs text-[var(--text-secondary)]">
+                          {item.source}
+                        </p>
+                      </div>
+                      <span className={`rounded-full border px-2 py-1 text-xs ${state.className}`}>
+                        {state.label}
+                      </span>
+                    </div>
+                    {item.degradedReason ? (
+                      <p className="mt-2 text-xs leading-5 text-[var(--text-secondary)]">
+                        {item.degradedReason}
+                      </p>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
             {monitor.circuitBreaker.triggered ? (
               <div className="mt-4 rounded-[1rem] border border-amber-400/40 bg-amber-500/10 p-4 text-sm text-[var(--text-primary)]">
                 {monitor.circuitBreaker.reasons.join(' / ')}
@@ -235,10 +366,22 @@ export function DragonHeadPanel({
                     </td>
                     <td>{item.signalTags.join(' / ')}</td>
                     <td>
-                      {item.strength.score} 分
+                      <div>{item.strength.score} 分</div>
                       <div className="mt-1 text-sm text-[var(--text-secondary)]">
                         confidence {item.strength.confidence}
                       </div>
+                      {(() => {
+                        const quality = getScoreQuality(item);
+
+                        return (
+                          <div
+                            className={`mt-2 rounded-[0.8rem] border px-2 py-1 text-xs ${quality.className}`}
+                          >
+                            <span className="font-semibold">{quality.label}</span>
+                            <span className="ml-2">{quality.detail}</span>
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td>
                       {item.strength.missingFactors.length > 0
@@ -247,14 +390,27 @@ export function DragonHeadPanel({
                     </td>
                     <td>{item.reviewFlags.join(' / ') || '无'}</td>
                     <td>
-                      <button
-                        className="mystic-chip"
-                        disabled={!item.canAddToPool || poolCodeSet.has(item.stockCode)}
-                        onClick={() => onAddStock?.(item)}
-                        type="button"
-                      >
-                        {poolCodeSet.has(item.stockCode) ? '已在股票池' : '加入股票池'}
-                      </button>
+                      {(() => {
+                        const actionReason = getPoolActionReason(item, poolCodeSet);
+
+                        return (
+                          <div className="min-w-[8rem]">
+                            <button
+                              className="mystic-chip"
+                              disabled={!item.canAddToPool || poolCodeSet.has(item.stockCode)}
+                              onClick={() => onAddStock?.(item)}
+                              type="button"
+                            >
+                              {poolCodeSet.has(item.stockCode) ? '已在股票池' : '加入股票池'}
+                            </button>
+                            {actionReason ? (
+                              <p className="mt-2 text-xs leading-5 text-[var(--text-secondary)]">
+                                {actionReason}
+                              </p>
+                            ) : null}
+                          </div>
+                        );
+                      })()}
                     </td>
                   </tr>
                 ))}
