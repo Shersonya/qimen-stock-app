@@ -1,13 +1,13 @@
 /** @jest-environment node */
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 describe('deploy probe generator', () => {
   const outputPath = join(process.cwd(), 'public', 'deploy.json');
 
   it('writes the current commit probe for EdgeOne verification', async () => {
-    const original = readFileSync(outputPath, 'utf8');
+    const original = existsSync(outputPath) ? readFileSync(outputPath, 'utf8') : null;
 
     try {
       const { buildDeployProbe, writeDeployProbe } = await import(
@@ -24,7 +24,11 @@ describe('deploy probe generator', () => {
       expect(raw.generatedAt).toBe('2026-04-23T08:00:00.000Z');
       expect(raw.platform).toBe('Tencent Cloud EdgeOne Pages');
     } finally {
-      writeFileSync(outputPath, original);
+      if (original === null) {
+        rmSync(outputPath, { force: true });
+      } else {
+        writeFileSync(outputPath, original);
+      }
     }
   });
 });

@@ -5,6 +5,7 @@ import type {
 } from '@/lib/contracts/dragon-head';
 import type { LimitUpStock, TdxScanRequest } from '@/lib/contracts/strategy';
 import { filterLimitUpStocks } from '@/lib/services/limit-up';
+import { getStockIntradaySpeed10m } from '@/lib/services/stock-intraday';
 import { scanTdxSignals } from '@/lib/services/tdx-scan';
 
 type QuoteFactorInput = {
@@ -125,6 +126,18 @@ function createLiveIntradayQuoteProvider(): IntradayQuoteProvider {
         minSignalStrength: 0,
       };
       const payload = await scanTdxSignals(request);
+      const speedResults = await Promise.all(
+        payload.items.map(async (item) => ({
+          stockCode: item.stockCode,
+          speed10m: await getStockIntradaySpeed10m(item.stockCode, item.market),
+        })),
+      );
+      const speedByCode = new Map(
+        speedResults.map((item) => [item.stockCode, item.speed10m]),
+      );
+      const speedResolvedCount = speedResults.filter(
+        (item) => item.speed10m !== null,
+      ).length;
       const candidates = new Map(
         payload.items.map((item) => [
           item.stockCode,
@@ -135,7 +148,7 @@ function createLiveIntradayQuoteProvider(): IntradayQuoteProvider {
             latestPrice: item.closePrice,
             latestChangePct: item.trueCGain,
             volumeRatio: item.volumeRatio,
-            speed10m: null,
+            speed10m: speedByCode.get(item.stockCode) ?? null,
             sealRatio: null,
             breakoutFreq: null,
             signalTags: [
@@ -145,15 +158,19 @@ function createLiveIntradayQuoteProvider(): IntradayQuoteProvider {
           },
         ]),
       );
+      const speedNote =
+        speedResolvedCount === 0
+          ? '10分钟涨速尚未从实时分时取到，继续降级评分。'
+          : `10分钟涨速已接入东方财富分钟K，${speedResolvedCount}/${payload.items.length} 只候选可用。`;
 
       return {
         candidates,
         status: {
           provider: 'intradayQuote',
           asOf,
-          source: 'tdx_daily_proxy',
+          source: speedResolvedCount > 0 ? 'tdx_daily_proxy+eastmoney_minute' : 'tdx_daily_proxy',
           available: true,
-          degradedReason: '量比与涨幅来自日线代理，10分钟涨速尚未接入实时分时。',
+          degradedReason: `量比与涨幅来自日线代理，${speedNote}`,
         },
       };
     },

@@ -8,3 +8,4 @@ output
 *.log
 tsconfig.tsbuildinfo
 .env*.local
+public/deploy.json
